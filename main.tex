@@ -322,7 +322,18 @@ Pesan commit yang tidak bermakna seperti "update", "fix bug", atau deskripsi amb
   \item PR \#1 dengan judul \textit{"ci: feature/ci to dev"} berhasil digabungkan ke cabang \texttt{dev} oleh pengguna Trisuladana melalui commit penggabungan \texttt{8f703bd}.
   \item PR \#2 dengan judul \textit{"Release dev: dev to main"} berhasil digabungkan ke cabang utama \texttt{main} melalui commit penggabungan \texttt{e720452}.
 \end{itemize}
-\par Kedua Pull Request tersebut tidak mengalami konflik penggabungan (\textit{merge conflict}) karena perubahan kode dikerjakan secara modular dan teratur. Selain itu, repositori telah dipasangi aturan proteksi cabang (\textit{Branch Protection Ruleset}) pada menu \textit{Settings} $\rightarrow$ \textit{Rules} GitHub untuk mengunci cabang \texttt{main} dan \texttt{dev}. Aturan ini mewajibkan setiap pembaruan kode diajukan melalui mekanisme Pull Request serta mencegah penghapusan cabang secara tidak sengaja. Dosen pengampu juga telah ditambahkan sebagai kolaborator repositori dengan hak akses \textit{Read} guna mempermudah pemantauan evaluasi kode secara langsung.
+\par Kedua Pull Request tersebut tidak mengalami konflik penggabungan (\textit{merge conflict}) karena perubahan kode dikerjakan secara modular dan teratur. 
+
+\par Selain mekanisme Pull Request, repositori juga dipasangi aturan proteksi cabang (\textit{Branch Protection Ruleset}) melalui menu \textit{Settings} $\rightarrow$ \textit{Rules} pada GitHub untuk mengunci cabang \texttt{main} dan \texttt{dev}. Tampilan konfigurasi proteksi cabang ini disajikan pada Gambar \ref{fig:branch-ruleset}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{{resource/SS/branch ruleset}.png}
+  \caption{Konfigurasi Aturan Proteksi Cabang (Branch Ruleset) pada GitHub}
+  \label{fig:branch-ruleset}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:branch-ruleset}, aturan proteksi \textit{Branch Rule} dikonfigurasikan pada dua target cabang sekaligus, yakni cabang bawaan produksi (\textit{default branch} \texttt{main}) dan cabang integrasi pengembangan (\texttt{dev}) sebagaimana tertera pada keterangan \textit{"Applies to 2 targets including dev, and main"}. Konfigurasi ini mengatur pembatasan pembuatan cabang (\textit{restrict creations}) serta pembatasan pembaruan atau \textit{direct push} (\textit{restrict updates}) agar seluruh modifikasi kode terkontrol melalui alur Pull Request. Pada bagian \textit{bypass list}, akun pengembang disetel dengan status \textit{Always allow} untuk memudahkan pengelolaan darurat. Selain itu, dosen pengampu (\DosenPengampu) juga telah ditambahkan sebagai kolaborator repositori dengan hak akses \textit{Read} guna memfasilitasi peninjauan kode dan pemantauan praktikum secara transparan.
 
 \subsection{Konfigurasi Continuous Integration (CI) dan Analisis Log Workflow}
 
