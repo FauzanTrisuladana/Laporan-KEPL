@@ -7,13 +7,15 @@
 \usepackage{titling}
 \usepackage{titlesec}
 \usepackage[backend=biber,style=ieee]{biblatex}
+\setcounter{biburllcpenalty}{7000}
+\setcounter{biburlucpenalty}{8000}
 
 % Package tambahan untuk layout dan formatting
 \usepackage{geometry}           % untuk margin
 \usepackage{setspace}           % untuk spasi baris
 \usepackage{fancyhdr}           % untuk header/footer
 \usepackage{hyperref}           % untuk link dan bookmark
-\usepackage{listings}           % untuk code Python
+\usepackage{listings}           % untuk code
 \usepackage{xcolor}             % untuk warna
 \usepackage{float}              % untuk posisi gambar
 \usepackage{tocloft}            % Untuk membuat daftar isi menampilkan "Bab 1. Pendahuluan" instead of "1. Pendahuluan",
@@ -34,13 +36,20 @@
 \renewcommand{\thefigure}{\thesection.\arabic{figure}}
 \makeatletter
 \@addtoreset{figure}{section}
+\AtBeginDocument{
+  \renewcommand{\theHfigure}{fig.\thesection.\arabic{figure}}
+  \renewcommand{\thelstlisting}{\thesection.\arabic{lstlisting}}
+  \renewcommand{\theHlstlisting}{lst.\thesection.\arabic{lstlisting}}
+  \@addtoreset{lstlisting}{section}
+}
+\g@addto@macro\UrlBreaks{\do\/\do-\do_}
 \makeatother
 
 % Format chapter
 \titleformat{\chapter}[hang]
   {\normalfont\huge\bfseries\centering}{\chaptertitlename\ \thechapter.}{1em}{}
 
-% Format code Python
+% Format code
 % --- VS Code-like code style (dark) ---
 \definecolor{vscodeBg}{HTML}{1E1E1E}
 \definecolor{vscodeFg}{HTML}{D4D4D4}
@@ -50,9 +59,20 @@
 \definecolor{vscodeNumber}{HTML}{858585}
 \definecolor{vscodeRule}{HTML}{3C3C3C}
 
+\lstdefinelanguage{yaml}{
+  keywords={name, on, push, pull_request, branches, jobs, test, lint, runs-on, steps, uses, with, run},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]"
+}
+
 \lstdefinestyle{vscode-dark}{
-  language=Python,
-  basicstyle=\ttfamily\small\color{vscodeFg},
+  language=yaml,
+  basicstyle=\ttfamily\footnotesize\color{vscodeFg},
   backgroundcolor=\color{vscodeBg},
   keywordstyle=\color{vscodeKeyword}\bfseries,
   commentstyle=\color{vscodeComment},
@@ -66,10 +86,9 @@
   columns=fullflexible,
   keepspaces=true,
   tabsize=2,
-  xleftmargin=2cm,
-  xrightmargin=1cm,
-  captionpos=b,
-  morekeywords={np, pd, plt, sns, array, DataFrame, Series, read_csv, read_excel, head, tail, info, describe, plot, scatter, bar, hist, fit, predict, transform, merge, concat, groupby, drop, fillna, dropna, iloc, loc}
+  xleftmargin=1.5cm,
+  xrightmargin=0.5cm,
+  captionpos=b
 }
 
 \lstset{style=vscode-dark}
@@ -93,7 +112,7 @@ Tugas \Pertemuan\\
 \newcommand{\NamaMahasiswa}{Muhammad Fauzan Putra Trisuladana}
 \newcommand{\NIMMahasiswa}{24/538699/SV/24524}
 \newcommand{\KelasMahasiswa}{A1}
-\newcommand{\DosenPengampu}{Dr. Imam Fahrurrozi, S.T., M.Cs.}
+\newcommand{\DosenPengampu}{Galih Malela Damaraji, S.Pd., M.Eng.}
 
 \author{\NamaMahasiswa\\\NIMMahasiswa}
 
@@ -103,18 +122,18 @@ Tugas \Pertemuan\\
 % tambahkan entri BibTeX ke file ref.bib terlebih dulu.
 
 % Title Page
-\begin{titlingpage} 
+\begin{titlingpage}
   \begin{center}
 
     \vspace{4cm}
-    \begin{Large} 
+    \begin{Large}
       \textbf{\thetitle} \\
     \end{Large}
     \vspace{2cm}
-    
-    \includegraphics[height=8cm]{resource/lambang ugm.png}\\ 
+
+    \includegraphics[height=8cm]{resource/lambang ugm.png}\\
     \vspace{2cm}
-    
+
     \textbf{Disusun oleh:}\\[0.8em]
     \begin{minipage}{0.8\textwidth}
       \raggedright
@@ -127,7 +146,7 @@ Tugas \Pertemuan\\
         \end{tabular}
       \end{large}
     \end{minipage}
-    
+
     \vspace{2cm}
     \begin{Large}
       \textbf{Program Studi D-IV Teknologi Rekayasa Perangkat Lunak} \\
@@ -137,9 +156,10 @@ Tugas \Pertemuan\\
       \textbf{Yogyakarta}\\
       \textbf{2026}\\
     \end{Large}
-    
+
   \end{center}
 \end{titlingpage}
+
 
 % Header/Footer
 \pagestyle{fancy}
@@ -155,7 +175,6 @@ Tugas \Pertemuan\\
   \renewcommand{\footrulewidth}{0pt}
   \fancyfoot[C]{\thepage}
 }
-
 
 % --- Styling Judul Daftar Isi, Gambar, dan Kode ---
 \renewcommand{\cfttoctitlefont}{\hfill\normalfont\LARGE\bfseries}
@@ -195,31 +214,207 @@ Tugas \Pertemuan\\
 % Daftar Listing
 \lstlistoflistings
 
-% --- Halaman Laporan Pertemuan (seperti contoh gambar) ---
-% Tidak pakai \chapter agar bisa menyatu dengan halaman sebelumnya.
+\newpage
 \newpage
 \begin{center}
   \textbf{\LARGE Tugas \Pertemuan\\
   {[{\Materi}]}}
 \end{center}
 
-%contoh gambar dan kode
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{resource/contoh-gambar.png}
-%     \caption{Contoh Gambar}
-%     \label{fig:contoh-gambar}
-% \end{figure}
-
-% \begin{lstlisting}[language=php, caption={Contoh Kode Python}, label={lst:contoh-kode}]
-% def hello_world():
-%     print("Hello, World!")
-% \end{lstlisting}
-
 \section{Hasil dan Pembahasan}
 
-\par Sesuai dengan tujuan praktikum, berikut adalah hasil yang diperoleh dan pembahasan terkait materi yang telah dipelajari.
+
+\subsection{Identitas Repositori dan Tautan Proyek}
+
+\par Berdasarkan ketentuan penugasan praktikum, repositori publik dibuat di dalam organisasi GitHub resmi \texttt{KEPL2026} dengan pola penamaan \texttt{evolusi-pl-NIM}. Repositori ini dikonfigurasi dengan alur kerja Git yang terstruktur, dua tahapan Pull Request yang telah diverifikasi dan digabungkan, serta alur kerja CI yang tereksekusi sukses tanpa kegagalan (\textit{green build}). Rincian metadata dan tautan akses langsung repositori diuraikan sebagai berikut:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Organisasi GitHub}: KEPL2026\\
+        {\footnotesize\url{https://github.com/KEPL2026}}
+  \item \textbf{Repositori Proyek}: \texttt{evolusi-pl-24-538699-SV-24524}\\
+        {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524}}
+  \item \textbf{Pull Request \#1}: Integrasi alur kerja CI awal (\texttt{feature/ci} $\rightarrow$ \texttt{dev})\\
+        {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524/pull/1}}
+  \item \textbf{Pull Request \#2}: Integrasi rilis pengembangan aplikasi (\texttt{dev} $\rightarrow$ \texttt{main})\\
+        {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524/pull/2}}
+  \item \textbf{Workflow Run CI (Branch \texttt{dev})}: Eksekusi sukses pada commit \texttt{f1b78e5}\\
+        {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524/actions/runs/34181218295}}
+  \item \textbf{Workflow Run CI (Branch \texttt{main})}: Eksekusi sukses merge PR \#2 commit \texttt{e720452}\\
+        {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524/actions/runs/34182964357}}
+\end{itemize}
+\par Seluruh tautan di atas dapat diakses secara publik dan memverifikasi integritas riwayat pengembangan perangkat lunak yang telah dikerjakan secara bertahap dan transparan.
+
+\subsection{Pengembangan Aplikasi Web Sederhana (Laravel)}
+
+\par Repositori ini memuat aplikasi web fungsional yang dibangun di atas kerangka kerja (\textit{framework}) Laravel 11 dengan bahasa pemrograman PHP versi 8.4. Aplikasi yang dikembangkan dirancang sebagai modul URL Shortener sederhana yang dilengkapi dengan sistem autentikasi pengguna (\textit{Login} dan \textit{Register}), manajemen pembuatan dan pengalihan tautan singkat (\textit{links}), serta pencatatan analitik pengunjung (\textit{visitors}).
+
+\par Pada aspek arsitektur perangkat lunak, sistem mengimplementasikan pola desain \textit{Model-View-Controller} (MVC). Struktur basis data dikelola melalui skema migrasi tabel (\textit{database migrations}) yang terhubung dengan model Eloquent: \texttt{User} untuk menyimpan kredensial pengguna, \texttt{Link} untuk menyimpan relasi URL asli dengan kode tautan pendek, serta \texttt{Visitor} untuk mencatat metadata alamat IP, peramban (\textit{user agent}), dan waktu akses pengunjung. Seluruh logika autentikasi dikendalikan oleh \texttt{AuthController} yang terintegrasi dengan berkas perutean \texttt{routes/web.php} serta tampilan antarmuka Blade modern yang responsif dengan dukungan tema gelap (\textit{dark theme}).
+
+\subsubsection{Halaman Login}
+\par Halaman masuk (\textit{login}) dirancang untuk memvalidasi identitas pengguna terdaftar sebelum diberikan hak akses ke dalam panel manajemen URL. Tampilan visual antarmuka halaman login disajikan pada Gambar \ref{fig:halaman-login}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{{resource/SS/halaman login}.png}
+  \caption{Antarmuka Halaman Login Aplikasi URL Shortener}
+  \label{fig:halaman-login}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:halaman-login}, antarmuka halaman login menampilkan formulir autentikasi yang bersih, terpusat, dan intuitif dengan palet warna bernuansa gelap (\textit{dark mode}) yang modern. Formulir menyediakan dua bidang isian utama: identifikasi akun (dapat berupa nama pengguna \textit{username} maupun alamat surel \textit{email}) dan kata sandi rahasia (\textit{password}). Pada formulir tersebut disematkan fitur kotak centang \textit{"Ingat saya"} (\textit{Remember Me}) yang memanfaatkan mekanisme penyimpanan \textit{cookie token} terenkripsi pada peramban pengguna untuk menjaga sesi login tetap aktif tanpa mengharuskan input kredensial berulang kali. Pada sudut kanan atas halaman, tersedia tombol pengalih tema yang memungkinkan pengguna berganti preferensi tampilan secara dinamis. Tautan navigasi \textit{"Daftar sekarang"} di bagian bawah form memfasilitasi pengguna baru yang belum memiliki akun untuk beralih secara langsung ke halaman pendaftaran akun.
+
+\subsubsection{Halaman Registrasi}
+\par Halaman pendaftaran (\textit{register}) berfungsi menampung entri data pengguna baru yang ingin memanfaatkan layanan pemendekan tautan. Tampilan visual antarmuka halaman registrasi disajikan pada Gambar \ref{fig:halaman-register}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{{resource/SS/halaman register}.png}
+  \caption{Antarmuka Halaman Registrasi Pengguna Aplikasi URL Shortener}
+  \label{fig:halaman-register}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:halaman-register}, formulir pendaftaran pengguna baru dirancang secara terstruktur dan menerapkan validasi input yang ketat pada sisi klien (\textit{client-side}) maupun sisi server (\textit{server-side}). Formulir mencakup empat bidang isian wajib: nama lengkap pengguna (\textit{username}), alamat surel (\textit{email}) yang diverifikasi keunikannya agar tidak terduplikasi di dalam basis data, kata sandi (\textit{password}), serta konfirmasi ulang kata sandi (\textit{confirm password}) untuk mencegah kekeliruan pengetikan. Ketika formulir disubmit, sistem secara otomatis mengecek kesesuaian aturan validasi Laravel, mengenkripsi kata sandi menggunakan algoritma hashing aman Bcrypt, menyimpannya ke tabel \texttt{users}, dan secara langsung mengarahkan pengguna yang sukses mendaftar ke halaman utama dengan sesi aktif.
+
+\subsection{Penerapan Mutu Pesan Commit (Conventional Commits)}
+
+\par Dalam disiplin rekayasa perangkat lunak modern, kejelasan catatan riwayat perubahan (\textit{commit history}) merupakan cerminan profesionalisme dan keteraturan pengembang. Berdasarkan kriteria penugasan praktikum, penulisan pesan commit wajib mematuhi spesifikasi standar \textit{Conventional Commits} dengan format baku:
+\begin{center}
+  \texttt{<type>(<scope>): <subject>}
+\end{center}
+Pesan commit yang tidak bermakna seperti "update", "fix bug", atau deskripsi ambigu lainnya dihindari sepenuhnya. Penerapan konvensi ini memberikan manfaat penting dalam mempermudah peninjauan kode sumber (\textit{code review}), melacak riwayat perubahan secara kronologis, memfasilitasi pelacakan regresi kode (\textit{git bisect}), serta memungkinkan pembuatan catatan rilis (\textit{changelog}) secara otomatis.
+
+\par Pada repositori ini, seluruh commit telah mengimplementasikan konvensi semantik tersebut secara konsisten. Rincian riwayat commit yang tercatat di dalam repositori diuraikan sebagai berikut:
+\begin{itemize}
+  \item \texttt{4059021 - feat(project)}: Inisialisasi awal struktur repositori proyek, pengaturan lisensi sumber terbuka, dan pembuatan dokumentasi awal pada berkas \texttt{README.md}.
+  \item \texttt{037c383 - feat(project)}: Instalasi kerangka kerja Laravel 11 beserta dependensi pustaka inti PHP versi 8.4 ke dalam direktori kerja proyek.
+  \item \texttt{f6042bf - feat(workflow)}: Pembuatan dan penambahan berkas konfigurasi otomasi CI (\texttt{.github/workflows/ci.yml}) untuk pengujian unit dan linting kode otomatis.
+  \item \texttt{24fa6c1 - fix(ci state)}: Penyesuaian aturan pemicu (\textit{triggers}) pada berkas CI agar merespons aktivitas \textit{push} dan \textit{pull request} pada cabang \texttt{main}, \texttt{dev}, serta cabang fitur (\texttt{feature/**}).
+  \item \texttt{d455005 - feat(migration, model)}: Penambahan skema migrasi tabel basis data (\textit{users}, \textit{links}, \textit{visitors}), pendefinisian relasi model Eloquent, serta penyesuaian dependensi workflow CI.
+  \item \texttt{b323f91 - fix(migration, model)}: Perbaikan tata format impor pustaka dan penyesuaian gaya penulisan kode pada migrasi dan model agar mematuhi standar linter Laravel Pint.
+  \item \texttt{f1b78e5 - feat(login)}: Implementasi fitur autentikasi secara komprehensif, meliputi pengendali \texttt{AuthController}, konfigurasi perutean web pada \texttt{routes/web.php}, serta tampilan antarmuka Blade untuk halaman login dan registrasi.
+\end{itemize}
+\par Riwayat commit di atas membuktikan bahwa setiap commit mewakili satu unit perubahan fungsional yang teratomisasi (\textit{atomic commit}), sehingga evolusi kode sumber terdokumentasi secara transparan dan teratur.
+
+\subsection{Alur Percabangan (Branching Workflow) dan Pull Request}
+
+\par Strategi manajemen percabangan yang diterapkan pada repositori ini mengadopsi variasi standar industri \textit{Git Flow} dengan struktur tiga tingkatan hierarki cabang:
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Cabang Produksi (\texttt{main})}: Berfungsi sebagai cabang rilis utama yang hanya memuat kode yang telah teruji secara penuh, stabil, dan siap dijalankan di lingkungan produksi. Segala bentuk \textit{push} langsung (\textit{direct push}) ke cabang ini dilarang keras melalui aturan proteksi cabang (\textit{branch protection}).
+  \item \textbf{Cabang Pengembangan (\texttt{dev})}: Berfungsi sebagai cabang integrasi aktif tempat fitur-fitur baru digabungkan dan diuji secara komparatif sebelum dinyatakan siap dirilis ke cabang \texttt{main}.
+  \item \textbf{Cabang Fitur (\texttt{feature/ci})}: Dibuat sebagai turunan dari cabang \texttt{dev} untuk mengerjakan fitur otomasi CI secara terisolasi tanpa mengganggu stabilitas basis kode yang sedang aktif dikembangkan.
+\end{enumerate}
+
+\par Sesuai dengan batasan instruksi tugas, penggabungan kode dari cabang fitur hingga mencapai cabang utama wajib melalui dua tahapan Pull Request (PR):
+\begin{itemize}
+  \item \textbf{Pull Request \#1 (\texttt{feature/ci} $\rightarrow$ \texttt{dev})}: Bertujuan meninjau dan mengintegrasikan konfigurasi alur kerja CI awal dari cabang fitur ke dalam cabang pengembangan \texttt{dev}.
+  \item \textbf{Pull Request \#2 (\texttt{dev} $\rightarrow$ \texttt{main})}: Bertujuan menggabungkan seluruh hasil pengembangan aplikasi yang telah stabil dari cabang \texttt{dev} menuju cabang produksi \texttt{main} sebagai rilis awal tugas.
+\end{itemize}
+
+\par Bukti pelaksanaan kedua Pull Request yang telah ditinjau, disetujui, dan digabungkan (\textit{merged}) pada repositori GitHub disajikan pada Gambar \ref{fig:pull-requests}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{{resource/SS/pull request}.png}
+  \caption{Daftar Pull Request Terverifikasi dan Dimerge pada Repositori GitHub}
+  \label{fig:pull-requests}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pull-requests}, terlihat dua riwayat Pull Request dengan ikon ungu yang menandakan status penggabungan sukses (\textit{Merged}):
+\begin{itemize}
+  \item PR \#1 dengan judul \textit{"ci: feature/ci to dev"} berhasil digabungkan ke cabang \texttt{dev} oleh pengguna Trisuladana melalui commit penggabungan \texttt{8f703bd}.
+  \item PR \#2 dengan judul \textit{"Release dev: dev to main"} berhasil digabungkan ke cabang utama \texttt{main} melalui commit penggabungan \texttt{e720452}.
+\end{itemize}
+\par Kedua Pull Request tersebut tidak mengalami konflik penggabungan (\textit{merge conflict}) karena perubahan kode dikerjakan secara modular dan teratur. Selain itu, repositori telah dipasangi aturan proteksi cabang (\textit{Branch Protection Ruleset}) pada menu \textit{Settings} $\rightarrow$ \textit{Rules} GitHub untuk mengunci cabang \texttt{main} dan \texttt{dev}. Aturan ini mewajibkan setiap pembaruan kode diajukan melalui mekanisme Pull Request serta mencegah penghapusan cabang secara tidak sengaja. Dosen pengampu juga telah ditambahkan sebagai kolaborator repositori dengan hak akses \textit{Read} guna mempermudah pemantauan evaluasi kode secara langsung.
+
+\subsection{Konfigurasi Continuous Integration (CI) dan Analisis Log Workflow}
+
+\par Untuk menjamin kualitas mutu perangkat lunak serta mencegah masuknya kode yang rusak atau tidak terstandarisasi ke dalam cabang utama, repositori diintegrasikan dengan sistem \textit{Continuous Integration} (CI) berbasis GitHub Actions. Konfigurasi otomasi didefinisikan pada berkas \texttt{.github/workflows/ci.yml} sebagaimana disajikan pada Kode \ref{lst:ci-workflow}.
+
+\begin{lstlisting}[language=yaml, caption={Konfigurasi Otomasi CI GitHub Actions (\texttt{.github/workflows/ci.yml})}, label={lst:ci-workflow}]
+name: CI
+
+on:
+  push:
+    branches: ['main', 'dev', 'feature/**']
+  pull_request:
+    branches: ['main', 'dev']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+      - run: composer install --no-progress --no-interaction
+      - run: cp .env.example .env
+      - run: php artisan key:generate
+      - run: php artisan migrate --seed
+      - run: php artisan test
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+      - run: composer install --no-progress --no-interaction
+      - run: vendor/bin/pint --test
+\end{lstlisting}
+
+\par Berdasarkan sintaks pada Kode \ref{lst:ci-workflow}, berikut adalah penjelasan dari eksekusi kode per barisnya:
+\begin{itemize}
+  \item \texttt{name: CI}: Menetapkan label penamaan alur kerja otomasi integrasi berkelanjutan sebagai "CI".
+  \item \texttt{on: push: branches: ...} dan \texttt{pull\_request: ...}: Mendefinisikan aturan pemicu (\textit{triggers}) otomatis yang akan mengaktifkan workflow setiap kali terjadi peristiwa \textit{push} ke cabang \texttt{main}, \texttt{dev}, atau cabang fitur (\texttt{feature/**}), serta saat pembukaan \textit{pull request} ke cabang \texttt{main} dan \texttt{dev}.
+  \item \texttt{jobs: test}: Mendefinisikan tugas (\textit{job}) pengujian fungsional aplikasi pada lingkungan virtual \texttt{ubuntu-latest}.
+  \item \texttt{actions/checkout@v4}: Mengunduh dan menyalin kode sumber repositori ke dalam mesin virtual runner GitHub.
+  \item \texttt{setup-php@v2} (PHP 8.4): Mempersiapkan lingkungan eksekusi PHP versi 8.4 beserta ekstensi yang dipersyaratkan oleh Laravel.
+  \item \texttt{composer install}: Mengunduh dan menginstal seluruh pustaka dependensi PHP yang terdaftar pada \texttt{composer.json} secara otomatis tanpa prompt interaktif.
+  \item \texttt{cp .env.example .env}: Menyalin template konfigurasi variabel lingkungan untuk pengujian CI.
+  \item \texttt{php artisan key:generate}: Membuat kunci enkripsi aplikasi unik pada berkas konfigurasi \texttt{.env}.
+  \item \texttt{php artisan migrate --seed}: Mengeksekusi migrasi skema tabel ke basis data SQLite virtual dan mengisi data awal (\textit{seeding}).
+  \item \texttt{php artisan test}: Menjalankan seluruh pengujian unit dan fitur bawaan Laravel untuk memverifikasi fungsionalitas aplikasi.
+  \item \texttt{jobs: lint}: Mendefinisikan tugas kedua yang berfokus pada verifikasi kerapian dan kepatuhan gaya penulisan kode sumber (\textit{code style}).
+  \item \texttt{vendor/bin/pint --test}: Menjalankan perkakas linter Laravel Pint dalam mode pengujian (\texttt{--test}) untuk memastikan seluruh berkas PHP mematuhi standar PSR-12 dan konvensi resmi Laravel.
+\end{itemize}
+
+\par Bukti riwayat eksekusi alur kerja GitHub Actions pada tab Actions repositori disajikan pada Gambar \ref{fig:github-actions}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.95\textwidth]{resource/SS/action.png}
+  \caption{Riwayat Workflow Runs pada Tab Actions Repositori GitHub}
+  \label{fig:github-actions}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:github-actions}, visualisasi riwayat eksekusi workflow GitHub Actions memperlihatkan proses evolusi perangkat lunak yang dinamis dan mencerminkan skenario pemecahan masalah di dunia nyata:
+\begin{itemize}
+  \item \textbf{Analisis Insiden Kegagalan (Status Merah)}:
+        Pada workflow run untuk commit \texttt{d455005} (penambahan migrasi dan model) serta commit penggabungan \texttt{8f703bd}, sistem menampilkan status gagal (\textit{failed} / tanda silang merah). Melalui pembacaan log eksekusi pada tab Actions, teridentifikasi bahwa job \texttt{test} berhasil menyelesaikan seluruh tahapan instalasi, migrasi, dan pengujian secara sukses. Namun, kegagalan terjadi pada job \texttt{lint} pada langkah \texttt{vendor/bin/pint --test}. Linter Laravel Pint mendeteksi inkonsistensi spasi baris kosong pada model \texttt{User.php} dan \texttt{Visitor.php}, serta kesalahan penempatan tanda kurung kurawal (\textit{curly brace}) pada deklarasi migrasi anonim (\textit{anonymous migration class}).
+  \item \textbf{Tindakan Korektif dan Perbaikan Kode}:
+        Berdasarkan informasi diagnostik dari log tersebut, pengembang melakukan refaktorisasi kode sumber secara terarah. Perbaikan ini dicatatkan ke dalam riwayat repositori melalui commit \texttt{fix(migration, model): fix error importing} dengan hash \texttt{b323f91}. Perbaikan kode disesuaikan persis dengan aturan pemformatan yang dipersyaratkan oleh Laravel Pint.
+  \item \textbf{Hasil Akhir dan Verifikasi Keberhasilan (Status Hijau / Green Build)}:
+        Setelah commit perbaikan di-\textit{push}, sistem CI secara otomatis menjalankan ulang workflow (Run \#7 dan Run \#8) dan langsung menghasilkan status hijau sukses (\textit{passed}) untuk kedua job (\texttt{test} dan \texttt{lint}). Selanjutnya, penambahan fitur autentikasi pada commit \texttt{f1b78e5} (Run \#9 dan Run \#10) serta penggabungan PR \#2 ke cabang \texttt{main} (Run \#11) seluruhnya berhasil mempertahankan status hijau sempurna tanpa hambatan. Hal ini membuktikan efektivitas pipeline CI sebagai gerbang kendali mutu otomatis (\textit{automated quality gate}) yang mencegah kode cacat lolos ke lingkungan produksi.
+\end{itemize}
+
+\subsection{Kerapian Repositori dan Keamanan Kode (Repository Hygiene)}
+
+\par Selain aspek fungsionalitas dan otomasi pengujian, kerapian repositori dikelola secara disiplin untuk mencegah kebocoran informasi kredensial serta menjaga kebersihan repositori:
+\begin{itemize}
+  \item \textbf{Pencegahan Kebocoran Kredensial}: Berkas konfigurasi \texttt{.gitignore} diatur secara ketat untuk mengabaikan berkas-berkas sensitif seperti berkas lingkungan \texttt{.env}, berkas cadangan (\texttt{.env.backup}), berkas kunci sesi dan enkripsi (\texttt{storage/*.key}), berkas basis data SQLite lokal, serta direktori dependensi eksternal (\texttt{vendor/} dan \texttt{node\_modules/}). Penerapan ini mencegah kebocoran kredensial rahasia ke publik yang dapat dieksploitasi oleh pihak luar.
+  \item \textbf{Dokumentasi Repositori (\texttt{README.md})}: Berkas \texttt{README.md} disusun secara informatif dan komprehensif, memuat identitas pengembang, deskripsi singkat modul aplikasi, prasyarat sistem (PHP 8.4 dan Composer), panduan instalasi langkah demi langkah, instruksi konfigurasi basis data dan migrasi, serta perintah menjalankan unit test dan linter lokal.
+\end{itemize}
+
 
 \section{Kesimpulan}
+\par Berdasarkan seluruh tahapan praktikum yang telah dilaksanakan mengenai penggunaan Git, GitHub, dan GitHub Actions pada mata kuliah Konstruksi dan Evolusi Perangkat Lunak, dapat ditarik beberapa kesimpulan pokok sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Pengelolaan Repositori}: Repositori publik \texttt{evolusi-pl-24-538699-SV-24524} di bawah organisasi \texttt{KEPL2026} berhasil dibangun dan dikonfigurasi sebagai fondasi proyek aplikasi Laravel 11 yang bersih, aman, terdokumentasi rapi, dan siap dikembangkan secara berkelanjutan sepanjang semester.
+  \item \textbf{Disiplin Pencatatan Riwayat}: Penerapan standar \textit{Conventional Commits} pada seluruh riwayat commit secara konsisten menghasilkan rekam jejak semantik yang jelas, mengeliminasi pesan commit yang ambigu ("update"), serta mempermudah peninjauan kode dan pelacakan evolusi perangkat lunak.
+  \item \textbf{Isolasi Fitur Melalui Percabangan}: Strategi percabangan tiga tingkatan (\texttt{main}, \texttt{dev}, dan \texttt{feature/ci}) yang dipadukan dengan aturan proteksi cabang (\textit{branch protection}) dan pembukaan dua tahapan Pull Request terbukti efektif dalam mengisolasi penambahan fitur baru dan melindungi stabilitas cabang produksi utama dari intervensi langsung.
+  \item \textbf{Otomasi Kendali Mutu Melalui Continuous Integration (CI)}: Implementasi pipeline GitHub Actions dengan dua tugas independen (\texttt{test} untuk eksekusi migrasi dan tes unit, serta \texttt{lint} untuk penegakan standar format kode Laravel Pint) berhasil bertindak sebagai gerbang mutu otomatis. Kemampuan membaca log kegagalan terbukti membantu pengembang mendiagnosis masalah secara cepat dan menghasilkan build hijau yang stabil.
+  \item \textbf{Kesiapan Siklus Evolusi Perangkat Lunak}: Repositori telah memenuhi seluruh indikator kelayakan praktikum, mengamankan data sensitif melalui konfigurasi \texttt{.gitignore}, dan menyediakan basis arsitektur yang kokoh untuk tahapan evolusi selanjutnya (kontainerisasi Docker, deployment, dan pemantauan sistem).
+\end{enumerate}
+
 
 \end{document}
