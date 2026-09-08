@@ -1,0 +1,225 @@
+\documentclass[a4paper,oneside,11pt]{book}
+
+% Package dasar
+\usepackage[utf8]{inputenc}     % untuk karakter UTF-8
+\usepackage[T1]{fontenc}        % encoding font
+\usepackage{graphicx}
+\usepackage{titling}
+\usepackage{titlesec}
+\usepackage[backend=biber,style=ieee]{biblatex}
+
+% Package tambahan untuk layout dan formatting
+\usepackage{geometry}           % untuk margin
+\usepackage{setspace}           % untuk spasi baris
+\usepackage{fancyhdr}           % untuk header/footer
+\usepackage{hyperref}           % untuk link dan bookmark
+\usepackage{listings}           % untuk code Python
+\usepackage{xcolor}             % untuk warna
+\usepackage{float}              % untuk posisi gambar
+\usepackage{tocloft}            % Untuk membuat daftar isi menampilkan "Bab 1. Pendahuluan" instead of "1. Pendahuluan",
+\usepackage{lipsum}             % untuk lorem ipsum
+\usepackage{indentfirst}        % untuk indent paragraf pertama
+\usepackage{enumitem}           % untuk kustomisasi penomoran list (A., B., dst)
+
+% Pengaturan layout
+\geometry{left=3cm, right=2cm, top=2cm, bottom=2cm}
+\onehalfspacing  % spasi 1.5
+
+% Penomoran section dengan huruf kapital (A, B, C, ...)
+\renewcommand{\thesection}{\Alph{section}}
+\renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
+\renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
+
+% Penomoran figure mengikuti section (misal, Gambar A.1, A.2, ...)
+\renewcommand{\thefigure}{\thesection.\arabic{figure}}
+\makeatletter
+\@addtoreset{figure}{section}
+\makeatother
+
+% Format chapter
+\titleformat{\chapter}[hang]
+  {\normalfont\huge\bfseries\centering}{\chaptertitlename\ \thechapter.}{1em}{}
+
+% Format code Python
+% --- VS Code-like code style (dark) ---
+\definecolor{vscodeBg}{HTML}{1E1E1E}
+\definecolor{vscodeFg}{HTML}{D4D4D4}
+\definecolor{vscodeKeyword}{HTML}{569CD6}
+\definecolor{vscodeString}{HTML}{CE9178}
+\definecolor{vscodeComment}{HTML}{6A9955}
+\definecolor{vscodeNumber}{HTML}{858585}
+\definecolor{vscodeRule}{HTML}{3C3C3C}
+
+\lstdefinestyle{vscode-dark}{
+  language=Python,
+  basicstyle=\ttfamily\small\color{vscodeFg},
+  backgroundcolor=\color{vscodeBg},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  numbers=left,
+  numberstyle=\tiny\color{vscodeNumber},
+  frame=single,
+  rulecolor=\color{vscodeRule},
+  breaklines=true,
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true,
+  tabsize=2,
+  xleftmargin=2cm,
+  xrightmargin=1cm,
+  captionpos=b,
+  morekeywords={np, pd, plt, sns, array, DataFrame, Series, read_csv, read_excel, head, tail, info, describe, plot, scatter, bar, hist, fit, predict, transform, merge, concat, groupby, drop, fillna, dropna, iloc, loc}
+}
+
+\lstset{style=vscode-dark}
+
+% Pengaturan hyperref
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    linktoc=all,
+    urlcolor=blue,
+    citecolor=red
+}
+
+% Info dokumen
+\newcommand{\Pertemuan}{1}
+\newcommand{\Materi}{Git, Github, dan Github Actions}
+\title{Laporan \\ Konstruksi dan Evolusi Perangkat Lunak\\
+Tugas \Pertemuan\\
+\Materi}
+\newcommand{\NamaMahasiswa}{Muhammad Fauzan Putra Trisuladana}
+\newcommand{\NIMMahasiswa}{24/538699/SV/24524}
+\newcommand{\KelasMahasiswa}{A1}
+\newcommand{\DosenPengampu}{Dr. Imam Fahrurrozi, S.T., M.Cs.}
+
+\author{\NamaMahasiswa\\\NIMMahasiswa}
+
+\begin{document}
+
+% Jika ingin daftar pustaka muncul meskipun belum ada entri di ref.bib,
+% tambahkan entri BibTeX ke file ref.bib terlebih dulu.
+
+% Title Page
+\begin{titlingpage} 
+  \begin{center}
+
+    \vspace{4cm}
+    \begin{Large} 
+      \textbf{\thetitle} \\
+    \end{Large}
+    \vspace{2cm}
+    
+    \includegraphics[height=8cm]{resource/lambang ugm.png}\\ 
+    \vspace{2cm}
+    
+    \textbf{Disusun oleh:}\\[0.8em]
+    \begin{minipage}{0.8\textwidth}
+      \raggedright
+      \begin{large}
+        \begin{tabular}{@{}l@{\hspace{1.5em}}c@{\hspace{1.5em}}l@{}}
+          Nama           & : & \NamaMahasiswa  \\
+          NIM            & : & \NIMMahasiswa   \\
+          Kelas          & : & \KelasMahasiswa \\
+          Dosen Pengampu & : & \DosenPengampu  \\
+        \end{tabular}
+      \end{large}
+    \end{minipage}
+    
+    \vspace{2cm}
+    \begin{Large}
+      \textbf{Program Studi D-IV Teknologi Rekayasa Perangkat Lunak} \\
+      \textbf{Departemen Teknik Elektro dan Informatika} \\
+      \textbf{Sekolah Vokasi}\\
+      \textbf{Universitas Gadjah Mada}\\
+      \textbf{Yogyakarta}\\
+      \textbf{2026}\\
+    \end{Large}
+    
+  \end{center}
+\end{titlingpage}
+
+% Header/Footer
+\pagestyle{fancy}
+\fancyhf{}            % kosongkan header/footer default
+\renewcommand{\headrulewidth}{0pt} % hilangkan garis header (atas)
+\renewcommand{\footrulewidth}{0pt} % pastikan tidak ada garis footer
+\fancyfoot[C]{\thepage} % taruh nomor halaman di footer tengah
+
+% Pastikan halaman dengan style 'plain' (mis. ToC/List) juga tanpa garis atas
+\fancypagestyle{plain}{
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+  \renewcommand{\footrulewidth}{0pt}
+  \fancyfoot[C]{\thepage}
+}
+
+
+% --- Styling Judul Daftar Isi, Gambar, dan Kode ---
+\renewcommand{\cfttoctitlefont}{\hfill\normalfont\LARGE\bfseries}
+\renewcommand{\cftaftertoctitle}{\hfill}
+\renewcommand{\cftbeforetoctitleskip}{1em}
+\renewcommand{\cftaftertoctitleskip}{1.5em}
+
+% --- Format Bab di Daftar Isi ---
+\renewcommand{\cftchappresnum}{Bab~}
+\renewcommand{\cftchapaftersnum}{.}
+\renewcommand{\cftchapnumwidth}{3.5em}
+\renewcommand{\cftchapfont}{\bfseries}
+\renewcommand{\cftchappagefont}{\bfseries}
+
+% --- Spasi dan Estetika ---
+\setlength{\cftbeforechapskip}{0.8em} % jarak antar bab
+\setlength{\cftbeforesecskip}{0.2em}  % jarak antar subbab
+\renewcommand{\cftsecfont}{\normalfont}
+\renewcommand{\cftsubsecfont}{\normalfont}
+
+% --- Judul Lokal ---
+\renewcommand{\contentsname}{\centering Daftar Isi}
+\renewcommand{\listfigurename}{\centering Daftar Gambar}
+\renewcommand{\lstlistlistingname}{\centering Daftar Kode}
+
+% --- Gaya Daftar Gambar dan Daftar Kode ---
+\renewcommand{\cftloftitlefont}{\hfill\normalfont\LARGE\bfseries}
+\renewcommand{\cftafterloftitle}{\hfill}
+
+\tableofcontents
+
+\newpage
+% Daftar Gambar
+\listoffigures
+
+\newpage
+% Daftar Listing
+\lstlistoflistings
+
+% --- Halaman Laporan Pertemuan (seperti contoh gambar) ---
+% Tidak pakai \chapter agar bisa menyatu dengan halaman sebelumnya.
+\newpage
+\begin{center}
+  \textbf{\LARGE Tugas \Pertemuan\\
+  {[{\Materi}]}}
+\end{center}
+
+%contoh gambar dan kode
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.5\textwidth]{resource/contoh-gambar.png}
+%     \caption{Contoh Gambar}
+%     \label{fig:contoh-gambar}
+% \end{figure}
+
+% \begin{lstlisting}[language=php, caption={Contoh Kode Python}, label={lst:contoh-kode}]
+% def hello_world():
+%     print("Hello, World!")
+% \end{lstlisting}
+
+\section{Hasil dan Pembahasan}
+
+\par Sesuai dengan tujuan praktikum, berikut adalah hasil yang diperoleh dan pembahasan terkait materi yang telah dipelajari.
+
+\section{Kesimpulan}
+
+\end{document}
