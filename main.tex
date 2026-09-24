@@ -7,19 +7,20 @@
 \usepackage{titling}
 \usepackage{titlesec}
 \usepackage[backend=biber,style=ieee]{biblatex}
+\setcounter{biburllcpenalty}{7000}
+\setcounter{biburlucpenalty}{8000}
 
 % Package tambahan untuk layout dan formatting
 \usepackage{geometry}           % untuk margin
 \usepackage{setspace}           % untuk spasi baris
 \usepackage{fancyhdr}           % untuk header/footer
 \usepackage{hyperref}           % untuk link dan bookmark
-\usepackage{listings}           % untuk code Python
+\usepackage{listings}           % untuk code
 \usepackage{xcolor}             % untuk warna
 \usepackage{float}              % untuk posisi gambar
-\usepackage{tocloft}            % Untuk membuat daftar isi menampilkan "Bab 1. Pendahuluan" instead of "1. Pendahuluan",
-\usepackage{lipsum}             % untuk lorem ipsum
+\usepackage{tocloft}            % Untuk customisasi ToC/LoF/LoL
 \usepackage{indentfirst}        % untuk indent paragraf pertama
-\usepackage{enumitem}           % untuk kustomisasi penomoran list (A., B., dst)
+\usepackage{enumitem}           % untuk kustomisasi penomoran list
 
 % Pengaturan layout
 \geometry{left=3cm, right=2cm, top=2cm, bottom=2cm}
@@ -40,7 +41,7 @@
 \titleformat{\chapter}[hang]
   {\normalfont\huge\bfseries\centering}{\chaptertitlename\ \thechapter.}{1em}{}
 
-% Format code Python
+% Format code
 % --- VS Code-like code style (dark) ---
 \definecolor{vscodeBg}{HTML}{1E1E1E}
 \definecolor{vscodeFg}{HTML}{D4D4D4}
@@ -50,9 +51,35 @@
 \definecolor{vscodeNumber}{HTML}{858585}
 \definecolor{vscodeRule}{HTML}{3C3C3C}
 
+\lstdefinelanguage{yaml}{
+  keywords={name, on, push, pull_request, branches, jobs, build, test, lint, deploy, staging, production, needs, runs-on, steps, uses, with, run, environment, if, working-directory},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={break, case, catch, class, const, continue, debugger, default, delete, do, else, export, extends, finally, for, function, if, import, in, instanceof, new, return, super, switch, this, throw, try, typeof, var, void, while, with, yield, async, await},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  ndkeywords={boolean, number, string, symbol, type, from, as, of, true, false, null, undefined},
+  ndkeywordstyle=\color{vscodeKeyword}\bfseries,
+  identifierstyle=\color{vscodeFg},
+  sensitive=true,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]",
+  morestring=[b]`
+}
+
 \lstdefinestyle{vscode-dark}{
-  language=Python,
-  basicstyle=\ttfamily\small\color{vscodeFg},
+  basicstyle=\ttfamily\footnotesize\color{vscodeFg},
   backgroundcolor=\color{vscodeBg},
   keywordstyle=\color{vscodeKeyword}\bfseries,
   commentstyle=\color{vscodeComment},
@@ -66,10 +93,9 @@
   columns=fullflexible,
   keepspaces=true,
   tabsize=2,
-  xleftmargin=2cm,
-  xrightmargin=1cm,
-  captionpos=b,
-  morekeywords={np, pd, plt, sns, array, DataFrame, Series, read_csv, read_excel, head, tail, info, describe, plot, scatter, bar, hist, fit, predict, transform, merge, concat, groupby, drop, fillna, dropna, iloc, loc}
+  xleftmargin=1.5cm,
+  xrightmargin=0.5cm,
+  captionpos=b
 }
 
 \lstset{style=vscode-dark}
@@ -86,7 +112,7 @@
 
 % Info dokumen
 \newcommand{\Pertemuan}{3}
-\newcommand{\Materi}{Git, Github, dan Github Actions}
+\newcommand{\Materi}{Integrasi Frontend Vue 3 dengan Laravel REST API dan Otomasi CI/CD Multi-Job GitHub Actions}
 \title{Laporan \\ Konstruksi dan Evolusi Perangkat Lunak\\
 Tugas \Pertemuan\\
 \Materi}
@@ -99,22 +125,23 @@ Tugas \Pertemuan\\
 
 \begin{document}
 
-% Jika ingin daftar pustaka muncul meskipun belum ada entri di ref.bib,
-% tambahkan entri BibTeX ke file ref.bib terlebih dulu.
+\renewcommand{\figurename}{Gambar}
+\renewcommand{\tablename}{Tabel}
+\renewcommand{\lstlistingname}{Kode}
 
 % Title Page
-\begin{titlingpage} 
+\begin{titlingpage}
   \begin{center}
 
     \vspace{4cm}
-    \begin{Large} 
+    \begin{Large}
       \textbf{\thetitle} \\
     \end{Large}
     \vspace{2cm}
-    
-    \includegraphics[height=8cm]{resource/lambang ugm.png}\\ 
+
+    \includegraphics[height=8cm]{resource/lambang ugm.png}\\
     \vspace{2cm}
-    
+
     \textbf{Disusun oleh:}\\[0.8em]
     \begin{minipage}{0.8\textwidth}
       \raggedright
@@ -127,7 +154,7 @@ Tugas \Pertemuan\\
         \end{tabular}
       \end{large}
     \end{minipage}
-    
+
     \vspace{2cm}
     \begin{Large}
       \textbf{Program Studi D-IV Teknologi Rekayasa Perangkat Lunak} \\
@@ -137,25 +164,23 @@ Tugas \Pertemuan\\
       \textbf{Yogyakarta}\\
       \textbf{2026}\\
     \end{Large}
-    
+
   \end{center}
 \end{titlingpage}
 
 % Header/Footer
 \pagestyle{fancy}
-\fancyhf{}            % kosongkan header/footer default
-\renewcommand{\headrulewidth}{0pt} % hilangkan garis header (atas)
-\renewcommand{\footrulewidth}{0pt} % pastikan tidak ada garis footer
-\fancyfoot[C]{\thepage} % taruh nomor halaman di footer tengah
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyfoot[C]{\thepage}
 
-% Pastikan halaman dengan style 'plain' (mis. ToC/List) juga tanpa garis atas
 \fancypagestyle{plain}{
   \fancyhf{}
   \renewcommand{\headrulewidth}{0pt}
   \renewcommand{\footrulewidth}{0pt}
   \fancyfoot[C]{\thepage}
 }
-
 
 % --- Styling Judul Daftar Isi, Gambar, dan Kode ---
 \renewcommand{\cfttoctitlefont}{\hfill\normalfont\LARGE\bfseries}
@@ -195,31 +220,592 @@ Tugas \Pertemuan\\
 % Daftar Listing
 \lstlistoflistings
 
-% --- Halaman Laporan Pertemuan (seperti contoh gambar) ---
-% Tidak pakai \chapter agar bisa menyatu dengan halaman sebelumnya.
+% --- Halaman Laporan Pertemuan ---
 \newpage
 \begin{center}
   \textbf{\LARGE Tugas \Pertemuan\\
   {[{\Materi}]}}
 \end{center}
 
-%contoh gambar dan kode
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{resource/contoh-gambar.png}
-%     \caption{Contoh Gambar}
-%     \label{fig:contoh-gambar}
-% \end{figure}
-
-% \begin{lstlisting}[language=php, caption={Contoh Kode Python}, label={lst:contoh-kode}]
-% def hello_world():
-%     print("Hello, World!")
-% \end{lstlisting}
-
 \section{Hasil dan Pembahasan}
 
-\par Sesuai dengan tujuan praktikum, berikut adalah hasil yang diperoleh dan pembahasan terkait materi yang telah dipelajari.
+\subsection{Identitas Repositori dan Arsitektur Proyek}
+
+\par Praktikum Konstruksi dan Evolusi Perangkat Lunak Tugas \Pertemuan\ melanjutkan pengembangan repositori proyek\\
+\texttt{evolusi-pl-24-538699-SV-24524} di bawah naungan organisasi GitHub \texttt{KEPL2026}. Fokus utama penugasan ini mencakup integrasi aplikasi web \textit{frontend} berbasis kerangka kerja Vue 3 dengan lapisan layanan \textit{backend REST API} Laravel 11, serta perancangan pipeline otomasi \textit{Continuous Integration} dan \textit{Continuous Delivery} (CI/CD) mandiri berbasis GitHub Actions yang mencakup empat \textit{job} terangkai.
+
+\par Metadata repositori beserta struktur lingkungan kerja diuraikan sebagai berikut:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Organisasi GitHub}: KEPL2026\\
+        {\footnotesize\url{https://github.com/KEPL2026}}
+  \item \textbf{Repositori Proyek}: \texttt{evolusi-pl-24-538699-SV-24524}\\
+        {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524}}
+  \item \textbf{\textit{Branch} \texttt{main}}: \textit{Branch} produksi stabil yang menjadi target akhir rilis dan satu-satunya \textit{branch} yang diizinkan menjalankan \textit{job deployment}.
+  \item \textbf{\textit{Branch} \texttt{dev}}: \textit{Branch} integrasi perantara sebelum seluruh perubahan digabungkan ke \textit{branch} utama.
+  \item \textbf{\textit{Feature Branch} (\texttt{feature/vue} dan \texttt{feature/api})}: \textit{Branch} pengerjaan isolasi fungsionalitas modul REST API Laravel dan pengembangan antarmuka Vue 3.
+  \item \textbf{Struktur Repositori Terpisah}: Direktori \textit{root} memuat kerangka kerja Laravel 11 untuk penyedia data, sedangkan subdirektori \texttt{frontend/} memuat aplikasi \textit{Single Page Application} (SPA) Vue 3 yang dibangun menggunakan Vite dan TypeScript.
+\end{itemize}
+
+\subsection{Penyediaan Endpoint REST API pada Backend Laravel}
+
+\par Memenuhi butir penugasan pertama, lapisan \textit{backend} Laravel dikembangkan untuk menyediakan \textit{endpoint} JSON dari tabel CRUD yang telah dibuat pada pertemuan sebelumnya, yaitu tabel \texttt{links} yang berfungsi sebagai sistem URL Shortener. \textit{Endpoint} ini dirancang mengikuti kaidah arsitektur RESTful yang rapi dengan pemanfaatan \textit{Resource Routing} dan pemisahan lapisan transformasi data.
+
+\subsubsection{Konfigurasi Routing dan Controller API}
+\par Definisi \textit{route} antarmuka data diatur pada berkas \texttt{routes/api.php} menggunakan kelompok penamaan \textit{route} \texttt{api.} sebagaimana ditunjukkan pada Kode \ref{lst:routes-api}.
+
+\begin{lstlisting}[language=php, caption={[Definisi Endpoint REST API]{Definisi Endpoint REST API pada \texttt{routes/api.php}}}, label={lst:routes-api}]
+<?php
+
+use App\Http\Controllers\Api\LinkController;
+use Illuminate\Support\Facades\Route;
+
+Route::name('api.')->group(function () {
+    Route::get('/links/stats/count', [LinkController::class, 'stats'])->name('links.stats');
+    Route::post('/links/shorten', [LinkController::class, 'shorten'])->name('links.shorten');
+    Route::apiResource('links', LinkController::class);
+});
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:routes-api}, registrasi \textit{route} melalui perintah\\
+\texttt{Route::apiResource('links', LinkController::class)} secara otomatis mendaftarkan lima operasi standar CRUD tanpa menyertakan \textit{route} formulir HTML (\texttt{create} dan \texttt{edit}), yaitu:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{GET /api/links}: Mengambil seluruh koleksi data tautan aktif dan nonaktif dalam format JSON.
+  \item \texttt{POST /api/links}: Menyimpan entitas tautan baru ke basis data dengan validasi masukan.
+  \item \texttt{GET /api/links/\{id\}}: Mengambil rincian data satu entitas tautan spesifik.
+  \item \texttt{PUT/PATCH /api/links/\{id\}}: Memperbarui data entitas tautan yang telah ada.
+  \item \texttt{DELETE /api/links/\{id\}}: Menghapus data entitas tautan dari basis data.
+\end{itemize}
+
+\par Selain itu, disediakan \textit{route} pendukung \texttt{GET /api/links/stats/count} untuk rekapitulasi jumlah tautan aktif serta total tautan, dan \texttt{POST /api/links/shorten} untuk pemendekan instan. Pada sisi \textit{controller}, kelas \\
+\texttt{LinkController} memanfaatkan \texttt{LinkResource} guna memastikan struktur \textit{payload} JSON konsisten serta terisolasi dari tabel internal, seperti disajikan pada Kode \ref{lst:link-controller-api}.
+
+\begin{lstlisting}[language=php, caption={[Controller API \texttt{LinkController.php}]{Implementasi Controller API pada \texttt{app/Http/Controllers/Api/LinkController.php}}}, label={lst:link-controller-api}]
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreLinkRequest;
+use App\Http\Requests\Api\UpdateLinkRequest;
+use App\Http\Resources\ApiResource;
+use App\Http\Resources\ApiResourceCollection;
+use App\Http\Resources\LinkResource;
+use App\Models\Link;
+use Illuminate\Http\JsonResponse;
+
+class LinkController extends Controller
+{
+    public function index(): JsonResponse
+    {
+        $links = Link::latest()->get();
+        return (new ApiResourceCollection(
+            LinkResource::collection($links),
+            'Berhasil mengambil daftar tautan'
+        ))->response();
+    }
+
+    public function store(StoreLinkRequest $request): JsonResponse
+    {
+        $link = Link::create($request->validated());
+        return (new ApiResource($link, 'Tautan berhasil ditambahkan', 201))
+            ->response()
+            ->setStatusCode(201);
+    }
+}
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:link-controller-api}, seluruh respon dibungkus dalam format JSON terstandarisasi yang memuat atribut status, pesan konfirmasi, serta data \textit{payload}. Pola ini memudahkan lapisan klien dalam memproses hasil respon maupun mendeteksi galat secara seragam.
+
+\subsubsection{Pengelolaan Kebijakan Cross-Origin Resource Sharing (CORS)}
+\par Ketika aplikasi web antarmuka pengguna dijalankan pada server pengembangan Vite (berjalan pada alamat \texttt{http://localhost:5173}) dan mencoba melakukan permintaan data ke server Laravel (berjalan pada alamat \texttt{http://localhost:8000}), peramban web secara otomatis menerapkan mekanisme pengamanan \textit{Same-Origin Policy} (SOP). Perbedaan nomor \textit{port} antara \textit{origin} pemanggil dan tujuan permintaan mengharuskan server tujuan mengizinkan \textit{Cross-Origin Resource Sharing} (CORS).
+
+\par Pada kerangka kerja Laravel 11, mekanisme penanganan CORS ditangani secara bawaan oleh \textit{middleware} \texttt{HandleCors} (\texttt{Illuminate\textbackslash Http\textbackslash Middleware\textbackslash HandleCors}) yang terpasang pada tumpukan \textit{middleware} global aplikasi pada penanganan permintaan berkas \texttt{bootstrap/app.php}. Ketika permintaan HTTP metode \texttt{OPTIONS} (\textit{preflight request}) atau permintaan HTTP biasa dikirim oleh klien Vue, \textit{middleware} ini secara otomatis menyertakan tajuk respon keamanan:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{\texttt{Access-Control-Allow-Origin}}: Mengizinkan domain asal klien (\texttt{http://localhost:5173}) untuk mengakses sumber daya data.
+  \item \textbf{\texttt{Access-Control-Allow-Methods}}: Mengizinkan metode HTTP yang digunakan mencakup \texttt{GET, POST, PUT, PATCH, DELETE, OPTIONS}.
+  \item \textbf{\texttt{Access-Control-Allow-Headers}}: Mengizinkan tajuk kustom\\
+        seperti \texttt{Content-Type}, \texttt{Accept}, dan \texttt{Authorization}.
+\end{itemize}
+Konfigurasi ini memastikan aplikasi antarmuka Vue 3 pada komputer lokal dapat berinteraksi dengan API Laravel secara mulus tanpa terblokir oleh kendala CORS.
+
+\subsection{Pembangunan Aplikasi Frontend Vue 3 Berbasis Vite dan Router}
+
+\par Sesuai dengan instruksi butir penugasan kedua, aplikasi antarmuka pengguna dibangun di dalam subdirektori \texttt{frontend/} menggunakan pustaka Vue 3, Vite sebagai perkakas pembangunan modul modern, TypeScript untuk keamanan tipe data, serta Vue Router untuk manajemen navigasi \textit{Single Page Application} (SPA).
+
+\subsubsection{Inisialisasi Proyek Frontend}
+\par Pembuatan kerangka awal proyek dilakukan melalui \textit{Command Line Interface} (CLI) menggunakan perkakas paket modern \texttt{pnpm create vue@latest}. Bukti eksekusi inisialisasi disajikan pada Gambar \ref{fig:inisialisasi-vue}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/inisialisasi-proyek-vue3.png}
+  \caption{Inisialisasi Proyek Vue 3 menggunakan CLI \texttt{pnpm create vue@latest}}
+  \label{fig:inisialisasi-vue}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:inisialisasi-vue}, proses \textit{scaffolding} proyek dikonfigurasi dengan parameter terstruktur: nama target direktori \texttt{frontend}, pengaktifan dukungan TypeScript (\textit{Yes}), penambahan modul navigasi \textit{Vue Router} untuk pengembangan SPA (\textit{Yes}), serta integrasi kakas pemeriksa kualitas kode ESLint dan pemformat kode Prettier (\textit{Yes}). Pemilihan inisialisasi awal proyek Vue yang bersih memberikan fondasi kode yang ringan dan siap dikembangkan sesuai kebutuhan sistem URL Shortener.
+
+\subsubsection{Konfigurasi Variabel Lingkungan API}
+\par Sesuai batasan penugasan, alamat URL server API tidak boleh di-\textit{hardcode} di dalam kode program, melainkan wajib diambil secara dinamis dari variabel lingkungan \texttt{VITE\_API\_URL}. Hal ini diterapkan dengan menyediakan berkas percontohan lingkungan \texttt{frontend/.env.example} dan modul pembacaan pada \texttt{frontend/src/services/api.ts} seperti ditunjukkan pada Kode \ref{lst:env-service-api}.
+
+\begin{lstlisting}[language=JavaScript, caption={[Pembacaan Environment API]{Pembacaan Variabel Lingkungan API pada \texttt{frontend/src/services/api.ts}}}, label={lst:env-service-api}]
+export function getBaseApiUrl(): string {
+  // Mengambil URL API secara dinamis dari variabel lingkungan Vite
+  const envUrl = import.meta.env.VITE_API_URL
+  if (!envUrl) {
+    // Nilai fallback yang aman untuk lingkungan pengembangan lokal
+    return 'http://localhost:8000/api'
+  }
+  return envUrl.replace(/\/+$/, '')
+}
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:env-service-api}, fungsi \texttt{getBaseApiUrl()} bertugas membaca konfigurasi lingkungan\\
+\texttt{import.meta.env.VITE\_API\_URL} yang disediakan oleh mesin Vite saat proses kompilasi maupun saat server pengembang dijalankan. Apabila variabel lingkungan tidak terdefinisi (misalnya saat proses pengujian lokal mandiri), fungsi secara cerdas menyediakan mekanisme \textit{fallback} terstandarisasi pada alamat\\
+\texttt{http://localhost:8000/api}. Dengan demikian, aplikasi dapat dengan mudah diarahkan ke alamat server \textit{staging} maupun \textit{production} yang berbeda hanya dengan mengubah konfigurasi lingkungan tanpa menyentuh kode sumber.
+
+\subsubsection{Perancangan Navigasi Antarmuka Multi-Halaman}
+\par Aplikasi antarmuka pengguna dilengkapi dengan modul manajemen \textit{routing} Vue Router pada berkas \\
+\texttt{frontend/src/router/index.ts}. Konfigurasi \textit{routing} disajikan pada Kode \ref{lst:vue-router}.
+
+\begin{lstlisting}[language=JavaScript, caption={[Konfigurasi Routing]{Konfigurasi Routing pada \texttt{frontend/src/router/index.ts}}}, label={lst:vue-router}]
+import { createRouter, createWebHistory } from 'vue-router'
+import LinksView from '../views/LinksView.vue'
+import QuickShortenView from '../views/QuickShortenView.vue'
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'links',
+      component: LinksView,
+    },
+    {
+      path: '/quick-shorten',
+      name: 'quick-shorten',
+      component: QuickShortenView,
+    },
+    {
+      path: '/links',
+      redirect: '/',
+    },
+  ],
+})
+
+export default router
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:vue-router}, aplikasi menyediakan dua halaman utama ber-router yang saling melengkapi:
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Halaman Daftar Tautan} (\texttt{LinksView.vue}):\\
+        Terpetakan pada \textit{route} \texttt{/} yang menampilkan seluruh data tautan yang diambil dari \textit{endpoint} Laravel API, lengkap dengan kontrol pencarian, filter status, penambahan data melalui dialog modal, pengeditan, serta penghapusan data.
+  \item \textbf{Halaman Pemendek Cepat} (\texttt{QuickShortenView.vue}):\\
+        Terpetakan pada \textit{route} \texttt{/quick-shorten} yang menampilkan kartu ringkasan statistik tautan serta formulir pembuatan tautan instan tanpa memerlukan otentikasi rumit.
+\end{enumerate}
+
+\par Dokumentasi pengoperasian antarmuka aplikasi saat berinteraksi dengan API disajikan pada Gambar \ref{fig:modal-buat-link}, Gambar \ref{fig:daftar-link-api}, dan Gambar \ref{fig:quick-shorten-stats}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/modal-buat-link-vue.png}
+  \caption{Antarmuka Dialog Modal Pembuatan Tautan Baru pada Aplikasi Vue 3}
+  \label{fig:modal-buat-link}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:modal-buat-link}, pengguna disajikan formulir interaktif di dalam komponen modal rilis\\
+\texttt{CreateLinkModal.vue}. Bidang isian mencakup nama tautan, alamat URL tujuan asli, kustomisasi alias unik (misalnya \texttt{vue}), serta tombol pengalih status aktif. Data yang diinputkan akan divalidasi pada sisi klien sebelum dikirim melalui permintaan HTTP metode \texttt{POST} ke server Laravel API.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/tampilan-daftar-link-api.png}
+  \caption{Antarmuka Halaman Utama Daftar Tautan yang Mengonsumsi Laravel REST API}
+  \label{fig:daftar-link-api}
+\end{figure}
+
+\par Gambar \ref{fig:daftar-link-api} memperlihatkan keberhasilan integrasi antara aplikasi Vue 3 pada peramban web (\texttt{localhost:5173}) dengan \textit{backend} Laravel (\texttt{localhost:8000/api}). Data tautan yang berhasil disimpan langsung dimuat dalam bentuk tabel responsif yang menampilkan rincian \textit{short link}, nama tautan, URL target asli, status aktif berwarna hijau, serta tombol aksi untuk penyuntingan, kunjungan langsung, dan penghapusan data.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/halaman-quick-shorten-stats.png}
+  \caption{Antarmuka Halaman Sekunder Pemendek Cepat dan Ringkasan Statistik Tautan}
+  \label{fig:quick-shorten-stats}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:quick-shorten-stats}, antarmuka \textit{route} kedua pada URL \\
+\texttt{localhost:5173/quick-shorten} menyajikan visualisasi analitik yang mengonsumsi data statistik dari \textit{endpoint} API \texttt{/api/links/stats/count}. Tiga kartu indikator menyajikan ringkasan jumlah total tautan, tautan berstatus aktif, serta tautan nonaktif secara \textit{real-time}, dilengkapi formulir pemendek tautan cepat dengan tombol \textit{paste} otomatis.
+
+\subsection{Perancangan Pipeline CI/CD Empat Job Frontend pada GitHub Actions}
+
+\par Menjawab butir penugasan ketiga, keempat, dan kelima, repositori dilengkapi dengan konfigurasi pipeline otomasi yang didedikasikan untuk modul antarmuka pengguna pada berkas \texttt{.github/workflows/frontend.yml}. Pipeline ini mengatur \textit{Continuous Integration} (CI) dan \textit{Continuous Delivery} (CD) dengan arsitektur multi-tahap yang aman dan efisien.
+
+\subsubsection{Struktur dan Ketergantungan Antar-Job}
+\par Berkas \textit{workflow} otomasi merangkai empat \textit{job} terpisah menggunakan direktif dependensi \texttt{needs:}. Seluruh definisi konfigurasi disajikan secara lengkap pada Kode \ref{lst:workflow-frontend}.
+
+\begin{lstlisting}[language=yaml, caption={[Pipeline Frontend CI/CD]{Konfigurasi Pipeline Frontend CI/CD (\texttt{.github/workflows/frontend.yml})}}, label={lst:workflow-frontend}]
+name: Frontend CI/CD Pipeline
+
+on:
+  push:
+    branches: ['main', 'dev', 'feature/**', 'chore/**']
+  pull_request:
+    branches: ['main']
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run Linter
+        working-directory: frontend
+        run: npm run lint
+
+  test:
+    name: Unit Test (Vitest)
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run Vitest Unit Tests
+        working-directory: frontend
+        run: npm run test:unit
+
+  build:
+    name: Build Frontend
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Static Files
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+          retention-days: 7
+
+  deploy:
+    name: Deploy to Static Hosting
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - name: Tampilkan Isi dist/ ke Log
+        run: |
+          echo "=== MEMERIKSA ISI DIREKTORI DIST/ (HASIL OPER ARTIFACT BUILD) ==="
+          ls -la frontend/dist
+          echo ""
+          echo "Daftar seluruh file rilis aset frontend:"
+          find frontend/dist -type f
+
+      - name: Simulasi Deploy Statis
+        run: |
+          echo "=== MEMULAI DEPLOYMENT KE HOSTING STATIS ==="
+          echo "Mempersiapkan rilis static assets..."
+          echo "Aset web statis siap disajikan tanpa kompilasi ulang (zero build on deploy)."
+          echo "=== DEPLOYMENT FRONTEND SUKSES ==="
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:workflow-frontend}, arsitektur \textit{workflow} dibangun atas prinsip-prinsip rekayasa otomasi penting:
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Penggunaan \texttt{npm ci} dan Mekanisme Caching Dependensi}: Seluruh \textit{job} mengeksekusi instalasi paket dependensi menggunakan perintah \texttt{npm ci} di dalam direktori kerja \texttt{frontend}. Berbeda dengan \texttt{npm install}, perintah \texttt{npm ci} membaca berkas pengunci \texttt{package-lock.json} secara kaku sehingga menjamin integritas dependensi yang identik (\textit{deterministic build}) di lingkungan \textit{runner}. Efisiensi dipercepat dengan konfigurasi \texttt{cache: 'npm'} dan parameter\\
+        \texttt{cache-dependency-path} pada aksi \texttt{actions/setup-node@v4}, menghindari pengunduhan ulang paket biner dari \textit{registry} luar pada eksekusi berulang.
+  \item \textbf{Rantai Ketergantungan \texttt{needs:}}: Tahapan eksekusi disusun secara sekuensial hierarkis:
+        \begin{center}
+          \texttt{lint} $\longrightarrow$ \texttt{test (needs: [lint])} $\longrightarrow$ \\
+          \texttt{build (needs: [test])} $\longrightarrow$ \texttt{deploy (needs: [build])}
+        \end{center}
+        Struktur ini memastikan bahwa kode yang tidak lolos standar gaya penulisan atau mengandung galat pengujian unit akan langsung dihentikan secara \textit{fail-fast} sebelum proses kompilasi aset statis yang memakan sumber daya komputasi dijalankan.
+\end{enumerate}
+
+\subsubsection{Mekanisme Transfer Artefak Tanpa Re-Build (Zero Build on Deploy)}
+\par Memenuhi butir penugasan keempat, \textit{job} \texttt{deploy} tidak diperbolehkan menjalankan ulang perintah \texttt{npm run build}. Sebagai gantinya, hasil kompilasi dari \textit{job} \texttt{build} dioper secara utuh menggunakan mekanisme \textit{artifact sharing} GitHub Actions:
+\begin{itemize}[leftmargin=*]
+  \item Pada \textit{job} \texttt{build}, aksi \texttt{actions/upload-artifact@v4} mengompresi dan mengunggah seluruh isi direktori rilis \texttt{frontend/dist/} ke penyimpanan artefak terkelola GitHub dengan nama \texttt{frontend-dist}.
+  \item Pada \textit{job} \texttt{deploy}, aksi \texttt{actions/download-artifact@v4} mengambil artefak \texttt{frontend-dist} tersebut dan mengekstraknya kembali ke direktori \texttt{frontend/dist}.
+  \item \textit{Step} selanjutnya mengeksekusi perintah terminal \texttt{ls -la frontend/dist} serta perintah \\
+        \texttt{find frontend/dist -type f} untuk menampilkan seluruh struktur berkas rilis ke log eksekusi, memverifikasi ketersediaan berkas \texttt{index.html}, aset JavaScript terkompilasi, serta lembar gaya CSS.
+\end{itemize}
+Mekanisme ini mencerminkan praktik terbaik industri (\textit{Twelve-Factor App}) di mana tahapan \textit{build} dipisahkan secara tegas dari tahapan \textit{deploy}, menjamin bahwa artefak yang diuji di lingkungan simulasi persis sama dengan artefak yang dirilis ke server produksi.
+
+\subsubsection{Aturan Proteksi Lingkungan dan Pembatasan Deploy pada Branch Main}
+\par Memenuhi butir penugasan kelima, pengamanan eksekusi diterapkan pada tingkat deklarasi \textit{job} \texttt{deploy} dengan menyertakan ekspresi kondisi:
+\begin{center}
+  \texttt{if: github.ref == 'refs/heads/main' \&\& github.event\_name != 'pull\_request'}
+\end{center}
+\par Aturan logika ini memberikan dua tingkat perlindungan:
+\begin{itemize}[leftmargin=*]
+  \item Apabila terjadi aktivitas \textit{push} pada \textit{branch} fitur (seperti \texttt{feature/vue}), \textit{branch} perbaikan (\texttt{chore/**}), atau \textit{branch} pengembangan (\texttt{dev}), \textit{workflow} tetap menjalankan \textit{job} \texttt{lint}, \texttt{test}, dan \texttt{build} secara lengkap guna memvalidasi kelayakan kode, namun \textit{job} \texttt{deploy} secara otomatis berstatus \textit{skipped}.
+  \item Apabila dibuat suatu \textit{Pull Request} (PR) yang menargetkan \textit{branch} \texttt{main}, \textit{workflow} bertindak sebagai \textit{quality gate} dengan menjalankan pemeriksaan kualitas kode dan pengujian unit tanpa memicu proses \textit{deployment}.
+  \item \textit{Job} \texttt{deploy} hanya dan hanya akan dieksekusi ketika perubahan telah disetujui dan di-\textit{merge} ke dalam \textit{branch} utama \texttt{main}.
+\end{itemize}
+
+\subsection{Implementasi Unit Testing Mandiri Berbasis Vitest}
+
+\par Menjawab butir penugasan keenam, aplikasi antarmuka dilengkapi dengan pengujian unit mandiri berbasis kerangka kerja Vitest. Syarat utama penugasan menetapkan bahwa pengujian harus lulus 100\% di lingkungan runner GitHub Actions tanpa memerlukan server Laravel atau basis data berjalan.
+
+\subsubsection{Pemisahan Logika Bisnis Murni}
+\par Agar antarmuka dapat diuji secara terisolasi dan mandiri tanpa dependensi jaringan (\textit{network-agnostic}), seluruh logika pengolahan data tautan, validasi format, manipulasi URL, serta kalkulasi statistik diabstraksikan ke dalam modul utilitas terpisah pada berkas \\
+\texttt{frontend/src/utils/linkLogic.ts}. Sebagian fungsi utilitas logika disajikan pada Kode \ref{lst:link-logic-utils}.
+
+\begin{lstlisting}[language=JavaScript, caption={[Utilitas Logika Mandiri]{Fungsi Utilitas Logika Mandiri pada \texttt{frontend/src/utils/linkLogic.ts}}}, label={lst:link-logic-utils}]
+export function isValidUrl(url: string): boolean {
+  if (!url || typeof url !== 'string') return false
+  const trimmed = url.trim()
+  try {
+    const parsed = new URL(trimmed)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+export function isValidAlias(alias: string): boolean {
+  if (!alias) return true // alias bersifat opsional
+  const regex = /^[a-zA-Z0-9_-]+$/
+  return regex.test(alias.trim())
+}
+
+export function buildApiUrl(
+  base: string,
+  endpoint: string,
+  params?: Record<string, string | undefined>
+): string {
+  const cleanBase = (base || '').replace(/\/+$/, '')
+  const cleanEndpoint = (endpoint || '').replace(/^\/+|\/+$/g, '')
+  const fullUrl = cleanEndpoint ? `${cleanBase}/${cleanEndpoint}` : cleanBase
+
+  if (!params) return fullUrl
+
+  const searchParams = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      searchParams.append(key, value)
+    }
+  }
+
+  const queryString = searchParams.toString()
+  return queryString ? `${fullUrl}?${queryString}` : fullUrl
+}
+
+export function calculateStats(links: LinkItem[]): LinkStats {
+  const safeLinks = Array.isArray(links) ? links : []
+  const activeCount = safeLinks.filter((item) => item && item.is_active === true).length
+
+  return {
+    active_links_count: activeCount,
+    total_links_count: safeLinks.length,
+  }
+}
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:link-logic-utils}, fungsi \texttt{isValidUrl} memastikan validitas skema URL (hanya menerima protokol \texttt{http:} dan \texttt{https:}), fungsi \texttt{isValidAlias} memvalidasi karakter alias alfanumerik (\textit{alpha-dash}), fungsi \texttt{buildApiUrl} merakit URL secara bersih tanpa \textit{double slash}, dan fungsi \texttt{calculateStats} menghitung agregat statistik tautan.
+
+\subsubsection{Implementasi Kasus Pengujian Unit Vitest}
+\par Pengujian unit diimplementasikan pada berkas spesifikasi \\
+\texttt{frontend/src/\_\_tests\_\_/linkLogic.spec.ts} mencakup 19 kasus pengujian terstruktur. Cuplikan skenario pengujian ditampilkan pada Kode \ref{lst:unit-test-vitest}.
+
+\begin{lstlisting}[language=JavaScript, caption={[Pengujian Unit Mandiri]{Implementasi Pengujian Unit Mandiri pada \texttt{frontend/src/\_\_tests\_\_/linkLogic.spec.ts}}}, label={lst:unit-test-vitest}]
+import { describe, it, expect } from 'vitest'
+import {
+  isValidUrl,
+  isValidAlias,
+  buildApiUrl,
+  calculateStats,
+  validateLinkInput,
+  filterLinks,
+  truncateText,
+} from '../utils/linkLogic'
+import type { LinkItem } from '../types/link'
+
+describe('Logika Aplikasi Frontend Shortener (Unit Test Mandiri Tanpa Panggil API)', () => {
+  describe('isValidUrl', () => {
+    it('mengembalikan true untuk URL http dan https yang valid', () => {
+      expect(isValidUrl('https://laravel.com')).toBe(true)
+      expect(isValidUrl('http://example.com/path?query=1')).toBe(true)
+    })
+
+    it('mengembalikan false untuk string kosong atau format ilegal', () => {
+      expect(isValidUrl('')).toBe(false)
+      expect(isValidUrl('bukan-url')).toBe(false)
+      expect(isValidUrl('ftp://ftp.example.com')).toBe(false)
+    })
+  })
+
+  describe('buildApiUrl', () => {
+    it('menggabungkan base URL dan endpoint dengan benar tanpa double slash', () => {
+      const url = buildApiUrl('http://localhost:8000/api/', '/links/')
+      expect(url).toBe('http://localhost:8000/api/links')
+    })
+  })
+
+  describe('calculateStats', () => {
+    it('menghitung jumlah tautan aktif dan total secara akurat', () => {
+      const dummyLinks: LinkItem[] = [
+        { id: 1, name: 'L1', original_url: 'https://a.com', short_url: 'http://localhost:8000/a', custom_alias: 'a', is_active: true, created_at: '', updated_at: '' },
+        { id: 2, name: 'L2', original_url: 'https://b.com', short_url: 'http://localhost:8000/b', custom_alias: 'b', is_active: false, created_at: '', updated_at: '' },
+      ]
+      const stats = calculateStats(dummyLinks)
+      expect(stats.total_links_count).toBe(2)
+      expect(stats.active_links_count).toBe(1)
+    })
+  })
+})
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:unit-test-vitest}, seluruh asersi pengujian dirancang untuk memverifikasi fungsionalitas logika internal secara deterministik. Karena tidak memanggil fungsi \texttt{fetch} jaringan ke alamat eksternal, pengujian dapat dieksekusi dengan kecepatan tinggi dan dijamin selalu lulus di lingkungan komputasi terisolasi seperti \textit{runner} GitHub Actions.
+
+\subsection{Validasi Skenario dan Pembuktian Pipeline Otomasi}
+
+\par Memenuhi butir penugasan ketujuh, dilakukan pengujian skenario menyeluruh untuk membuktikan keandalan pipeline otomasi dalam merespons berbagai \textit{event} Git, mendeteksi kegagalan, dan mengeksekusi \textit{deployment} rilis secara tepat.
+
+\subsubsection{Analisis Insiden Kegagalan Pengujian dan Resolusi Mitigasi}
+\par Dalam proses rekayasa perangkat lunak nyata, insiden kegagalan pengujian dialami secara riil pada pengujian awal di \textit{branch} \texttt{feature/vue}. Pada commit \texttt{23dc34f} dan \texttt{fc8887b}, dibuat berkas pengujian integrasi antarmuka \texttt{apiService.spec.ts} yang mencoba mengirimkan permintaan HTTP langsung ke alamat \texttt{http://localhost:8000/api}. Ketika \textit{workflow} dieksekusi oleh GitHub Actions \textit{runner}, proses pengujian mengalami kegagalan fatal (status \textit{failed}) karena server \textit{backend} Laravel tidak dijalankan pada lingkungan CI \textit{frontend} tersebut.
+
+\par Bukti visual riwayat insiden kesalahan dan resolusi perbaikannya disajikan pada Gambar \ref{fig:riwayat-kegagalan-test}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/riwayat-workflow-kegagalan-dan-resolusi-test.png}
+  \caption{Riwayat Eksekusi Pipeline Otomasi yang Menunjukkan Deteksi Kegagalan Pengujian dan Keberhasilan Pemulihan}
+  \label{fig:riwayat-kegagalan-test}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:riwayat-kegagalan-test}, daftar riwayat eksekusi pada tab GitHub Actions menampilkan status gagal (\textit{failed}) secara beruntun pada \textit{workflow} \textit{Frontend CI/CD Pipeline}:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Run \#1 (Commit \texttt{23dc34f})}: Gagal pada detik ke-35 saat eksekusi \textit{job} \texttt{test} karena kegagalan koneksi jaringan ke server Laravel.
+  \item \textbf{Run \#2 (Commit \texttt{fc8887b})}: Upaya perbaikan parameter dasar URL masih memicu status kegagalan pada detik ke-32 karena ketiadaan penyedia layanan data lokal di dalam kontainer \textit{runner}.
+\end{itemize}
+
+\par Tindakan mitigasi teknis diterapkan melalui commit \texttt{352e577} dengan pesan perbaikan:
+\begin{center}
+  \texttt{fix(test): penghapusan api test karena laravel tidak di run di ci ini}
+\end{center}
+Tindakan korektif ini menghapus ketergantungan jaringan dari berkas uji, menggantinya dengan pengujian unit murni berbasis logika mandiri pada modul \texttt{linkLogic.spec.ts}. Hasilnya, pada run \#3 \textit{workflow} langsung berhasil pulih dan berstatus \textit{passed} dalam durasi 58 detik dengan total 19 kasus pengujian lulus sempurna.
+
+\subsubsection{Skenario Push ke Feature Branch: Deploy Berstatus Skipped}
+\par Pengujian skenario berikutnya memverifikasi perilaku pipeline ketika pengembang melakukan \textit{push} kode ke \textit{branch} fitur (\texttt{feature/vue}) pada commit perbaikan \texttt{352e577}. Visualisasi alur eksekusi grafis disajikan pada Gambar \ref{fig:feature-deploy-skipped}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/pipeline-feature-branch-deploy-skipped.png}
+  \caption{Eksekusi Pipeline Frontend CI/CD pada Branch Fitur dengan Tahap Deployment yang Berstatus \textit{Skipped}}
+  \label{fig:feature-deploy-skipped}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:feature-deploy-skipped}, grafik \textit{workflow} menampilkan rangkaian eksekusi yang sangat jelas:
+\begin{itemize}[leftmargin=*]
+  \item \textit{Job} \textbf{Lint} berhasil diselesaikan dalam durasi 14 detik dengan status sukses.
+  \item \textit{Job} \textbf{Unit Test (Vitest)} berhasil mengeksekusi 19 kasus pengujian secara menyeluruh (\textit{1 pass test files, 19 passes test results}) dalam durasi 12 detik.
+  \item \textit{Job} \textbf{Build Frontend} berhasil mengompilasi bundel statis dan mengunggah artefak ke server penyimpanan dalam durasi 21 detik.
+  \item \textit{Job} \textbf{Deploy to Static Hosting} secara otomatis berstatus \textbf{\textit{skipped}} dengan durasi 0 detik, ditandai oleh ikon lingkaran bergaris diagonal abu-abu.
+\end{itemize}
+Hasil ini membuktikan bahwa ekspresi kondisi pengaman pada \textit{workflow}, yaitu \\
+\texttt{if: github.ref == 'refs/heads/main'}, berhasil mengisolasi lingkungan rilis dari perubahan yang masih berada di tingkat \textit{branch} fitur.
+
+\subsubsection{Skenario Integrasi ke Branch dev}
+\par Setelah fitur antarmuka dinyatakan stabil dan lolos seluruh pengujian mutu, diajukan \textit{Pull Request} \#3 dari \textit{branch} \texttt{feature/vue} menuju \textit{branch} pengembangan \texttt{dev}. Pasca penelaahan dan persetujuan, PR digabungkan melalui commit \texttt{883115a}. Bukti integrasi dan eksekusi \textit{workflow} disajikan pada Gambar \ref{fig:riwayat-merge-pr-dev} dan Gambar \ref{fig:pipeline-dev-skipped}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/riwayat-workflow-merge-pr-dev.png}
+  \caption{Riwayat Eksekusi Workflow Pasca Penggabungan \textit{Pull Request} \#3 ke \textit{Branch} \texttt{dev}}
+  \label{fig:riwayat-merge-pr-dev}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:riwayat-merge-pr-dev}, riwayat eksekusi \textit{workflow} mencatat jalannya \\
+\textit{Frontend CI/CD Pipeline \#4} pada commit \texttt{883115a} dengan status sukses (\textit{passed}) dalam durasi 58 detik, berdampingan dengan pipeline \textit{backend}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/pipeline-dev-branch-deploy-skipped.png}
+  \caption{Visualisasi Alur Eksekusi Pipeline CI/CD pada \textit{Branch} \texttt{dev}}
+  \label{fig:pipeline-dev-skipped}
+\end{figure}
+
+\par Gambar \ref{fig:pipeline-dev-skipped} memperlihatkan rincian eksekusi \textit{workflow} pada \textit{branch} \texttt{dev}. Tiga tahapan awal (\textbf{Lint}, \textbf{Unit Test}, dan \textbf{Build Frontend}) tereksekusi sukses, sementara tahapan \textbf{Deploy to Static Hosting} tetap berada dalam status \textit{skipped}. Hal ini menegaskan konsistensi aturan keamanan bahwa \textit{branch} perantara \texttt{dev} hanya difungsikan untuk integrasi pengujian gabungan dan tidak diperkenankan memicu rilis hosting publik.
+
+\subsubsection{Skenario Rilis Penuh pada Branch main}
+\par Tahapan akhir dari siklus pengembangan adalah penggabungan perubahan dari \textit{branch} \texttt{dev} ke dalam \textit{branch} utama \texttt{main} melalui \textit{Pull Request} \#4. Penggabungan dicatat pada riwayat commit \texttt{b2cc687} dengan pesan \textit{"Merge pull request \#4 from KEPL2026/dev"}. Bukti eksekusi sukses rangkaian penuh disajikan pada Gambar \ref{fig:pipeline-main-success}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/pipeline-main-branch-deploy-success.png}
+  \caption{Eksekusi Penuh Seluruh Rangkaian \textit{Job} Pipeline Frontend CI/CD pada \textit{Branch} \texttt{main}}
+  \label{fig:pipeline-main-success}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pipeline-main-success}, seluruh rangkaian \textit{job} pada \textit{workflow} \textit{Frontend CI/CD Pipeline \#6} berhasil diselesaikan secara sempurna dengan status akhir sukses (\textit{passed}) dan total durasi 1 menit 3 detik:
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Lint} (19 detik): Verifikasi sintaksis dan kepatuhan aturan penulisan kode TypeScript/Vue berhasil lulus tanpa peringatan.
+  \item \textbf{Unit Test (Vitest)} (14 detik): 19 kasus pengujian unit logika internal lulus 100\% di lingkungan runner.
+  \item \textbf{Build Frontend} (17 detik): Kompilasi aset statis Vite berhasil menghasilkan bundel berkas siap rilis dan diunggah sebagai artefak \texttt{frontend-dist}.
+  \item \textbf{Deploy to Static Hosting} (3 detik): Karena kondisi ekspresi \\
+        \texttt{github.ref == 'refs/heads/main'} terpenuhi pada \textit{branch} utama, tahapan ini langsung dieksekusi secara aktif. \textit{Job} mengunduh artefak rilis, mencetak daftar berkas direktori \texttt{dist/} ke log tanpa melakukan kompilasi ulang (\textit{zero build on deploy}), dan menyelesaikan proses \textit{deployment} aset statis secara sukses.
+\end{enumerate}
 
 \section{Kesimpulan}
+
+\par Berdasarkan seluruh tahapan praktikum Konstruksi dan Evolusi Perangkat Lunak Tugas \Pertemuan\ mengenai integrasi aplikasi antarmuka pengguna Vue 3 dengan backend Laravel REST API serta perancangan pipeline CI/CD multi-job pada repositori \texttt{evolusi-pl-24-538699-SV-24524}, dapat disimpulkan beberapa poin penting sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Integrasi Arsitektur RESTful API dan Penanganan CORS}: \\
+        Penyediaan \textit{endpoint} JSON melalui \texttt{Route::apiResource} dan \textit{controller} \texttt{LinkController} pada \textit{backend} Laravel 11 berhasil menyajikan operasi CRUD terstandarisasi untuk modul URL Shortener. Mekanisme \textit{middleware} \texttt{HandleCors} secara efektif mengatasi batasan \textit{Same-Origin Policy} sehingga aplikasi antarmuka Vue 3 pada lingkungan lokal laptop dapat bertukar data tanpa hambatan.
+  \item \textbf{Arsitektur Antarmuka Vue 3 Berbasis Lingkungan Dinamis}: \\
+        Aplikasi antarmuka pengguna berhasil dibangun dengan Vue 3 dan Vite, memfasilitasi navigasi multi-halaman ber-router (\texttt{LinksView} dan \texttt{QuickShortenView}). Konfigurasi alamat API berhasil diabstraksikan melalui variabel lingkungan \texttt{VITE\_API\_URL} dengan mekanisme \textit{fallback} yang aman, mencegah penulisan URL statis secara langsung pada kode sumber.
+  \item \textbf{Orkestrasi Pipeline Empat Job dan Efisiensi Caching}: \\
+        Pipeline frontend CI/CD pada GitHub Actions berhasil mengorkestrasi empat tahapan kerja (\textbf{Lint} $\rightarrow$ \textbf{Unit Test} $\rightarrow$ \textbf{Build} $\rightarrow$ \textbf{Deploy}) menggunakan direktif ketergantungan \texttt{needs:}. Penggunaan instalasi\\
+        \texttt{npm ci} yang dipadukan dengan opsi \texttt{cache: 'npm'} secara terukur memangkas durasi pengunduhan dependensi di lingkungan runner.
+  \item \textbf{Pemisahan Artefak Rilis Tanpa Re-Build}: \\
+        Penerapan mekanisme transfer artefak melalui kombinasi aksi rilis\\
+        \texttt{upload-artifact} dan \texttt{download-artifact} membuktikan pemenuhan prinsip \textit{build once, deploy anywhere}. \textit{Job} deploy berhasil memverifikasi dan menyebarkan aset direktori \texttt{dist/} ke log tanpa melakukan kompilasi ulang yang redundan.
+  \item \textbf{Keandalan Unit Test Mandiri dan Ketahanan Quality Gate}: \\
+        Pemisahan logika murni ke dalam modul \texttt{linkLogic.ts} memungkinkan 19 kasus pengujian Vitest dieksekusi secara terisolasi tanpa memerlukan dependensi server backend. Sistem otomasi terbukti tangguh sebagai \textit{quality gate}: mampu mendeteksi kegagalan (status \textit{failed}) saat terjadi ketidaksesuaian lingkungan, segera pulih sukses (\textit{passed}) setelah tindakan korektif diterapkan, serta secara andal membatasi hak akses \textit{deployment} hanya untuk \textit{branch} utama \texttt{main}.
+\end{enumerate}
 
 \end{document}
