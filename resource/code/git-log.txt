@@ -1,0 +1,8 @@
+58357b9 - 2026-09-29 14:10:33 +0700 : feat(image): run image
+bb2449f - 2026-09-29 13:46:53 +0700 : feat(image): built 3
+a7b3699 - 2026-09-29 13:42:06 +0700 : fix(image): build 2
+12cbf56 - 2026-09-29 13:37:31 +0700 : fix(image): built 1 with time
+00b2a2f - 2026-09-29 13:29:26 +0700 : feat(image): build 2
+7893442 - 2026-09-29 13:29:08 +0700 : feat(image): build 1
+986cced - 2026-09-29 12:52:07 +0700 : feat(docker): add docker, dockerignore
+b2cc687 - 2026-09-23 16:37:51 +0700 : Merge pull request #4 from KEPL2026/dev

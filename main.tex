@@ -12,14 +12,16 @@
 \usepackage{geometry}           % untuk margin
 \usepackage{setspace}           % untuk spasi baris
 \usepackage{fancyhdr}           % untuk header/footer
+\usepackage{float}              % untuk posisi gambar
 \usepackage{hyperref}           % untuk link dan bookmark
 \usepackage{listings}           % untuk code Python
 \usepackage{xcolor}             % untuk warna
-\usepackage{float}              % untuk posisi gambar
 \usepackage{tocloft}            % Untuk membuat daftar isi menampilkan "Bab 1. Pendahuluan" instead of "1. Pendahuluan",
 \usepackage{lipsum}             % untuk lorem ipsum
 \usepackage{indentfirst}        % untuk indent paragraf pertama
 \usepackage{enumitem}           % untuk kustomisasi penomoran list (A., B., dst)
+\usepackage{booktabs}           % untuk tabel profesional
+\usepackage{tabularx}           % untuk tabel auto-wrap dengan lebar presisi
 
 % Pengaturan layout
 \geometry{left=3cm, right=2cm, top=2cm, bottom=2cm}
@@ -34,6 +36,7 @@
 \renewcommand{\thefigure}{\thesection.\arabic{figure}}
 \makeatletter
 \@addtoreset{figure}{section}
+\@addtoreset{table}{section}
 \makeatother
 
 % Format chapter
@@ -50,9 +53,19 @@
 \definecolor{vscodeNumber}{HTML}{858585}
 \definecolor{vscodeRule}{HTML}{3C3C3C}
 
+\lstdefinelanguage{dockerfile}{
+  keywords={FROM, RUN, CMD, LABEL, MAINTAINER, EXPOSE, ENV, ADD, COPY, ENTRYPOINT, VOLUME, USER, WORKDIR, ARG, ONBUILD, STOPSIGNAL, HEALTHCHECK, SHELL},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]"
+}
+
 \lstdefinestyle{vscode-dark}{
-  language=Python,
-  basicstyle=\ttfamily\small\color{vscodeFg},
+  basicstyle=\ttfamily\footnotesize\color{vscodeFg},
   backgroundcolor=\color{vscodeBg},
   keywordstyle=\color{vscodeKeyword}\bfseries,
   commentstyle=\color{vscodeComment},
@@ -66,10 +79,9 @@
   columns=fullflexible,
   keepspaces=true,
   tabsize=2,
-  xleftmargin=2cm,
-  xrightmargin=1cm,
-  captionpos=b,
-  morekeywords={np, pd, plt, sns, array, DataFrame, Series, read_csv, read_excel, head, tail, info, describe, plot, scatter, bar, hist, fit, predict, transform, merge, concat, groupby, drop, fillna, dropna, iloc, loc}
+  xleftmargin=1.5cm,
+  xrightmargin=0.5cm,
+  captionpos=b
 }
 
 \lstset{style=vscode-dark}
@@ -85,8 +97,8 @@
 }
 
 % Info dokumen
-\newcommand{\Pertemuan}{1}
-\newcommand{\Materi}{Git, Github, dan Github Actions}
+\newcommand{\Pertemuan}{4}
+\newcommand{\Materi}{Pengenalan Docker \& Containerization}
 \title{Laporan \\ Konstruksi dan Evolusi Perangkat Lunak\\
 Tugas \Pertemuan\\
 \Materi}
@@ -103,18 +115,18 @@ Tugas \Pertemuan\\
 % tambahkan entri BibTeX ke file ref.bib terlebih dulu.
 
 % Title Page
-\begin{titlingpage} 
+\begin{titlingpage}
   \begin{center}
 
     \vspace{4cm}
-    \begin{Large} 
+    \begin{Large}
       \textbf{\thetitle} \\
     \end{Large}
     \vspace{2cm}
-    
-    \includegraphics[height=8cm]{resource/lambang ugm.png}\\ 
+
+    \includegraphics[height=8cm]{resource/lambang ugm.png}\\
     \vspace{2cm}
-    
+
     \textbf{Disusun oleh:}\\[0.8em]
     \begin{minipage}{0.8\textwidth}
       \raggedright
@@ -127,7 +139,7 @@ Tugas \Pertemuan\\
         \end{tabular}
       \end{large}
     \end{minipage}
-    
+
     \vspace{2cm}
     \begin{Large}
       \textbf{Program Studi D-IV Teknologi Rekayasa Perangkat Lunak} \\
@@ -137,7 +149,7 @@ Tugas \Pertemuan\\
       \textbf{Yogyakarta}\\
       \textbf{2026}\\
     \end{Large}
-    
+
   \end{center}
 \end{titlingpage}
 
@@ -203,23 +215,202 @@ Tugas \Pertemuan\\
   {[{\Materi}]}}
 \end{center}
 
-%contoh gambar dan kode
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{resource/contoh-gambar.png}
-%     \caption{Contoh Gambar}
-%     \label{fig:contoh-gambar}
-% \end{figure}
-
-% \begin{lstlisting}[language=php, caption={Contoh Kode Python}, label={lst:contoh-kode}]
-% def hello_world():
-%     print("Hello, World!")
-% \end{lstlisting}
-
 \section{Hasil dan Pembahasan}
 
-\par Sesuai dengan tujuan praktikum, berikut adalah hasil yang diperoleh dan pembahasan terkait materi yang telah dipelajari.
+\subsection{Identitas Repositori, Arsitektur Proyek, dan Jejak Commit Git}
+
+\par Praktikum Konstruksi dan Evolusi Perangkat Lunak Tugas \Pertemuan\ melanjutkan pengembangan repositori proyek aplikasi web \texttt{evolusi-pl-24-538699-SV-24524} di bawah naungan organisasi GitHub \texttt{KEPL2026}. Fokus utama penugasan ini berpusat pada penerapan teknologi \textit{containerization} menggunakan Docker dan Podman untuk membungkus aplikasi web berbasis \textit{framework} Laravel 11. \textit{Containerization} bertujuan mengatasi permasalahan disparitas \textit{environment parity} antara mesin \textit{host} pengembang dan \textit{server production}.
+
+\par Metadata repositori beserta struktur lingkungan kerja diuraikan sebagai berikut:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Organisasi GitHub}: KEPL2026\\
+        {\footnotesize\url{https://github.com/KEPL2026}}
+  \item \textbf{Repositori Proyek}: \texttt{evolusi-pl-24-538699-SV-24524}\\
+        {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524}}
+  \item \textbf{\textit{Main Branch}}: \texttt{main} dan \texttt{dev} sebagai \textit{branch} stabil dan integrasi rilis sebelumnya.
+  \item \textbf{\textit{Feature Branch} (\texttt{feature/dockerize})}: \textit{Branch} terisolasi yang dibuat secara khusus untuk penulisan berkas \texttt{Dockerfile}, perancangan aturan \texttt{.dockerignore}, eksperimen pengujian waktu siklus \textit{build}, serta verifikasi eksekusi \textit{container} dan pengujian REST API.
+\end{itemize}
+
+\par Seluruh aktivitas rekayasa pada penugasan ini tercatat secara terperinci melalui riwayat \textit{commit} pada \textit{branch} \texttt{feature/dockerize} tertanggal 29 September 2026, sebagaimana disajikan pada Kode \ref{lst:git-log}.
+
+\lstinputlisting[language=bash, caption={[Jejak Commit Repositori Git]{Jejak Commit Git pada \textit{Branch} \texttt{feature/dockerize} per 29 September 2026}}, label={lst:git-log}]{resource/code/git-log.txt}
+
+\par Berdasarkan Kode \ref{lst:git-log}, jejak \textit{commit} memperlihatkan tahapan evolusi perangkat lunak yang sistematis dan terstruktur. \textit{Commit} awal ber-hash \texttt{986cced} menambahkan berkas \texttt{Dockerfile} dan \texttt{.dockerignore} ke dalam repositori. Tahapan berikutnya mencakup \textit{commit} \texttt{7893442} dan \texttt{12cbf56} untuk pencatatan log \textit{build} pertama, dilanjutkan dengan \textit{commit} \texttt{a7b3699} untuk kompilasi \textit{image} kedua tanpa perubahan kode sumber. \textit{Commit} \texttt{bb2449f} merepresentasikan skenario pengujian \textit{layer cache} ketiga dengan memodifikasi \textit{route} API pada \texttt{routes/api.php}. Rangkaian aktivitas diakhiri dengan \textit{commit} \texttt{58357b9} yang mengeksekusi \textit{container} ke dalam lingkungan komputasi lokal dan mencatat status layanan yang aktif.
+
+\subsection{Perancangan Berkas Dockerfile dan Analisis Urutan Instruksi}
+
+\par Berkas \texttt{Dockerfile} bertindak sebagai \textit{blueprint} deklaratif yang mendefinisikan seluruh instruksi pembentukan \textit{image container} aplikasi. Dalam praktikum ini, \textit{image} dirancang dengan memperhatikan efisiensi ukuran, keandalan ekstensi, serta optimasi \textit{layer caching} sesuai prinsip rekayasa perangkat lunak modern. Konfigurasi lengkap \texttt{Dockerfile} disajikan pada Kode \ref{lst:dockerfile}.
+
+\lstinputlisting[language=dockerfile, caption={[Konfigurasi Dockerfile Aplikasi Laravel]{Berkas Konfigurasi \texttt{Dockerfile} untuk \textit{Containerization} Aplikasi Laravel 11}}, label={lst:dockerfile}]{resource/code/Dockerfile}
+
+\par Berdasarkan Kode \ref{lst:dockerfile}, konfigurasi instruksi disusun secara hierarkis dengan rincian teknis sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Pemilihan \textit{Base Image} Resmi (\texttt{FROM})}: Instruksi baris 1 menggunakan \textit{base image} resmi \texttt{dunglas/frankenphp:1-php8.4}. FrankenPHP merupakan \textit{web server} aplikasi kontemporer berbasis Caddy yang mengintegrasikan \textit{runtime} PHP langsung ke dalam \textit{web server} tanpa memerlukan \textit{daemon} FastCGI (PHP-FPM) dan Nginx terpisah. Hal ini menyederhanakan arsitektur \textit{container} menjadi satu proses tunggal dengan latensi yang sangat rendah.
+  \item \textbf{Instalasi Paket Sistem dan Ekstensi PHP (\texttt{RUN})}: Baris 3--15 memasang paket sistem pendukung serta modul inti PHP melalui utilitas \texttt{install-php-extensions}. Ekstensi yang dipasang mencakup \texttt{pdo\_mysql} untuk komunikasi \textit{database} MySQL, \texttt{gd} untuk manipulasi gambar, \texttt{intl} untuk internasionalisasi, \texttt{zip} untuk ekstraksi berkas kompresi, \texttt{bcmath} untuk kalkulasi presisi tinggi, serta \texttt{opcache} dan \texttt{curl} untuk akselerasi eksekusi kode dan komunikasi jaringan.
+  \item \textbf{Penyalinan Biner Composer Secara Efisien}: Baris 17 menerapkan teknik \textit{multi-stage build} ringan dengan menyalin biner Composer versi 2 langsung dari \textit{image} resmi \texttt{composer:2} melalui instruksi\\
+        \texttt{COPY --from=composer:2 /usr/bin/composer /usr/bin/composer}, sehingga tidak memerlukan instalasi manual yang membebani ukuran \textit{layer}.
+  \item \textbf{Pemisahan Instalasi Dependensi Sebelum Kode Aplikasi}: Baris 19--22 menetapkan direktori kerja \texttt{/app}, lalu menyalin \texttt{composer.json} dan \texttt{composer.lock} secara terisolasi sebelum kode program disalin. Perintah\\
+        \texttt{composer install --no-dev --no-scripts --no-autoloader --prefer-dist}\\
+        dijalankan pada tahap ini. Strategi ini merupakan kunci utama optimasi \textit{layer caching}: dependensi pihak ketiga yang bersifat statis akan tersimpan dalam \textit{layer cache}, sehingga perubahan rutin pada kode program di kemudian hari tidak memicu pengunduhan ulang dependensi dari jaringan eksternal.
+  \item \textbf{Penyalinan Kode Aplikasi dan Optimasi \textit{Autoloader}}: Baris 24--28 menyalin seluruh kode sumber aplikasi ke direktori \texttt{/app}, dilanjutkan dengan eksekusi perintah\\
+        \texttt{composer dump-autoload --optimize} untuk menghasilkan \textit{classmap} teroptimasi. Selain itu, hak kepemilikan dan izin direktori \texttt{storage} serta \texttt{bootstrap/cache} diserahkan kepada \textit{user} sistem \texttt{www-data:www-data} (mode 775) guna menjamin operasi berkas log dan sesi berjalan lancar tanpa galat \textit{permission denied}.
+  \item \textbf{Deklarasi Port dan Titik Masuk Eksekusi}: Baris 30 mendokumentasikan \textit{port} 80 yang diekspos (\texttt{EXPOSE 80}), dan baris 32 menetapkan perintah utama \textit{server} (\texttt{CMD ["frankenphp", "php-server", "--root", "public/"]}) yang langsung menyajikan berkas publik Laravel saat \textit{container} dijalankan.
+\end{enumerate}
+
+\subsection{Konfigurasi Berkas .dockerignore untuk Efisiensi Konteks Build}
+
+\par Berkas \texttt{.dockerignore} berfungsi memfilter berkas dan direktori lokal agar tidak diikutsertakan ke dalam \textit{build context} yang dikirimkan oleh klien ke \textit{container engine}. Tanpa berkas ini, seluruh direktori lokal akan ditransfer secara mentah, yang berakibat pada pembengkakan ukuran \textit{image}, waktu transfer yang lambat, terjadinya \textit{cache invalidation} yang tidak diinginkan, serta potensi kebocoran informasi rahasia. Konfigurasi \texttt{.dockerignore} yang diterapkan disajikan pada Kode \ref{lst:dockerignore}.
+
+\lstinputlisting[language={}, caption={[Aturan Pengecualian .dockerignore]{Konfigurasi Pengecualian \textit{Build Context} pada Berkas \texttt{.dockerignore}}}, label={lst:dockerignore}]{resource/code/dockerignore}
+
+\par Berdasarkan Kode \ref{lst:dockerignore}, pemfilteran direktori dan berkas dirancang secara komprehensif mencakup:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{node\_modules} dan \texttt{frontend/node\_modules}:\\
+        Mencegah masuknya direktori \textit{package} JavaScript lokal yang berukuran ratusan megabita dan berpotensi memuat biner yang tidak kompatibel dengan lingkungan Linux di dalam \textit{container}.
+  \item \texttt{vendor}: Menjamin bahwa \textit{package} PHP lokal milik mesin pengembang tidak menimpa \textit{package} bersih yang diinstalasi secara deterministik di dalam \textit{container} melalui berkas \texttt{composer.lock}.
+  \item \texttt{.git} dan \texttt{.gitignore}: Menghilangkan riwayat \textit{commit} internal Git dari \textit{image production} demi mereduksi ukuran \textit{image} serta menjaga keamanan struktur repositori.
+  \item \texttt{.env} dan \texttt{.env.*}: Mencegah berkas konfigurasi lokal yang memuat kredensial sensitif (kunci enkripsi, kata sandi \textit{database}) tersimpan secara permanen di dalam \textit{layer image}.
+  \item \texttt{storage/logs/*} dan \texttt{storage/framework/*}: Mengeliminasi berkas log, sesi sementara, dan \textit{view cache} lokal \textit{host} agar tidak mengotori instalasi segar di dalam lingkungan \textit{container}.
+\end{itemize}
+
+\subsection{Eksperimen dan Pembuktian Efektivitas Layer Caching}
+
+\par Untuk membuktikan bahwa mekanisme \textit{layer caching} bekerja secara efektif sesuai urutan instruksi pada \texttt{Dockerfile}, dilakukan serangkaian pengujian terukur yang mencakup tiga siklus \textit{build image} menggunakan utilitas Podman. Perintah eksekusi yang dijalankan untuk mengotomasi pengujian dan mencatat waktu eksekusi disajikan pada Kode \ref{lst:perintah-build}.
+
+\lstinputlisting[language=bash, caption={[Skrip Eksekusi Pengujian Siklus Build]{Rangkaian Perintah Pengujian Siklus \textit{Build Image} Menggunakan Podman}}, label={lst:perintah-build}]{resource/code/perintah-build.sh}
+
+\par Kode \ref{lst:perintah-build} mendemonstrasikan eksekusi tiga siklus \textit{build} dengan parameter kontrol yang terukur. Luaran dari setiap tahapan dialirkan ke utilitas \texttt{tee} untuk mendokumentasikan log eksekusi secara transparan ke dalam berkas \texttt{build-1.txt}, \texttt{build-2.txt}, dan \texttt{build-3.txt}.
+
+\subsubsection{Siklus Build Pertama: Kondisi Bersih Tanpa Cache}
+
+\par Eksekusi \textit{build image} pertama dilakukan dengan menyertakan parameter \texttt{--no-cache} guna memaksa \textit{container engine} mengompilasi dan mengunduh seluruh instruksi dari awal. Cuplikan log eksekusi \textit{build} pertama disajikan pada Kode \ref{lst:build-1}.
+
+\lstinputlisting[language={}, caption={[Luaran Terminal Build 1 Tanpa Cache]{Cuplikan Luaran Terminal \textit{Build} Pertama dalam Kondisi Bersih (\texttt{build-1.txt})}}, label={lst:build-1}]{resource/code/build-1-cuplikan.txt}
+
+\par Berdasarkan Kode \ref{lst:build-1}, proses \textit{build image} pertama memerlukan waktu total \textit{real time} selama \textbf{2 menit 21,196 detik} (141,196 detik), dengan konsumsi waktu CPU \textit{user time} sebesar 2 menit 59,943 detik dan waktu sistem \textit{sys time} sebesar 48,312 detik. Seluruh tahap dari STEP 1 hingga STEP 11 dieksekusi secara penuh, meliputi pembaruan repositori paket Debian, pengunduhan kode sumber dan kompilasi modul ekstensi PHP (\texttt{pdo\_mysql}, \texttt{gd}, \texttt{intl}, \texttt{zip}, \texttt{bcmath}), hingga pengunduhan dan ekstraksi 76 \textit{package} Composer melalui jaringan internet.
+
+\subsubsection{Siklus Build Kedua: Pemanfaatan Penuh Layer Cache}
+
+\par Proses \textit{build image} kedua dijalankan segera setelah siklus pertama selesai tanpa mengubah berkas konfigurasi maupun kode sumber aplikasi apa pun. Luaran terminal siklus \textit{build} kedua disajikan pada Kode \ref{lst:build-2}.
+
+\lstinputlisting[language={}, caption={[Luaran Terminal Build 2 dengan Cache Penuh]{Luaran Terminal \textit{Build} Kedua Tanpa Perubahan Kode Sumber (\texttt{build-2.txt})}}, label={lst:build-2}]{resource/code/build-2.txt}
+
+\par Melalui luaran Kode \ref{lst:build-2}, \textit{container engine} mendeteksi bahwa tidak ada berkas input yang berubah pada setiap \textit{layer} instruksi. Hal ini dibuktikan dengan kemunculan label \texttt{--> Using cache} pada instruksi STEP 2, STEP 3, STEP 4, STEP 5, STEP 6, dan STEP 7. Waktu eksekusi terpangkas secara drastis menjadi hanya \textbf{3,597 detik} \textit{real time}, dengan waktu CPU \textit{user time} sebesar 2,622 detik dan waktu sistem \textit{sys time} sebesar 1,348 detik. Penurunan waktu eksekusi dari 141,196 detik menjadi 3,597 detik ini membuktikan bahwa seluruh \textit{layer} kompilasi sistem dan instalasi dependensi berhasil digunakan kembali secara instan dari \textit{layer cache}.
+
+\subsubsection{Siklus Build Ketiga: Uji Invalidasi Cache Pasca Modifikasi Kode Sumber}
+
+\par Untuk menguji hipotesis bahwa perubahan pada kode aplikasi tidak akan membatalkan \textit{cache} instalasi dependensi Composer, dilakukan pengubahan satu blok kode dengan menambahkan \textit{route} API baru pada berkas \texttt{routes/api.php} pada \textit{commit} \texttt{bb2449f}. Selanjutnya, perintah \textit{build image} dieksekusi kembali. Luaran terminal siklus \textit{build} ketiga disajikan pada Kode \ref{lst:build-3}.
+
+\lstinputlisting[language={}, caption={[Luaran Terminal Build 3 Pasca Modifikasi Kode]{Luaran Terminal \textit{Build} Ketiga Setelah Modifikasi Kode Sumber (\texttt{build-3.txt})}}, label={lst:build-3}]{resource/code/build-3.txt}
+
+\par Berdasarkan Kode \ref{lst:build-3}, mekanisme \textit{caching} membuktikan ketepatan urutan instruksi yang dirancang. \textit{Layer} instruksi STEP 1 hingga STEP 7 tetap berstatus \texttt{--> Using cache} karena berkas \texttt{composer.json} dan \texttt{composer.lock} tidak mengalami perubahan bit. \textit{Cache invalidation} hanya terjadi pada STEP 8 (\texttt{COPY . /app}) akibat adanya perubahan isi berkas \texttt{routes/api.php}, yang dilanjutkan dengan eksekusi STEP 9 untuk regenerasi \textit{classmap autoloader}. Waktu eksekusi yang dicatat pada akhir log adalah \textbf{3,731 detik} \textit{real time}. Hasil ini membuktikan bahwa \textit{build} ketiga tetap berjalan sangat cepat dan mendekati waktu \textit{build} kedua, serta jauh melampaui efisiensi waktu \textit{build} pertama tanpa perlu mengunduh ulang \textit{package} dependensi.
+
+\subsubsection{Komparasi dan Evaluasi Kinerja Tiga Siklus Build}
+
+\par Perbandingan kuantitatif performa ketiga siklus \textit{build image} dirangkum secara komparatif pada Tabel \ref{tab:perbandingan-build}.
+
+\begin{table}[H]
+  \centering
+  \small
+  \begin{tabularx}{\textwidth}{@{}Xccc@{}}
+    \toprule
+    \textbf{Parameter Pengujian}        & \textbf{Build 1 (Clean)}       & \textbf{Build 2 (Identical)}        & \textbf{Build 3 (Modified)}         \\
+    \midrule
+    \textit{Real Time}                  & 2m 21.196s (141.20s)           & 0m 3.597s (3.60s)                   & 0m 3.731s (3.73s)                   \\
+    \textit{User Time}                  & 2m 59.943s                     & 0m 2.622s                           & 0m 2.715s                           \\
+    \textit{Sys Time}                   & 0m 48.312s                     & 0m 1.348s                           & 0m 1.408s                           \\
+    Status \textit{Cache} Ekstensi PHP  & \textit{Miss} (Kompilasi)      & \textit{Hit} (\texttt{Using cache}) & \textit{Hit} (\texttt{Using cache}) \\
+    Status \textit{Cache} Dependensi    & \textit{Miss} (Unduh 76 paket) & \textit{Hit} (\texttt{Using cache}) & \textit{Hit} (\texttt{Using cache}) \\
+    Status \textit{Cache} Kode Aplikasi & \textit{Miss} (Salin baru)     & \textit{Hit} (Identik)              & \textit{Miss} (Salin ulang)         \\
+    Persentase Reduksi Waktu            & Acuan (0\%)                    & 97,45\%                             & 97,36\%                             \\
+    \bottomrule
+  \end{tabularx}
+  \vspace{0.5em}
+  \caption{Komparasi Kinerja Waktu Eksekusi dan Pemanfaatan \textit{Cache} pada Tiga Siklus \textit{Build Image}}
+  \label{tab:perbandingan-build}
+\end{table}
+
+\par Berdasarkan Tabel \ref{tab:perbandingan-build}, efisiensi waktu yang dicapai pada siklus \textit{build} kedua dan ketiga masing-masing mencapai 97,45\% dan 97,36\% dibandingkan kondisi \textit{build} pertama. Bukti empiris ini menegaskan kebenaran kaidah arsitektur Docker: instruksi yang jarang berubah (instalasi paket sistem dan dependensi pihak ketiga) wajib diletakkan di bagian atas, sedangkan instruksi yang sering berubah (kode sumber aplikasi) diletakkan di bagian bawah \texttt{Dockerfile}.
+
+\subsection{Menjalankan Container dan Verifikasi Akses Antarmuka Web}
+
+\par Setelah \textit{image} \texttt{kepl-be} berhasil di-\textit{build}, tahapan selanjutnya adalah menjalankan \textit{image} tersebut sebagai \textit{container} mandiri dan mengintegrasikannya dengan jaringan \textit{database} yang telah ada. Perintah yang dieksekusi disajikan pada Kode \ref{lst:perintah-run}.
+
+\lstinputlisting[language=bash, caption={[Perintah Eksekusi Container]{Perintah Menjalankan Container dengan Konfigurasi Port dan Jaringan}}, label={lst:perintah-run}]{resource/code/perintah-run.sh}
+
+\par Berdasarkan Kode \ref{lst:perintah-run}, parameter operasional yang dikonfigurasi mencakup:
+\begin{itemize}[leftmargin=*]
+  \item \texttt{-d}: Menginstruksikan \textit{container engine} untuk menjalankan proses secara \textit{detached mode}, sehingga sesi terminal tetap dapat digunakan untuk eksekusi perintah lain.
+  \item \texttt{--name kepl-larevel}:\\
+        Memberikan nama identitas unik pada \textit{container} agar mempermudah operasi inspeksi dan manajemen siklus hidup proses.
+  \item \texttt{--network shared-net}:\\
+        Menghubungkan \textit{container} ke \textit{bridge network} \texttt{shared-net} untuk komunikasi internal antar-\textit{container} dengan resolusi DNS terisolasi.
+  \item \texttt{-p 8007:80}:\\
+        Melakukan \textit{port forwarding}, mengarahkan setiap lalu lintas jaringan yang masuk ke \textit{port} 8007 pada antarmuka mesin \textit{host} ke \textit{port} 80 di dalam \textit{container} FrankenPHP.
+  \item \texttt{--env-file .env} dan \texttt{-e DB\_HOST=mysql-db}:\\
+        Menginjeksikan variabel lingkungan aplikasi secara dinamis saat \textit{runtime}, termasuk mengarahkan variabel \textit{host database} ke nama layanan \textit{container} MySQL (\texttt{mysql-db}) tanpa mengubah isi kode sumber.
+\end{itemize}
+
+\par Status aktif \textit{container} diverifikasi menggunakan perintah \texttt{podman ps -s}, dengan luaran yang disajikan pada Kode \ref{lst:status-container}.
+
+\lstinputlisting[language={}, caption={[Status Container Aktif]{Luaran Perintah \texttt{podman ps -s} Menampilkan Informasi Container yang Sedang Berjalan}}, label={lst:status-container}]{resource/code/status-container.txt}
+
+\par Berdasarkan Kode \ref{lst:status-container}, sistem menampilkan daftar \textit{container} yang aktif pada mesin lokal. \textit{Container} dengan nama \texttt{kepl-larevel} (ID \texttt{d5ae2c348242}) tercatat berstatus \texttt{Up Less than a second} dengan \textit{port mapping} aktif \texttt{0.0.0.0:8007->80/tcp}. Ukuran \textit{writable layer} hanya sebesar 13,2 kB dengan ukuran \textit{virtual image} sebesar 725 MB, membuktikan bahwa isolasi proses berjalan sangat ringan dan efisien berdampingan dengan layanan \texttt{mysql-db}, \texttt{phpmyadmin-web}, dan \texttt{postgres-db}.
+
+\par Verifikasi fungsionalitas antarmuka web dilakukan dengan mengakses alamat\\
+\url{http://localhost:8007/links} melalui \textit{browser} pada mesin \textit{host}, sebagaimana ditunjukkan pada Gambar \ref{fig:antarmuka-web-laravel}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/antarmuka-web-laravel-container.png}
+  \caption{Antarmuka Web Aplikasi Link Shortener Laravel yang Berjalan di dalam Container melalui Port 8007}
+  \label{fig:antarmuka-web-laravel}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:antarmuka-web-laravel}, aplikasi web \textit{Link Shortener} berhasil diakses secara sempurna melalui \textit{browser} pada alamat \texttt{http://localhost:8007/links}. Halaman menampilkan judul utama "Semua Link", tombol navigasi "Buat Link Baru", tabel kelola tautan publik dengan data tautan aktif (\texttt{http://localhost:8007/vue}), serta status konektivitas \textit{database} yang terhubung stabil. Hal ini memverifikasi bahwa \textit{web server} FrankenPHP di dalam \textit{container} berhasil menerima \textit{request} HTTP dari luar \textit{container}, meneruskannya ke kernel aplikasi Laravel, dan mengembalikan \textit{response} HTML lengkap beserta aset pendukungnya.
+
+\subsection{Pengujian Eksternal Endpoint REST API Menggunakan API Client}
+
+\par Untuk memenuhi persyaratan pengujian aksesibilitas layanan dari luar batas \textit{container}, dilakukan penambahan dan pengujian terhadap \textit{REST API}. Definisi \textit{route} API yang dimodifikasi pada berkas \texttt{routes/api.php} disajikan pada Kode \ref{lst:api-php}.
+
+\lstinputlisting[language=php, caption={[Definisi Endpoint REST API]{Konfigurasi Endpoint API Termasuk Route Health Check pada \texttt{routes/api.php}}}, label={lst:api-php}]{resource/code/api.php}
+
+\par Berdasarkan Kode \ref{lst:api-php}, selain \textit{route} manajemen tautan (\texttt{links.stats}, \texttt{links.shorten}, dan \texttt{apiResource}), pada baris 12--16 ditambahkan \textit{route} mandiri \texttt{GET /health}. Endpoint ini dirancang khusus untuk memvalidasi ketersediaan layanan dan mengembalikan \textit{payload} JSON dengan struktur terdefinisi \texttt{\{"message": "ok"\}}.
+
+\par Pengujian pemanggilan endpoint dilakukan dari luar \textit{container} menggunakan \textit{API client} Hoppscotch yang berkomunikasi melalui antarmuka HTTP \textit{host} ke \textit{port} 8007, sebagaimana ditunjukkan pada Gambar \ref{fig:pengujian-api-health}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/pengujian-api-health-hoppscotch.png}
+  \caption{Hasil Pengujian Endpoint REST API \texttt{/api/health} Melalui Hoppscotch dari Luar Container}
+  \label{fig:pengujian-api-health}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pengujian-api-health}, pengujian pemanggilan endpoint REST API pada \textit{route}\\
+\url{http://localhost:8007/api/health} membuktikan keberhasilan komunikasi data lintas batas \textit{container} dengan rincian luaran sebagai berikut:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Metode dan URL Request}: Menggunakan metode \texttt{GET} yang diarahkan ke alamat sasaran \url{http://localhost:8007/api/health}.
+  \item \textbf{Status Response HTTP}: Menghasilkan kode status \textbf{\texttt{200 OK}}, yang menandakan \textit{request} berhasil diterima, diproses oleh \textit{route controller} Laravel di dalam \textit{container}, dan direspons tanpa hambatan otorisasi maupun galat \textit{internal server error}.
+  \item \textbf{Kinerja Latensi}: Waktu pemrosesan \textit{response} tercatat sangat cepat, yaitu sebesar \textbf{37 ms}, dengan ukuran transfer data sebesar 240 B.
+  \item \textbf{\textit{Payload} JSON / \textit{Response Body}}: \textit{Response body} memuat data JSON murni dengan format:
+        \begin{verbatim}
+  {
+    "message": "ok"
+  }
+  \end{verbatim}
+\end{itemize}
+
+\par Hasil pengujian ini secara komprehensif memvalidasi bahwa konfigurasi \textit{port forwarding} pada \textit{server} FrankenPHP dan \textit{routing} API Laravel telah berfungsi optimal untuk konsumsi layanan dari lingkungan eksternal.
+
 
 \section{Kesimpulan}
+
+\par Berdasarkan rangkaian implementasi, pengujian empiris, dan analisis komparatif yang telah dilakukan pada praktikum Konstruksi dan Evolusi Perangkat Lunak Tugas \Pertemuan, diperoleh kesimpulan sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Keberhasilan \textit{Containerization} Aplikasi Laravel}: Aplikasi web berbasis Laravel 11 berhasil dibungkus ke dalam \textit{image container} mandiri menggunakan \textit{server} modern FrankenPHP berbasis PHP 8.4, yang menyederhanakan arsitektur operasional menjadi satu unit proses terpadu tanpa memerlukan konfigurasi terpisah antara PHP-FPM dan Nginx.
+  \item \textbf{Efektivitas Empiris Strategi Urutan Layer Caching}: Pemisahan tahapan penyalinan serta instalasi dependensi Composer (\texttt{composer.json} dan \texttt{composer.lock}) sebelum penyalinan kode aplikasi terbukti secara empiris memangkas waktu kompilasi \textit{image} dari 141,196 detik pada siklus bersih pertama menjadi 3,731 detik pada siklus ketiga pasca modifikasi kode sumber (efisiensi peningkatan kecepatan mencapai 97,36\%).
+  \item \textbf{Peran Kritis .dockerignore dalam Isolasi Build Context}: Penerapan aturan pengecualian pada berkas \texttt{.dockerignore} terbukti efektif mengeliminasi direktori lokal berukuran besar (\texttt{vendor}, \texttt{node\_modules}) serta mencegah potensi kebocoran berkas rahasia kredensial lingkungan (\texttt{.env}) ke dalam \textit{layer image}.
+  \item \textbf{Validasi Aksesibilitas Layanan Antarmuka Web dan API}: Pengujian operasional membuktikan bahwa \textit{container} berhasil berjalan stabil pada \textit{bridge network} \texttt{shared-net}, mampu terhubung dengan \textit{database} eksternal, serta dapat diakses secara sempurna dari luar \textit{container} melalui \textit{port mapping} 8007, baik untuk penyajian antarmuka web pada \textit{browser} maupun pemanggilan endpoint REST API berstatus \texttt{200 OK}.
+\end{enumerate}
 
 \end{document}

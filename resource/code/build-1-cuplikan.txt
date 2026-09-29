@@ -1,0 +1,40 @@
+STEP 1/11: FROM dunglas/frankenphp:1-php8.4
+STEP 2/11: RUN apt update && apt install -y --no-install-recommends ca-certificates curl && rm -rf /var/lib/apt/lists/*
+Get:1 http://deb.debian.org/debian trixie InRelease [140 kB]
+...
+--> 0ac58afbaa25
+STEP 3/11: RUN install-php-extensions pdo_mysql gd intl zip bcmath opcache curl
+install-php-extensions v.2.12.0
+... [Proses kompilasi dan instalasi paket ekstensi PHP] ...
+--> 4605f4a600db
+STEP 4/11: COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+--> e8255a1bded6
+STEP 5/11: WORKDIR /app
+--> b614420fd320
+STEP 6/11: COPY composer.json composer.lock ./
+--> 6af009c4693a
+STEP 7/11: RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
+Installing dependencies from lock file
+Verifying lock file contents can be installed on current platform.
+Package operations: 76 installs, 0 updates, 0 removals
+... [Pengunduhan dan ekstraksi 76 pustaka dependensi Composer] ...
+--> 44566de37861
+STEP 8/11: COPY . /app
+--> 3c312baef5c5
+STEP 9/11: RUN composer dump-autoload --optimize && chown -R www-data:www-data /app/storage /app/bootstrap/cache && chmod -R 775 /app/storage /app/bootstrap/cache
+Generating optimized autoload files
+> Illuminate\Foundation\ComposerScripts::postAutoloadDump
+> @php artisan package:discover --ansi
+Generated optimized autoload files containing 4764 classes
+--> 2dd4391a31c2
+STEP 10/11: EXPOSE 80
+--> feb3975f9034
+STEP 11/11: CMD ["frankenphp", "php-server", "--root", "public/"]
+COMMIT kepl-be
+--> 09394dad0737
+Successfully tagged localhost/kepl-be:latest
+09394dad07373305ecf486fdc091b6e576ffedf2b32dc628636e6ecd4e780867
+
+real	2m21.196s
+user	2m59.943s
+sys	0m48.312s
