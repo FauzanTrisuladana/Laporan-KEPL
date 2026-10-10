@@ -12,14 +12,17 @@
 \usepackage{geometry}           % untuk margin
 \usepackage{setspace}           % untuk spasi baris
 \usepackage{fancyhdr}           % untuk header/footer
-\usepackage{hyperref}           % untuk link dan bookmark
-\usepackage{listings}           % untuk code Python
-\usepackage{xcolor}             % untuk warna
 \usepackage{float}              % untuk posisi gambar
-\usepackage{tocloft}            % Untuk membuat daftar isi menampilkan "Bab 1. Pendahuluan" instead of "1. Pendahuluan",
-\usepackage{lipsum}             % untuk lorem ipsum
+\usepackage{hyperref}           % untuk link dan bookmark
+\usepackage{listings}           % untuk code formatting
+\usepackage{xcolor}             % untuk warna
+\usepackage{tocloft}            % Untuk styling daftar isi
+\usepackage{lipsum}             % untuk placeholder text bila perlu
 \usepackage{indentfirst}        % untuk indent paragraf pertama
-\usepackage{enumitem}           % untuk kustomisasi penomoran list (A., B., dst)
+\usepackage{enumitem}           % untuk kustomisasi penomoran list
+\usepackage{booktabs}           % untuk tabel profesional
+\usepackage{tabularx}           % untuk tabel auto-wrap dengan lebar presisi
+\usepackage{amsmath}            % untuk rumus matematika dan \text{}
 
 % Pengaturan layout
 \geometry{left=3cm, right=2cm, top=2cm, bottom=2cm}
@@ -40,8 +43,7 @@
 \titleformat{\chapter}[hang]
   {\normalfont\huge\bfseries\centering}{\chaptertitlename\ \thechapter.}{1em}{}
 
-% Format code Python
-% --- VS Code-like code style (dark) ---
+% Format code (VS Code-like dark theme)
 \definecolor{vscodeBg}{HTML}{1E1E1E}
 \definecolor{vscodeFg}{HTML}{D4D4D4}
 \definecolor{vscodeKeyword}{HTML}{569CD6}
@@ -50,9 +52,30 @@
 \definecolor{vscodeNumber}{HTML}{858585}
 \definecolor{vscodeRule}{HTML}{3C3C3C}
 
+\lstdefinelanguage{dockerfile}{
+  keywords={FROM, RUN, CMD, LABEL, MAINTAINER, EXPOSE, ENV, ADD, COPY, ENTRYPOINT, VOLUME, USER, WORKDIR, ARG, ONBUILD, STOPSIGNAL, HEALTHCHECK, SHELL, AS},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinelanguage{yaml}{
+  keywords={name, on, push, pull_request, branches, env, jobs, runs-on, permissions, contents, packages, steps, uses, with, run, id, tags, labels},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]"
+}
+
 \lstdefinestyle{vscode-dark}{
-  language=Python,
-  basicstyle=\ttfamily\small\color{vscodeFg},
+  basicstyle=\ttfamily\footnotesize\color{vscodeFg},
   backgroundcolor=\color{vscodeBg},
   keywordstyle=\color{vscodeKeyword}\bfseries,
   commentstyle=\color{vscodeComment},
@@ -66,10 +89,9 @@
   columns=fullflexible,
   keepspaces=true,
   tabsize=2,
-  xleftmargin=2cm,
-  xrightmargin=1cm,
-  captionpos=b,
-  morekeywords={np, pd, plt, sns, array, DataFrame, Series, read_csv, read_excel, head, tail, info, describe, plot, scatter, bar, hist, fit, predict, transform, merge, concat, groupby, drop, fillna, dropna, iloc, loc}
+  xleftmargin=1.5cm,
+  xrightmargin=0.5cm,
+  captionpos=b
 }
 
 \lstset{style=vscode-dark}
@@ -85,8 +107,8 @@
 }
 
 % Info dokumen
-\newcommand{\Pertemuan}{1}
-\newcommand{\Materi}{Git, Github, dan Github Actions}
+\newcommand{\Pertemuan}{5}
+\newcommand{\Materi}{Optimasi Image Docker Multi-Stage, User Non-Root, Healthcheck, dan Publikasi GHCR}
 \title{Laporan \\ Konstruksi dan Evolusi Perangkat Lunak\\
 Tugas \Pertemuan\\
 \Materi}
@@ -99,22 +121,19 @@ Tugas \Pertemuan\\
 
 \begin{document}
 
-% Jika ingin daftar pustaka muncul meskipun belum ada entri di ref.bib,
-% tambahkan entri BibTeX ke file ref.bib terlebih dulu.
-
 % Title Page
-\begin{titlingpage} 
+\begin{titlingpage}
   \begin{center}
 
     \vspace{4cm}
-    \begin{Large} 
+    \begin{Large}
       \textbf{\thetitle} \\
     \end{Large}
     \vspace{2cm}
-    
-    \includegraphics[height=8cm]{resource/lambang ugm.png}\\ 
+
+    \includegraphics[height=8cm]{resource/lambang ugm.png}\\
     \vspace{2cm}
-    
+
     \textbf{Disusun oleh:}\\[0.8em]
     \begin{minipage}{0.8\textwidth}
       \raggedright
@@ -127,7 +146,7 @@ Tugas \Pertemuan\\
         \end{tabular}
       \end{large}
     \end{minipage}
-    
+
     \vspace{2cm}
     \begin{Large}
       \textbf{Program Studi D-IV Teknologi Rekayasa Perangkat Lunak} \\
@@ -137,16 +156,16 @@ Tugas \Pertemuan\\
       \textbf{Yogyakarta}\\
       \textbf{2026}\\
     \end{Large}
-    
+
   \end{center}
 \end{titlingpage}
 
 % Header/Footer
 \pagestyle{fancy}
-\fancyhf{}            % kosongkan header/footer default
-\renewcommand{\headrulewidth}{0pt} % hilangkan garis header (atas)
-\renewcommand{\footrulewidth}{0pt} % pastikan tidak ada garis footer
-\fancyfoot[C]{\thepage} % taruh nomor halaman di footer tengah
+\fancyhf{}
+\renewcommand{\headrulewidth}{0pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyfoot[C]{\thepage}
 
 % Pastikan halaman dengan style 'plain' (mis. ToC/List) juga tanpa garis atas
 \fancypagestyle{plain}{
@@ -155,7 +174,6 @@ Tugas \Pertemuan\\
   \renewcommand{\footrulewidth}{0pt}
   \fancyfoot[C]{\thepage}
 }
-
 
 % --- Styling Judul Daftar Isi, Gambar, dan Kode ---
 \renewcommand{\cfttoctitlefont}{\hfill\normalfont\LARGE\bfseries}
@@ -171,8 +189,8 @@ Tugas \Pertemuan\\
 \renewcommand{\cftchappagefont}{\bfseries}
 
 % --- Spasi dan Estetika ---
-\setlength{\cftbeforechapskip}{0.8em} % jarak antar bab
-\setlength{\cftbeforesecskip}{0.2em}  % jarak antar subbab
+\setlength{\cftbeforechapskip}{0.8em}
+\setlength{\cftbeforesecskip}{0.2em}
 \renewcommand{\cftsecfont}{\normalfont}
 \renewcommand{\cftsubsecfont}{\normalfont}
 
@@ -195,31 +213,279 @@ Tugas \Pertemuan\\
 % Daftar Listing
 \lstlistoflistings
 
-% --- Halaman Laporan Pertemuan (seperti contoh gambar) ---
-% Tidak pakai \chapter agar bisa menyatu dengan halaman sebelumnya.
+% --- Halaman Laporan Pertemuan ---
 \newpage
 \begin{center}
   \textbf{\LARGE Tugas \Pertemuan\\
   {[{\Materi}]}}
 \end{center}
 
-%contoh gambar dan kode
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{resource/contoh-gambar.png}
-%     \caption{Contoh Gambar}
-%     \label{fig:contoh-gambar}
-% \end{figure}
-
-% \begin{lstlisting}[language=php, caption={Contoh Kode Python}, label={lst:contoh-kode}]
-% def hello_world():
-%     print("Hello, World!")
-% \end{lstlisting}
-
 \section{Hasil dan Pembahasan}
 
-\par Sesuai dengan tujuan praktikum, berikut adalah hasil yang diperoleh dan pembahasan terkait materi yang telah dipelajari.
+\subsection{Identitas Repositori, Arsitektur Proyek, dan Jejak Commit Git}
+
+\par Praktikum Konstruksi dan Evolusi Perangkat Lunak Tugas \Pertemuan\ berfokus pada tahapan optimasi lanjutan terhadap arsitektur \textit{containerization} aplikasi web Laravel 11 berbasis FrankenPHP pada proyek \texttt{evolusi-pl-24-538699-SV-24524}. Jika pada penugasan sebelumnya \textit{image container} dibangun menggunakan pendekatan \textit{single-stage build} berbasis Debian, maka pada penugasan ini dilakukan restrukturisasi menyeluruh mencakup pemisahan tahap kompilasi dan penyajian (\textit{multi-stage build}), penguncian versi (\textit{version pinning}) menggunakan varian minimalis Alpine Linux, penerapan hak akses pengguna \textit{non-root} (\texttt{USER www-data}), konfigurasi pemantauan kesehatan (\texttt{HEALTHCHECK}), serta otomasi penerbitan \textit{image} ke GitHub Container Registry (GHCR) melalui GitHub Actions.
+
+\par Metadata repositori dan tautan artefak publikasi praktikum diuraikan sebagai berikut:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Repositori Organisasi GitHub}: KEPL2026\\
+        {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524}}
+  \item \textbf{Repositori Personal GitHub (Aktif CI/CD)}: FauzanTrisuladana\\
+        {\footnotesize\url{https://github.com/FauzanTrisuladana/evolusi-pl-24-538699-SV-24524}}
+  \item \textbf{Paket GitHub Container Registry (GHCR)}:\\
+        {\footnotesize\url{https://github.com/users/FauzanTrisuladana/packages/container/package/evolusi-laravel-app}}
+  \item \textbf{\textit{Main Branch}}: \texttt{main} dan \texttt{dev} sebagai cabang stabil dan integrasi rilis.
+  \item \textbf{\textit{Feature Branch}} (\texttt{feature/dockerize}):\\
+        Cabang pengembangan optimasi berkas \texttt{Dockerfile} serta otomasi \textit{pipeline} publikasi.
+\end{itemize}
+
+\par Perlu dicatat bahwa akibat adanya kendala pembatasan perizinan dan kuota eksekusi GitHub Actions pada repositori organisasi \texttt{KEPL2026}, seluruh implementasi otomasi CI/CD dan penerbitan paket GHCR dialihkan serta diverifikasi secara penuh melalui repositori personal\\
+\url{https://github.com/FauzanTrisuladana/evolusi-pl-24-538699-SV-24524}. Seluruh rekam jejak modifikasi kode pada tanggal 10 Oktober 2026 terdokumentasi melalui riwayat \textit{commit} Git sebagaimana disajikan pada Kode \ref{lst:git-log}.
+
+\lstinputlisting[language=bash, caption={[Jejak Commit Repositori Git]{Jejak Commit Git pada Repositori per 10 Oktober 2026}}, label={lst:git-log}]{resource/Code/git-log.txt}
+
+\par Berdasarkan Kode \ref{lst:git-log}, tahapan evolusi konfigurasi pada tanggal 10 Oktober 2026 tercatat secara terstruktur melalui tiga \textit{commit} utama. \textit{Commit} ber-hash \texttt{addd592} merepresentasikan restrukturisasi berkas \texttt{Dockerfile} menjadi arsitektur \textit{multi-stage build}, penyisipan instruksi penguncian versi Alpine, penetapan pengguna \textit{non-root}, pembuatan instruksi \texttt{HEALTHCHECK}, serta pencatatan log luaran terminal pengujian pada direktori \texttt{Tugas5}. Selanjutnya, \textit{commit} ber-hash \texttt{24722ae} menambahkan berkas konfigurasi \textit{workflow} GitHub Actions pada berkas\\
+\texttt{.github/workflows/docker-publish.yml}\\
+untuk mengotomasi proses kompilasi dan dorong \textit{image} ke registri GHCR. Rangkaian rekayasa disempurnakan melalui \textit{commit} \texttt{f98926f} yang memperbaiki konfigurasi perizinan dan skema penandaan (\textit{tagging}) agar eksekusi \textit{pipeline} berjalan secara sukses dan deterministik.
+
+\subsection{Refaktorisasi Dockerfile Menjadi Arsitektur Multi-Stage Build}
+
+\par Pada arsitektur konvensional \textit{single-stage build}, seluruh perkakas pengembangan (\textit{build tools}), pustaka kompilasi, dependensi Composer, serta kode sumber disatukan ke dalam satu \textit{layer} akhir yang sama. Hal ini menyebabkan pembengkakan ukuran \textit{image} dan memperluas bidang serangan (\textit{attack surface}) di lingkungan produksi. Untuk mengatasi kelemahan tersebut, berkas \texttt{Dockerfile} direfaktorisasi menggunakan pola \textit{multi-stage build} yang memisahkan proses menjadi dua tahap terisolasi: tahap pembangun (\textit{builder stage}) dan tahap pelayan runtime (\textit{runner stage}). Konfigurasi lengkap \texttt{Dockerfile} hasil optimasi disajikan pada Kode \ref{lst:dockerfile}.
+
+\lstinputlisting[language=dockerfile, caption={[Konfigurasi Dockerfile Multi-Stage]{Berkas Konfigurasi \texttt{Dockerfile} dengan Arsitektur Multi-Stage Build, Varian Alpine, User Non-Root, dan Healthcheck}}, label={lst:dockerfile}]{resource/Code/Dockerfile}
+
+\par Berdasarkan Kode \ref{lst:dockerfile}, arsitektur berkas \texttt{Dockerfile} disusun secara modular dengan rincian teknis sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Tahap 1: Builder (\texttt{AS builder})}:\\
+        Instruksi baris 5 menetapkan \textit{base image} pembangun menggunakan distribusi:\\
+        \texttt{dunglas/frankenphp:1-php8.4-alpine}.\\
+        Pada baris 8, biner Composer versi 2 disalin langsung dari \textit{image} resmi \texttt{composer:2} melalui instruksi\\
+        \texttt{COPY --from=composer:2 /usr/bin/composer /usr/bin/composer}.\\
+        Setelah direktori kerja \texttt{/app} ditetapkan,\\
+        berkas manifes dependensi \texttt{composer.json} dan \texttt{composer.lock} disalin terlebih dahulu (baris 13) sebelum kode aplikasi disalin. Perintah \texttt{composer install} dijalankan pada baris 16--22 dengan parameter produksi yang ketat:
+        \begin{itemize}[leftmargin=*]
+          \item \texttt{--no-dev}: Mengabaikan instalasi seluruh dependensi pengembangan (seperti PHPUnit, Mockery, Collision, Faker).
+          \item \texttt{--no-interaction}: Menonaktifkan interaksi prompt terminal.
+          \item \texttt{--no-plugins} dan \texttt{--no-scripts}: Mencegah eksekusi skrip otomatis yang tidak diperlukan pada tahap awal penyusunan dependensi.
+          \item \texttt{--prefer-dist} dan \texttt{--no-autoloader}: Mengunduh arsip distribusi dependensi secara cepat tanpa menghasilkan peta \textit{classmap} terlebih dahulu.
+        \end{itemize}
+        Selanjutnya, baris 25 menyalin seluruh kode sumber aplikasi ke direktori pembangun, disusul pembersihan berkas \textit{cache} sementara dan eksekusi perintah optimasi \textit{autoloader}:\\
+        \texttt{composer dump-autoload --optimize --no-dev --no-scripts}\\
+        pada baris 28--29 guna menghasilkan berkas \textit{classmap} teroptimasi secara statis.
+  \item \textbf{Tahap 2: Runner (\texttt{AS runner})}:\\
+        Instruksi baris 37 mendeklarasikan awal tahap runtime baru yang sepenuhnya bersih, kembali menggunakan \textit{base image} \texttt{dunglas/frankenphp:1-php8.4-alpine}. Biner Composer beserta perkakas pembangun tidak diikutsertakan. Pada baris 40--47, modul inti PHP esensial dipasang untuk melayani \textit{request}, yaitu \texttt{pdo\_mysql}, \texttt{gd}, \texttt{intl}, \texttt{zip}, \texttt{bcmath}, \texttt{opcache}, dan \texttt{curl}.
+  \item \textbf{Penyalinan Artefak Bersih (\texttt{COPY --from=builder})}:\\
+        Kunci utama efisiensi arsitektur ini terletak pada instruksi baris 52, yaitu\\
+        \texttt{COPY --from=builder /app /app}.\\
+        Instruksi ini secara selektif hanya menyalin direktori kerja aplikasi yang telah memuat direktori \texttt{vendor} bersih dan kode sumber teroptimasi dari tahap pembangun, tanpa menyertakan artefak kompilasi eksternal maupun biner Composer.
+  \item \textbf{Penguncian Versi dan Pemilihan Varian Minimalis}:\\
+        Alih-alih menggunakan tag generik \texttt{latest} yang tidak deterministik atau varian berbasis Debian glibc yang berbobot besar, konfigurasi ini secara konsisten mengunci versi rilis pada tag spesifik\\
+        \texttt{dunglas/frankenphp:1-php8.4-alpine}.\\
+        Distribusi Alpine Linux menggunakan pustaka C yang sangat ramping (\textit{musl libc}) dan pengelola paket \texttt{apk}, sehingga fondasi sistem operasi kontainer menjadi sangat minimalis.
+\end{enumerate}
+
+\subsection{Evaluasi Kuantitatif dan Pembuktian Reduksi Ukuran Image}
+
+\par Untuk membuktikan secara empiris bahwa refaktorisasi \textit{multi-stage build} dan pemilihan varian Alpine berhasil mereduksi ukuran \textit{image container}, dilakukan perbandingan kuantitatif antara \textit{image} yang dihasilkan pada Tugas 4 (\textit{single-stage build} berbasis Debian) dan Tugas 5 (\textit{multi-stage build} berbasis Alpine). Rangkaian perintah terminal yang dieksekusi menggunakan utilitas Podman untuk menguji dan mencatat proses ini disajikan pada Kode \ref{lst:perintah-eksekusi}.
+
+\lstinputlisting[language=bash, caption={[Skrip Eksekusi Pengujian dan Verifikasi]{Rangkaian Perintah Podman untuk Build Multi-Stage, Verifikasi Image, dan Eksekusi Container}}, label={lst:perintah-eksekusi}]{resource/Code/perintah-eksekusi.sh}
+
+\par Berdasarkan Kode \ref{lst:perintah-eksekusi}, seluruh perintah pengujian dijalankan dan luarannya dialirkan ke utilitas \texttt{tee} ke dalam direktori \texttt{Tugas5} guna menjamin transparansi data pengujian. Kondisi daftar \textit{image} lokal sebelum dilakukan optimasi terdokumentasi pada Gambar \ref{fig:image-sebelum-optimasi} dan Kode \ref{lst:images-sebelum}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/image-sebelum-optimasi.png}
+  \caption{Luaran Terminal Perintah \texttt{podman images} Sebelum Optimasi Multi-Stage (Tugas 4)}
+  \label{fig:image-sebelum-optimasi}
+\end{figure}
+
+\lstinputlisting[language={}, caption={[Luaran Daftar Image Sebelum Optimasi]{Daftar Ukuran Image Sebelum Penerapan Multi-Stage Build (\texttt{images-sebelum.txt})}}, label={lst:images-sebelum}]{resource/Code/images-sebelum.txt}
+
+\par Berdasarkan Gambar \ref{fig:image-sebelum-optimasi} dan Kode \ref{lst:images-sebelum}, \textit{image} aplikasi Laravel yang dibangun pada Tugas 4 tercatat dengan identitas \texttt{localhost/kepl-be:latest} (IMAGE ID \texttt{222b7bd7647b}) dengan ukuran mencapai \textbf{725 MB}. Besarnya ukuran ini disebabkan oleh penggunaan \textit{base image} \texttt{dunglas/frankenphp:1-php8.4} berbasis Debian (berukuran bawaan 610 MB), di mana biner Composer serta seluruh artefak dependensi tersimpan permanen pada \textit{layer image} akhir.
+
+\par Selanjutnya, proses kompilasi \textit{multi-stage build} dieksekusi melalui perintah\\
+\texttt{podman build -t kepl-be:multistage .}.\\
+Cuplikan log proses kompilasi dua tahap tersebut disajikan pada Kode \ref{lst:build-multistage}.
+
+\lstinputlisting[language={}, caption={[Log Eksekusi Multi-Stage Build]{Cuplikan Luaran Terminal Kompilasi Podman Dua Tahap (\texttt{build-multistage.txt})}}, label={lst:build-multistage}]{resource/Code/build-multistage.txt}
+
+\par Berdasarkan Kode \ref{lst:build-multistage}, proses kompilasi terbagi rapi menjadi dua sekuens: \texttt{[1/2]} untuk tahap \texttt{builder} sebanyak 7 langkah instruksi, dan \texttt{[2/2]} untuk tahap \texttt{runner} sebanyak 9 langkah instruksi. Setelah kompilasi tahap kedua selesai, luaran daftar \textit{image} terbaru diperiksa kembali sebagaimana disajikan pada Kode \ref{lst:images-sesudah}.
+
+\lstinputlisting[language={}, caption={[Luaran Daftar Image Sesudah Optimasi]{Daftar Ukuran Image Sesudah Penerapan Multi-Stage Build dan Alpine (\texttt{images-sesudah.txt})}}, label={lst:images-sesudah}]{resource/Code/images-sesudah.txt}
+
+\par Berdasarkan Kode \ref{lst:images-sesudah}, \textit{image} baru dengan tag \texttt{localhost/kepl-be:multistage} (IMAGE ID \texttt{92837acc8dac}) tercatat hanya berukuran \textbf{296 MB}. Evaluasi komparatif secara kuantitatif antara kondisi sebelum dan sesudah optimasi dirangkum secara komparatif pada Tabel \ref{tab:perbandingan-image}.
+
+\begin{table}[H]
+  \centering
+  \small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccc@{}}
+    \toprule
+    \textbf{Identitas Image} & \textbf{Sistem Operasi} & \textbf{Arsitektur Build} & \textbf{Ukuran} & \textbf{Efisiensi} \\
+    \midrule
+    \texttt{kepl-be:latest} (Tugas 4) & Debian GNU/Linux & Single-Stage & 725 MB & Acuan (0,00\%) \\
+    \texttt{kepl-be:multistage} (Tugas 5) & Alpine Linux & Multi-Stage & 296 MB & Teroptimasi \\
+    \midrule
+    \multicolumn{3}{l}{\textbf{Selisih Penurunan Ukuran (Delta)}} & \textbf{429 MB} & -- \\
+    \multicolumn{3}{l}{\textbf{Persentase Reduksi Ukuran Image}} & \textbf{59,17\%} & -- \\
+    \bottomrule
+  \end{tabular*}
+  \vspace{0.5em}
+  \caption{Komparasi Kuantitatif Ukuran Image Container Sebelum dan Sesudah Optimasi}
+  \label{tab:perbandingan-image}
+\end{table}
+
+\par Berdasarkan data pada Tabel \ref{tab:perbandingan-image}, selisih penurunan ukuran \textit{image} yang dicapai adalah sebesar \textbf{429 MB}. Perhitungan persentase efisiensi penurunan ukuran dihitung melalui rumus rasio reduksi:
+\begin{equation}
+  \text{Reduksi Ukuran (\%)} = \frac{725\text{ MB} - 296\text{ MB}}{725\text{ MB}} \times 100\% = \frac{429\text{ MB}}{725\text{ MB}} \times 100\% = 59,17\%
+\end{equation}
+
+\par Angka efisiensi sebesar \textbf{59,17\%} ini membuktikan secara nyata keberhasilan strategi penggabungan antara arsitektur \textit{multi-stage build} dan pemilihan distribusi Alpine Linux. Kompilasi berhasil membuang biner Composer, perkakas pengembangan, dan pustaka glibc Debian yang tidak diperlukan pada saat aplikasi menyajikan lalu lintas produksi.
+
+\subsection{Pengerasan Keamanan Non-Root User dan Monitoring Healthcheck}
+
+\par Standar keamanan industri kontainer mewajibkan penerapan prinsip \textit{Principle of Least Privilege}. Secara bawaan, apabila tidak ditentukan lain, proses di dalam kontainer akan dieksekusi dengan hak istimewa pengguna tertinggi (\texttt{root} dengan UID 0). Kondisi ini sangat berbahaya karena jika terjadi eksploitasi kerentanan keamanan pada aplikasi web (misalnya eksekusi kode berbahaya secara jarak jauh), penyerang berpotensi memperoleh kendali penuh atas sistem kontainer bahkan melakukan pelarian kontainer (\textit{container breakout}) ke mesin \textit{host}.
+
+\par Untuk memitigasi risiko tersebut, pada tahap \textit{runner} berkas \texttt{Dockerfile} disematkan instruksi hak akses dan penetapan pengguna \textit{non-root}:
+\begin{lstlisting}[language=dockerfile, caption={[Konfigurasi Hak Akses dan User Non-Root]{Pengaturan Perizinan Direktori dan Instruksi \texttt{USER www-data}}}, label={lst:user-non-root}]
+RUN mkdir -p /data/caddy /config/caddy /app/storage /app/bootstrap/cache \
+    && rm -f /app/bootstrap/cache/*.php \
+    && chown -R www-data:www-data /data/caddy /config/caddy /app/storage /app/bootstrap/cache \
+    && chmod -R 775 /app/storage /app/bootstrap/cache
+
+USER www-data
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:user-non-root}, sebelum instruksi \texttt{USER www-data} diaktifkan, direktori kerja Caddy dan direktori aplikasi Laravel yang memerlukan izin tulis (\texttt{storage} untuk berkas log dan sesi, serta \texttt{bootstrap/cache} untuk tembolok rute dan konfigurasi) diserahkan kepemilikannya kepada pengguna dan grup sistem \texttt{www-data:www-data} dengan mode izin \texttt{775}. Setelah izin dipersiapkan, instruksi \texttt{USER www-data} dideklarasikan sehingga seluruh proses runtime FrankenPHP berjalan di bawah konteks pengguna non-istimewa.
+
+\par Pembuktian bahwa kontainer tidak berjalan sebagai pengguna \texttt{root} dibuktikan melalui eksekusi perintah inspeksi pengguna \texttt{whoami} secara langsung ke dalam kontainer yang sedang aktif (\texttt{podman exec kepl-laravel-multistage whoami}), dengan luaran yang disajikan pada Kode \ref{lst:whoami}.
+
+\lstinputlisting[language={}, caption={[Verifikasi Identitas Pengguna Non-Root]{Luaran Eksekusi Perintah \texttt{podman exec whoami} di dalam Container}}, label={lst:whoami}]{resource/Code/whoami.txt}
+
+\par Berdasarkan Kode \ref{lst:whoami}, sistem secara tegas mengembalikan luaran \texttt{www-data}. Hal ini membuktikan secara mutlak bahwa batas isolasi proses telah terkunci pada pengguna non-root berhak akses terbatas, sehingga persyaratan keamanan kontainer terpenuhi sepenuhnya.
+
+\par Aspek keandalan berikutnya mencakup pengujian ketersediaan layanan melalui instruksi \texttt{HEALTHCHECK}. Pada berkas \texttt{Dockerfile}, instruksi ini dikonfigurasi sebagai berikut:
+\begin{lstlisting}[language=dockerfile, caption={[Konfigurasi Deklaratif Healthcheck]{Instruksi \texttt{HEALTHCHECK} untuk Pemantauan Ketersediaan Layanan Web}}, label={lst:healthcheck-cfg}]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://127.0.0.1/api/health || curl -f http://127.0.0.1/ || exit 1
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:healthcheck-cfg}, mekanisme pemantauan kesehatan dikonfigurasi dengan parameter interval pengujian berkala setiap 30 detik (\texttt{--interval=30s}), batas waktu toleransi respons 5 detik (\texttt{--timeout=5s}), masa inisialisasi awal aplikasi 10 detik (\texttt{--start-period=10s}), serta toleransi kegagalan berturut-turut sebanyak 3 kali (\texttt{--retries=3}). Pemeriksaan mengeksekusi utilitas \texttt{curl} untuk meminta endpoint kesehatan \texttt{/api/health} atau rute publik utama \texttt{/}. Status kontainer yang sedang berjalan aktif diperiksa menggunakan perintah \texttt{podman ps}, dengan luaran yang disajikan pada Kode \ref{lst:healthcheck}.
+
+\lstinputlisting[language={}, caption={[Status Container Aktif dan Pemantauan Layanan]{Luaran Perintah \texttt{podman ps} Menampilkan Status Container yang Berjalan}}, label={lst:healthcheck}]{resource/Code/healthcheck.txt}
+
+\par Berdasarkan Kode \ref{lst:healthcheck}, kontainer \texttt{kepl-laravel-multistage}\\
+(ID \texttt{90b7a2761291}) berstatus aktif (\texttt{Up 2 minutes}) serta mengekspos pemetaan port\\
+\texttt{0.0.0.0:8007->80/tcp}\\
+berdampingan dengan layanan basis data terisolasi. Secara teknis, mesin kontainer Podman secara bawaan mengompilasi \textit{image} menggunakan spesifikasi standar OCI (\textit{Open Container Initiative}). Pada spesifikasi OCI, kolom metadata \texttt{HEALTHCHECK} milik format Docker diabaikan pada tingkat pembentukan \textit{image} statis (sebagaimana terlihat pada pesan peringatan log di Kode \ref{lst:build-multistage}), kecuali jika format kompilasi secara eksplisit dipaksa menggunakan opsi \texttt{--format docker} atau didaftarkan melalui opsi runtime Podman. Namun demikian, deklarasi instruksi \texttt{HEALTHCHECK} ini tetap valid, presisi, dan sepenuhnya kompatibel saat \textit{image} didorong serta dioperasikan di bawah lingkungan Docker Engine maupun orkestrasi Kubernetes/GHCR.
+
+\par Verifikasi operasional antarmuka web dilakukan dengan mengakses alamat\\
+\url{http://localhost:8007}\\
+melalui peramban web pada mesin \textit{host}, sebagaimana disajikan pada Gambar \ref{fig:antarmuka-web-laravel-multistage}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/antarmuka-web-laravel-multistage.png}
+  \caption{Tampilan Antarmuka Aplikasi Web Laravel dari Container Multi-Stage melalui Port 8007}
+  \label{fig:antarmuka-web-laravel-multistage}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:antarmuka-web-laravel-multistage}, aplikasi web Laravel berhasil menyajikan antarmuka awal secara sempurna melalui peramban mesin \textit{host} pada alamat \texttt{http://localhost:8007}. Seluruh komponen grafis, tautan dokumentasi, tombol navigasi rute pendek (\textit{Short Links}), serta sistem otentikasi dapat dimuat tanpa hambatan. Keberhasilan ini membuktikan bahwa \textit{web server} FrankenPHP yang berjalan di bawah pengguna \texttt{www-data} pada \textit{image multi-stage} Alpine mampu melayani lalu lintas HTTP secara cepat dan stabil.
+
+\subsection{Otomasi Pipeline CI/CD dan Publikasi Image ke GitHub Container Registry (GHCR)}
+
+\par Tahap akhir penugasan adalah mengintegrasikan berkas \texttt{Dockerfile} ke dalam alur kerja integrasi dan pengiriman berkelanjutan (\textit{Continuous Integration and Continuous Deployment} / CI/CD) menggunakan GitHub Actions. Tujuannya adalah mengotomasi proses kompilasi \textit{image} setiap kali terjadi pembaruan kode, serta mempublikasikan \textit{image} yang siap produksi ke registri kontainer resmi GitHub (\textit{GitHub Container Registry} / GHCR pada domain \texttt{ghcr.io}).
+
+\par Sebelum mengeksekusi \textit{workflow}, konfigurasi hak akses keamanan repositori wajib disesuaikan agar token bawaan \texttt{GITHUB\_TOKEN} diizinkan menulis dan memperbarui paket pada registri GHCR. Konfigurasi perizinan repositori tersebut ditunjukkan pada Gambar \ref{fig:konfigurasi-github-actions-permissions}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/konfigurasi-github-actions-permissions.png}
+  \caption{Pengaturan Workflow Permissions pada Repositori GitHub untuk Akses Tulis GHCR}
+  \label{fig:konfigurasi-github-actions-permissions}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:konfigurasi-github-actions-permissions}, pada menu \textit{Settings} $\rightarrow$ \textit{Actions} $\rightarrow$ \textit{General} bagian \textit{Workflow permissions}, opsi perizinan ditetapkan ke \textbf{\textit{Read and write permissions}}. Pengaturan ini memberikan hak akses istimewa yang sah bagi \textit{workflow runner} untuk mengelola paket (\textit{packages write}) dan membaca isi repositori (\textit{contents read}).
+
+\par Berkas konfigurasi otomasi alur kerja disimpan pada berkas konfigurasi\\
+\texttt{.github/workflows/docker-publish.yml},\\
+dengan isi konfigurasi lengkap yang disajikan pada Kode \ref{lst:docker-publish}.
+
+\lstinputlisting[language=yaml, caption={[Workflow Publikasi Image ke GHCR]{Konfigurasi Otomasi GitHub Actions untuk Build dan Push Image ke GHCR}}, label={lst:docker-publish}]{resource/Code/docker-publish.yml}
+
+\par Berdasarkan Kode \ref{lst:docker-publish}, alur kerja otomasi dirancang dengan memperhatikan kaidah rekayasa perangkat lunak modern sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Pemicu Eksekusi (\textit{Triggers})}:\\
+        Baris 3--7 mengonfigurasi pemicu \textit{workflow} secara otomatis pada peristiwa \texttt{push} ke cabang \texttt{main}, \texttt{dev}, serta cabang fitur (\texttt{feature/**}) dan cabang pemeliharaan (\texttt{chore/**}), serta pada peristiwa \texttt{pull\_request} menuju cabang \texttt{main}.
+  \item \textbf{Normalisasi Nama Image Menjadi Huruf Kecil (\textit{Lowercase Normalization})}:\\
+        Registri GHCR menerapkan aturan ketat bahwa nama paket dan organisasi wajib menggunakan huruf kecil semua (\textit{lowercase}). Baris 24--30 mengatasi potensi kegagalan akibat nama pengguna berhuruf kapital melalui perintah transformasi:
+        \begin{center}
+          \texttt{\footnotesize OWNER\_LOWER=\$(echo "\$\{\{ github.repository\_owner \}\}" | tr '[:upper:]' '[:lower:]')}
+        \end{center}
+        sehingga variabel \texttt{IMAGE\_NAME} terbentuk secara valid menjadi\\
+        \texttt{ghcr.io/fauzantrisuladana/evolusi-laravel-app}.
+  \item \textbf{Otentikasi Mandiri Aman}:\\
+        Baris 32--38 memanfaatkan tindakan resmi \texttt{docker/login-action@v3} untuk masuk ke registri \texttt{ghcr.io} menggunakan token internal \texttt{\$\{\{ secrets.GITHUB\_TOKEN \}\}}, sehingga tidak memerlukan pembuatan token akses personal (\textit{Personal Access Token} / PAT) manual yang rentan bocor.
+  \item \textbf{Skema Penandaan Deterministik (\textit{Deterministic Tagging})}:\\
+        Baris 42--52 memanfaatkan tindakan \texttt{docker/metadata-action@v5} untuk mengekstrak tag. Sesuai instruksi soal, penandaan tidak hanya bergantung pada tag \texttt{latest}, melainkan menyematkan nomor \textit{commit} SHA panjang secara deterministik (\texttt{type=sha,format=long,prefix=}) yang menghasilkan tag unik berbasis \texttt{\$\{\{ github.sha \}\}}.
+  \item \textbf{Kompilasi dan Pengiriman (\textit{Build and Push})}:\\
+        Baris 54--61 mengeksekusi \texttt{docker/build-push-action@v6} dengan parameter \texttt{push: true} untuk mengompilasi berkas \texttt{Dockerfile} dan mengirimkan \textit{layer image} beserta seluruh tag ke GHCR.
+\end{enumerate}
+
+\par Eksekusi \textit{workflow} pada \textit{commit} \texttt{f98926f} berhasil berjalan secara sempurna tanpa kesalahan, sebagaimana dibuktikan oleh status hijau (\textit{Success}) pada Gambar \ref{fig:workflow-run-ghcr-success}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/workflow-run-ghcr-success.png}
+  \caption{Luaran Eksekusi Workflow Run GitHub Actions yang Berhasil (Status Hijau) pada Commit f98926f}
+  \label{fig:workflow-run-ghcr-success}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:workflow-run-ghcr-success}, riwayat eksekusi pekerjaan\\
+\textit{Build \& Push to GHCR}\\
+menampilkan tanda centang hijau dengan status \textbf{\textit{Success}} dalam durasi total eksekusi 1 menit 37 detik. Ringkasan kompilasi Docker (\textit{Docker Build summary}) memvalidasi bahwa seluruh tahap pembangunan \textit{image} berhasil diselesaikan, dikompresi, dan dikirimkan ke registri tujuan.
+
+\par Setelah \textit{image} terbit di GHCR, visibilitas awal paket yang berstatus \textit{Private} diubah menjadi terbuka untuk umum (\textit{Public}) melalui menu pengaturan paket, sebagaimana ditunjukkan pada Gambar \ref{fig:pengaturan-visibilitas-package-public}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/pengaturan-visibilitas-package-public.png}
+  \caption{Modal Pengaturan Visibilitas Paket Menjadi Public pada GitHub Container Registry}
+  \label{fig:pengaturan-visibilitas-package-public}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pengaturan-visibilitas-package-public}, pada kotak dialog konfirmasi \textit{Change package visibility}, opsi \textbf{\textit{Public}} dipilih dan dikonfirmasi dengan mengetikkan nama paket \texttt{evolusi-laravel-app}. Tindakan ini menjamin bahwa \textit{image container} dapat diunduh (\texttt{docker pull}) secara terbuka oleh publik maupun penguji tanpa memerlukan otentikasi rahasia.
+
+\par Tampilan akhir halaman paket yang telah terbit secara publik di GitHub Container Registry disajikan pada Gambar \ref{fig:halaman-package-ghcr-public}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/halaman-package-ghcr-public.png}
+  \caption{Halaman Paket GHCR evolusi-laravel-app dengan Status Publikasi Public dan Tag Commit SHA}
+  \label{fig:halaman-package-ghcr-public}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:halaman-package-ghcr-public}, halaman paket \texttt{evolusi-laravel-app} menampilkan label visibilitas \textbf{\textit{Public}} dan menyediakan perintah penarikan kontainer resmi:
+\begin{center}
+  \footnotesize\texttt{docker pull ghcr.io/fauzantrisuladana/evolusi-laravel-app:f98926f791433c7ab59284d0bec5a9137fc6c3c1}
+\end{center}
+Pada daftar versi yang baru diterbitkan (\textit{Recent tagged image versions}), sistem mencatat dua tag yang saling terhubung: tag nomor \textit{commit} SHA penuh (\texttt{f98926f...}) dan tag \texttt{latest}. Hal ini membuktikan bahwa seluruh tahapan pengiriman otomatis telah berhasil terintegrasi secara profesional dan memenuhi seluruh kriteria penugasan.
+
 
 \section{Kesimpulan}
+
+\par Berdasarkan rangkaian refaktorisasi arsitektur, pengujian kuantitatif empiris, pengerasan konfigurasi keamanan, dan otomasi alur kerja pengiriman yang telah dilaksanakan pada praktikum Tugas \Pertemuan, diperoleh kesimpulan sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Keberhasilan Reduksi Ukuran Image Melalui Multi-Stage Build}:\\
+        Penerapan arsitektur \textit{multi-stage build} yang memisahkan tahap pembangunan (\textit{builder}) dan tahap penyajian (\textit{runner}), dikombinasikan dengan penguncian versi pada distribusi minimalis\\
+        \texttt{dunglas/frankenphp:1-php8.4-alpine},\\
+        terbukti secara empiris berhasil memangkas ukuran \textit{image} dari 725 MB menjadi 296 MB. Pengurangan sebesar 429 MB ini menghasilkan efisiensi penurunan ukuran sebesar 59,17\%, mempercepat waktu transfer jaringan dan menghemat alokasi ruang penyimpanan server.
+  \item \textbf{Pengerasan Keamanan Kontainer Menggunakan User Non-Root}:\\
+        Pengalihan konteks eksekusi dari akun \texttt{root} ke akun sistem \texttt{www-data} berhasil memenuhi prinsip \textit{Principle of Least Privilege}. Pengujian verifikasi identitas menggunakan perintah terminal \texttt{podman exec whoami} menghasilkan luaran \texttt{www-data}, membuktikan bahwa kontainer terlindungi dari ancaman penyalahgunaan hak akses istimewa sistem operasi.
+  \item \textbf{Peningkatan Keandalan Layanan Berbasis Healthcheck}:\\
+        Instruksi \texttt{HEALTHCHECK} pada berkas \texttt{Dockerfile} menyediakan mekanisme pemantauan kesehatan periodik atas rute aplikasi Laravel. Kontainer berjalan stabil dan menyajikan antarmuka web pada pemetaan port 8007.
+  \item \textbf{Otomasi Alur Rilis CI/CD dan Publikasi Mandiri ke GHCR}:\\
+        Implementasi \textit{pipeline} GitHub Actions berhasil mengotomasi proses kompilasi dan distribusi \textit{image} ke GitHub Container Registry (\texttt{ghcr.io}) secara mandiri menggunakan \texttt{GITHUB\_TOKEN}. Skema penandaan berbasis nomor \textit{commit} SHA penuh menjamin sifat ketertelusuran (\textit{traceability}) dan keterulangan (\textit{reproducibility}) rilis, serta perubahan visibilitas paket menjadi \textit{Public} memungkinkan aksesibilitas pengunduhan kontainer secara terbuka dan terstandarisasi.
+\end{enumerate}
 
 \end{document}

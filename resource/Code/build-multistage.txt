@@ -1,0 +1,49 @@
+[1/2] STEP 1/7: FROM dunglas/frankenphp:1-php8.4-alpine AS builder
+[1/2] STEP 2/7: COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+--> Using cache 9fa0aea0935fb5abebd33e6ce8fed482dff0be9d8f088036d54221521b8ecf17
+--> 9fa0aea0935f
+[1/2] STEP 3/7: WORKDIR /app
+--> Using cache fe8dc6f97ae2dee31c49553dadb31a02c29d4d65bd6f109546c2d5fbebffca5d
+--> fe8dc6f97ae2
+[1/2] STEP 4/7: COPY composer.json composer.lock ./
+--> Using cache 1fddae2e2e9a6fc4b7829f84f003ea57abafcea91b3b1f43b4399961a8e9b688
+--> 1fddae2e2e9a
+[1/2] STEP 5/7: RUN composer install     --no-dev     --no-interaction     --no-plugins     --no-scripts     --prefer-dist     --no-autoloader
+--> Using cache 891d544ebc3a1acb3e10cb33418754ae1349f6c00e8545be31264b8b559aaf3f
+--> 891d544ebc3a
+[1/2] STEP 6/7: COPY . /app
+time="2026-10-10T20:44:40+07:00" level=warning msg="HEALTHCHECK is not supported for OCI image format and will be ignored. Must use `docker` format"
+--> 21f6355ac8ec
+[1/2] STEP 7/7: RUN rm -f bootstrap/cache/*.php     && composer dump-autoload --optimize --no-dev --no-scripts
+Generating optimized autoload files
+Generated optimized autoload files containing 4764 classes
+time="2026-10-10T20:44:41+07:00" level=warning msg="HEALTHCHECK is not supported for OCI image format and will be ignored. Must use `docker` format"
+--> 30c86f2c16a8
+[2/2] STEP 1/9: FROM dunglas/frankenphp:1-php8.4-alpine AS runner
+[2/2] STEP 2/9: RUN install-php-extensions     pdo_mysql     gd     intl     zip     bcmath     opcache     curl
+--> Using cache 0c68e333f2ea8b56aa63587722dc525f94ed146720145ad26b3bd444b2d08946
+--> 0c68e333f2ea
+[2/2] STEP 3/9: WORKDIR /app
+--> Using cache 2a5f8fd6aa485e49af4e161fa38e3f0b5d3d80ff513e9798b3756fa81e2491c5
+--> 2a5f8fd6aa48
+[2/2] STEP 4/9: COPY --from=builder /app /app
+time="2026-10-10T20:44:42+07:00" level=warning msg="HEALTHCHECK is not supported for OCI image format and will be ignored. Must use `docker` format"
+--> c97610dbacb6
+[2/2] STEP 5/9: RUN mkdir -p /data/caddy /config/caddy /app/storage /app/bootstrap/cache     && rm -f /app/bootstrap/cache/*.php     && chown -R www-data:www-data /data/caddy /config/caddy /app/storage /app/bootstrap/cache     && chmod -R 775 /app/storage /app/bootstrap/cache
+time="2026-10-10T20:44:43+07:00" level=warning msg="HEALTHCHECK is not supported for OCI image format and will be ignored. Must use `docker` format"
+--> 779406c016ba
+[2/2] STEP 6/9: USER www-data
+time="2026-10-10T20:44:43+07:00" level=warning msg="HEALTHCHECK is not supported for OCI image format and will be ignored. Must use `docker` format"
+--> 8334f859d6f1
+[2/2] STEP 7/9: HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3     CMD curl -f http://127.0.0.1/api/health || curl -f http://127.0.0.1/ || exit 1
+time="2026-10-10T20:44:43+07:00" level=warning msg="HEALTHCHECK is not supported for OCI image format and will be ignored. Must use `docker` format"
+--> f62ebe3f2309
+[2/2] STEP 8/9: EXPOSE 80
+time="2026-10-10T20:44:44+07:00" level=warning msg="HEALTHCHECK is not supported for OCI image format and will be ignored. Must use `docker` format"
+--> 17aa4c0cf9ed
+[2/2] STEP 9/9: CMD ["frankenphp", "php-server", "--root", "public/"]
+[2/2] COMMIT kepl-be:multistage
+time="2026-10-10T20:44:44+07:00" level=warning msg="HEALTHCHECK is not supported for OCI image format and will be ignored. Must use `docker` format"
+--> 92837acc8dac
+Successfully tagged localhost/kepl-be:multistage
+92837acc8daca09f68098b4a3af686c95ae14f24e3048f620af7c8fd13835e1e
