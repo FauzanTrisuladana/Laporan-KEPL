@@ -1,0 +1,6 @@
+CONTAINER ID  IMAGE                                COMMAND               CREATED        STATUS        PORTS                                             NAMES
+99c660ce7560  docker.io/library/mysql:latest       mysqld                2 months ago   Up 40 hours   0.0.0.0:3306->3306/tcp, 33060/tcp                 mysql-db
+edb6362da843  docker.io/library/phpmyadmin:latest  apache2-foregroun...  2 months ago   Up 40 hours   0.0.0.0:8080->80/tcp                              phpmyadmin-web
+6bc8771c5cd5  docker.io/library/postgres:latest    postgres              3 weeks ago    Up 40 hours   0.0.0.0:5432->5432/tcp                            postgres-db
+4c8b5c1e5f02  docker.io/dpage/pgadmin4:latest                            3 weeks ago    Up 40 hours   0.0.0.0:8081->80/tcp, 443/tcp                     pgadmin-web
+90b7a2761291  localhost/kepl-be:multistage         frankenphp php-se...  2 minutes ago  Up 2 minutes  0.0.0.0:8007->80/tcp, 443/tcp, 2019/tcp, 443/udp  kepl-laravel-multistage

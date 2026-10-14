@@ -1,0 +1,17 @@
+commit f98926f791433c7ab59284d0bec5a9137fc6c3c1 (HEAD -> main, personal/main, personal/feature/dockerize, personal/dev, origin/main, origin/feature/dockerize, origin/dev, feature/dockerize, dev)
+Author: Fratsia <fauzantrisuladana@gmail.com>
+Date:   Sat Oct 10 21:14:38 2026 +0700
+
+    fix(docker-publish):
+
+commit 24722ae50a91fe9b0e3410d79a8c01e86aeeca2e
+Author: Fratsia <fauzantrisuladana@gmail.com>
+Date:   Sat Oct 10 21:09:23 2026 +0700
+
+    feat(docker-publish): membuat docker-publish untuk images
+
+commit addd592d94ad7a7de384b7b4ac72f86a141137a4
+Author: Fratsia <fauzantrisuladana@gmail.com>
+Date:   Sat Oct 10 20:57:24 2026 +0700
+
+    feat(image): perbaikan docker file jadi 4 step

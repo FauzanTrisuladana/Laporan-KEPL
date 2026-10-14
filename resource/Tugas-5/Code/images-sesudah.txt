@@ -1,0 +1,16 @@
+REPOSITORY                                TAG              IMAGE ID      CREATED             SIZE
+localhost/kepl-be                         multistage       92837acc8dac  About a minute ago  296 MB
+localhost/kepl-be                         test             81febb5d2c45  47 minutes ago      714 MB
+docker.io/dunglas/frankenphp              1-php8.4         5280daeb072b  6 days ago          610 MB
+docker.io/dunglas/frankenphp              1-php8.4-alpine  29481a4d1f28  6 days ago          196 MB
+localhost/kepl-be                         single-stage     222b7bd7647b  11 days ago         725 MB
+localhost/kepl-be                         latest           222b7bd7647b  11 days ago         725 MB
+docker.io/library/composer                2                87ef1f7078ab  2 weeks ago         228 MB
+docker.io/library/node                    24-alpine        c10884952bb8  3 weeks ago         173 MB
+docker.io/library/postgres                latest           4b87d5343a0e  2 months ago        464 MB
+docker.io/dpage/pgadmin4                  latest           78bcd13ffb0a  2 months ago        547 MB
+localhost/be-akuntansi-pemuda_laravel     latest           39cb38ead308  2 months ago        731 MB
+localhost/shortener_laravel               latest           51e51e85bfac  2 months ago        707 MB
+localhost/be-kpri-bina-sejahtera_laravel  latest           04066027b626  2 months ago        704 MB
+docker.io/library/mysql                   latest           4babd5755458  2 months ago        962 MB
+docker.io/library/phpmyadmin              latest           378551f7e9b6  2 months ago        589 MB
