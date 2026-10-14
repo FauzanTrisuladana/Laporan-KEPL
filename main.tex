@@ -7,19 +7,24 @@
 \usepackage{titling}
 \usepackage{titlesec}
 \usepackage[backend=biber,style=ieee]{biblatex}
+\setcounter{biburllcpenalty}{7000}
+\setcounter{biburlucpenalty}{8000}
 
 % Package tambahan untuk layout dan formatting
 \usepackage{geometry}           % untuk margin
 \usepackage{setspace}           % untuk spasi baris
 \usepackage{fancyhdr}           % untuk header/footer
 \usepackage{hyperref}           % untuk link dan bookmark
-\usepackage{listings}           % untuk code Python
+\usepackage{listings}           % untuk code
 \usepackage{xcolor}             % untuk warna
 \usepackage{float}              % untuk posisi gambar
-\usepackage{tocloft}            % Untuk membuat daftar isi menampilkan "Bab 1. Pendahuluan" instead of "1. Pendahuluan",
+\usepackage{tocloft}            % Untuk membuat daftar isi menampilkan "Bab 1. Pendahuluan" instead of "1. Pendahuluan"
 \usepackage{lipsum}             % untuk lorem ipsum
 \usepackage{indentfirst}        % untuk indent paragraf pertama
 \usepackage{enumitem}           % untuk kustomisasi penomoran list (A., B., dst)
+\usepackage{booktabs}           % untuk tabel profesional
+\usepackage{tabularx}           % untuk tabel auto-wrap dengan lebar presisi
+\usepackage{amsmath}            % untuk rumus matematika dan \text{}
 
 % Pengaturan layout
 \geometry{left=3cm, right=2cm, top=2cm, bottom=2cm}
@@ -30,18 +35,27 @@
 \renewcommand{\thesubsection}{\thesection.\arabic{subsection}}
 \renewcommand{\thesubsubsection}{\thesubsection.\arabic{subsubsection}}
 
-% Penomoran figure mengikuti section (misal, Gambar A.1, A.2, ...)
+% Penomoran figure dan table mengikuti section (misal, Gambar A.1, A.2, ...)
 \renewcommand{\thefigure}{\thesection.\arabic{figure}}
+\renewcommand{\thetable}{\thesection.\arabic{table}}
 \makeatletter
 \@addtoreset{figure}{section}
+\@addtoreset{table}{section}
+\AtBeginDocument{
+  \renewcommand{\theHfigure}{fig.\thesection.\arabic{figure}}
+  \renewcommand{\theHtable}{tab.\thesection.\arabic{table}}
+  \renewcommand{\thelstlisting}{\thesection.\arabic{lstlisting}}
+  \renewcommand{\theHlstlisting}{lst.\thesection.\arabic{lstlisting}}
+  \@addtoreset{lstlisting}{section}
+}
+\g@addto@macro\UrlBreaks{\do\/\do-\do_}
 \makeatother
 
 % Format chapter
 \titleformat{\chapter}[hang]
   {\normalfont\huge\bfseries\centering}{\chaptertitlename\ \thechapter.}{1em}{}
 
-% Format code Python
-% --- VS Code-like code style (dark) ---
+% Format code (VS Code-like dark theme)
 \definecolor{vscodeBg}{HTML}{1E1E1E}
 \definecolor{vscodeFg}{HTML}{D4D4D4}
 \definecolor{vscodeKeyword}{HTML}{569CD6}
@@ -50,9 +64,46 @@
 \definecolor{vscodeNumber}{HTML}{858585}
 \definecolor{vscodeRule}{HTML}{3C3C3C}
 
+\lstdefinelanguage{yaml}{
+  keywords={name, on, push, pull_request, branches, jobs, build, test, lint, deploy, staging, production, needs, runs-on, steps, uses, with, run, environment, if, working-directory, env, permissions, contents, packages, id, tags, labels},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={break, case, catch, class, const, continue, debugger, default, delete, do, else, export, extends, finally, for, function, if, import, in, instanceof, new, return, super, switch, this, throw, try, typeof, var, void, while, with, yield, async, await},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  ndkeywords={boolean, number, string, symbol, type, from, as, of, true, false, null, undefined},
+  ndkeywordstyle=\color{vscodeKeyword}\bfseries,
+  identifierstyle=\color{vscodeFg},
+  sensitive=true,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]",
+  morestring=[b]`
+}
+
+\lstdefinelanguage{dockerfile}{
+  keywords={FROM, RUN, CMD, LABEL, MAINTAINER, EXPOSE, ENV, ADD, COPY, ENTRYPOINT, VOLUME, USER, WORKDIR, ARG, ONBUILD, STOPSIGNAL, HEALTHCHECK, SHELL, AS},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]"
+}
+
 \lstdefinestyle{vscode-dark}{
-  language=Python,
-  basicstyle=\ttfamily\small\color{vscodeFg},
+  basicstyle=\ttfamily\footnotesize\color{vscodeFg},
   backgroundcolor=\color{vscodeBg},
   keywordstyle=\color{vscodeKeyword}\bfseries,
   commentstyle=\color{vscodeComment},
@@ -66,10 +117,9 @@
   columns=fullflexible,
   keepspaces=true,
   tabsize=2,
-  xleftmargin=2cm,
-  xrightmargin=1cm,
-  captionpos=b,
-  morekeywords={np, pd, plt, sns, array, DataFrame, Series, read_csv, read_excel, head, tail, info, describe, plot, scatter, bar, hist, fit, predict, transform, merge, concat, groupby, drop, fillna, dropna, iloc, loc}
+  xleftmargin=1.5cm,
+  xrightmargin=0.5cm,
+  captionpos=b
 }
 
 \lstset{style=vscode-dark}
@@ -98,9 +148,6 @@ Tugas \Pertemuan\\
 \author{\NamaMahasiswa\\\NIMMahasiswa}
 
 \begin{document}
-
-% Jika ingin daftar pustaka muncul meskipun belum ada entri di ref.bib,
-% tambahkan entri BibTeX ke file ref.bib terlebih dulu.
 
 % Title Page
 \begin{titlingpage}
@@ -156,7 +203,6 @@ Tugas \Pertemuan\\
     \fancyfoot[C]{\thepage}
 }
 
-
 % --- Styling Judul Daftar Isi, Gambar, dan Kode ---
 \renewcommand{\cfttoctitlefont}{\hfill\normalfont\LARGE\bfseries}
 \renewcommand{\cftaftertoctitle}{\hfill}
@@ -195,31 +241,1542 @@ Tugas \Pertemuan\\
 % Daftar Listing
 \lstlistoflistings
 
-% --- Halaman Laporan Pertemuan (seperti contoh gambar) ---
-% Tidak pakai \chapter agar bisa menyatu dengan halaman sebelumnya.
+% --- Halaman Laporan Pertemuan ---
 \newpage
 \begin{center}
     \textbf{\LARGE Tugas \Pertemuan\\
     {[{\Materi}]}}
 \end{center}
 
-%contoh gambar dan kode
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{resource/contoh-gambar.png}
-%     \caption{Contoh Gambar}
-%     \label{fig:contoh-gambar}
-% \end{figure}
-
-% \begin{lstlisting}[language=php, caption={Contoh Kode Python}, label={lst:contoh-kode}]
-% def hello_world():
-%     print("Hello, World!")
-% \end{lstlisting}
-
 \section{Hasil dan Pembahasan}
 
-\par Sesuai dengan tujuan praktikum, berikut adalah hasil yang diperoleh dan pembahasan terkait materi yang telah dipelajari.
+\par Laporan Ujian Tengah Semester (UTS) ini memuat dokumentasi komprehensif atas seluruh hasil perancangan, implementasi fitur, otomasi pengujian, dan evolusi perangkat lunak yang telah diselesaikan secara berkesinambungan dari Tugas 1 hingga Tugas 5 pada mata kuliah Konstruksi dan Evolusi Perangkat Lunak. Pembahasan disusun secara kronologis dan terstruktur, merefleksikan setiap penambahan kapabilitas sistem mulai dari inisialisasi repositori Git dan integrasi awal \textit{Continuous Integration} (CI), penerapan \textit{Continuous Delivery} (CD) multi-tahap dan skrip \texttt{deploy.sh}, penyediaan REST API dan perancangan antarmuka \textit{Single Page Application} (SPA) Vue 3, kontainerisasi aplikasi berbasis FrankenPHP dan optimasi \textit{layer caching}, hingga refaktorisasi citra \textit{multi-stage build} minimalis Alpine Linux dengan pengerasan keamanan pengguna \textit{non-root}, pemantauan kesehatan via \texttt{HEALTHCHECK}, serta penerbitan otomatis citra ke GitHub Container Registry (GHCR).
+
+
+\subsection{Tugas 1: Identitas Repositori dan Tautan Proyek}
+
+\par Berdasarkan ketentuan penugasan praktikum, repositori publik dibuat di dalam organisasi GitHub resmi \texttt{KEPL2026} dengan pola penamaan \texttt{evolusi-pl-NIM}. Repositori ini dikonfigurasi dengan \textit{Git workflow} yang terstruktur, dua tahapan \textit{Pull Request} yang telah diverifikasi dan di-\textit{merge}, serta \textit{pipeline} CI yang tereksekusi sukses tanpa kegagalan (\textit{green build}). Rincian metadata dan tautan akses langsung repositori diuraikan sebagai berikut:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Organisasi GitHub}: KEPL2026\\
+          {\footnotesize\url{https://github.com/KEPL2026}}
+    \item \textbf{Repositori Proyek}: \texttt{evolusi-pl-24-538699-SV-24524}\\
+          {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524}}
+    \item \textbf{Pull Request \#1}: Integrasi \textit{workflow} CI awal (\texttt{feature/ci} $\rightarrow$ \texttt{dev})\\
+          {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524/pull/1}}
+    \item \textbf{Pull Request \#2}: Integrasi rilis pengembangan aplikasi (\texttt{dev} $\rightarrow$ \texttt{main})\\
+          {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524/pull/2}}
+    \item \textbf{Workflow Run CI (Branch \texttt{dev})}: Eksekusi sukses pada commit \texttt{f1b78e5}\\
+          {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524/actions/runs/34181218295}}
+    \item \textbf{Workflow Run CI (Branch \texttt{main})}: Eksekusi sukses merge PR \#2 commit \texttt{e720452}\\
+          {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524/actions/runs/34182964357}}
+\end{itemize}
+\par Seluruh tautan di atas dapat diakses secara publik dan memverifikasi integritas riwayat pengembangan perangkat lunak yang telah dikerjakan secara bertahap dan transparan.
+
+\subsection{Tugas 1: Pengembangan Aplikasi Web Sederhana (Laravel)}
+
+\par Repositori ini memuat aplikasi web fungsional yang dibangun di atas \textit{framework} Laravel 11 dengan bahasa pemrograman PHP versi 8.4. Aplikasi yang dikembangkan dirancang sebagai modul URL Shortener sederhana yang dilengkapi dengan sistem autentikasi pengguna (\textit{login} dan \textit{register}), manajemen pembuatan dan pengalihan tautan singkat (\textit{links}), serta pencatatan analitik pengunjung (\textit{visitors}).
+
+\par Pada aspek arsitektur perangkat lunak, sistem mengimplementasikan pola desain \textit{Model-View-Controller} (MVC). Struktur basis data dikelola melalui skema migrasi tabel (\textit{database migrations}) yang terhubung dengan model Eloquent: \texttt{User} untuk menyimpan kredensial pengguna, \texttt{Link} untuk menyimpan relasi URL asli dengan kode tautan pendek, serta \texttt{Visitor} untuk mencatat metadata alamat IP, \textit{user agent}, dan waktu akses pengunjung. Seluruh logika autentikasi dikendalikan oleh \texttt{AuthController} yang terintegrasi dengan berkas \textit{routing} \texttt{routes/web.php} serta tampilan antarmuka Blade modern yang responsif dengan dukungan tema gelap (\textit{dark theme}).
+
+\subsubsection{Halaman Login}
+\par Halaman login dirancang untuk memvalidasi identitas pengguna terdaftar sebelum diberikan hak akses ke dalam panel manajemen URL. Tampilan visual antarmuka halaman login disajikan pada Gambar \ref{fig:halaman-login}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{{resource/Tugas-1/SS/halaman login}.png}
+    \caption{Antarmuka Halaman Login Aplikasi URL Shortener}
+    \label{fig:halaman-login}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:halaman-login}, antarmuka halaman login menampilkan formulir autentikasi yang bersih, terpusat, dan intuitif dengan palet warna bernuansa gelap (\textit{dark mode}) yang modern. Formulir menyediakan dua bidang isian utama: identifikasi akun (dapat berupa nama pengguna \textit{username} maupun alamat surel \textit{email}) dan kata sandi rahasia (\textit{password}). Pada formulir tersebut disematkan fitur kotak centang \textit{Remember Me} yang memanfaatkan mekanisme penyimpanan \textit{cookie token} terenkripsi pada peramban pengguna untuk menjaga sesi login tetap aktif tanpa mengharuskan input kredensial berulang kali. Pada sudut kanan atas halaman, tersedia tombol pengalih tema yang memungkinkan pengguna berganti preferensi tampilan secara dinamis. Tautan navigasi \textit{"Daftar sekarang"} di bagian bawah form memfasilitasi pengguna baru yang belum memiliki akun untuk beralih secara langsung ke halaman pendaftaran akun.
+
+\subsubsection{Halaman Registrasi}
+\par Halaman registrasi berfungsi menampung entri data pengguna baru yang ingin memanfaatkan layanan pemendekan tautan. Tampilan visual antarmuka halaman registrasi disajikan pada Gambar \ref{fig:halaman-register}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{{resource/Tugas-1/SS/halaman register}.png}
+    \caption{Antarmuka Halaman Registrasi Pengguna Aplikasi URL Shortener}
+    \label{fig:halaman-register}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:halaman-register}, formulir pendaftaran pengguna baru dirancang secara terstruktur dan menerapkan validasi input yang ketat pada sisi klien (\textit{client-side}) maupun sisi server (\textit{server-side}). Formulir mencakup empat bidang isian wajib: nama lengkap pengguna (\textit{username}), alamat surel (\textit{email}) yang diverifikasi keunikannya agar tidak terduplikasi di dalam basis data, kata sandi (\textit{password}), serta konfirmasi ulang kata sandi (\textit{confirm password}) untuk mencegah kekeliruan pengetikan. Ketika formulir disubmit, sistem secara otomatis mengecek kesesuaian aturan validasi Laravel, mengenkripsi kata sandi menggunakan algoritma hashing aman Bcrypt, menyimpannya ke tabel \texttt{users}, dan secara langsung mengarahkan pengguna yang sukses mendaftar ke halaman utama dengan sesi aktif.
+
+\subsection{Tugas 1: Penerapan Mutu Pesan Commit (Conventional Commits)}
+
+\par Dalam disiplin rekayasa perangkat lunak modern, kejelasan catatan \textit{commit history} merupakan cerminan profesionalisme dan keteraturan pengembang. Berdasarkan kriteria penugasan praktikum, penulisan pesan commit wajib mematuhi spesifikasi standar \textit{Conventional Commits} dengan format baku:
+\begin{center}
+    \texttt{<type>(<scope>): <subject>}
+\end{center}
+Pesan commit yang tidak bermakna seperti "update", "fix bug", atau deskripsi ambigu lainnya dihindari sepenuhnya. Penerapan konvensi ini memberikan manfaat penting dalam mempermudah \textit{code review}, melacak riwayat perubahan secara kronologis, memfasilitasi pelacakan regresi kode (\textit{git bisect}), serta memungkinkan pembuatan catatan rilis (\textit{changelog}) secara otomatis.
+
+\par Pada repositori ini, seluruh commit telah mengimplementasikan konvensi semantik tersebut secara konsisten. Rincian riwayat commit yang tercatat di dalam repositori diuraikan sebagai berikut:
+\begin{itemize}
+    \item \texttt{4059021 - feat(project)}: Inisialisasi awal struktur repositori proyek, pengaturan lisensi sumber terbuka, dan pembuatan dokumentasi awal pada berkas \texttt{README.md}.
+    \item \texttt{037c383 - feat(project)}: Instalasi \textit{framework} Laravel 11 beserta dependensi pustaka inti PHP versi 8.4 ke dalam direktori kerja proyek.
+    \item \texttt{f6042bf - feat(workflow)}: Pembuatan dan penambahan berkas konfigurasi otomasi CI (\texttt{.github/workflows/ci.yml}) untuk pengujian unit dan linting kode otomatis.
+    \item \texttt{24fa6c1 - fix(ci state)}: Penyesuaian aturan pemicu (\textit{triggers}) pada berkas CI agar merespons aktivitas \textit{push} dan \textit{pull request} pada \textit{branch} \texttt{main}, \texttt{dev}, serta \textit{feature branch} (\texttt{feature/**}).
+    \item \texttt{d455005 - feat(migration, model)}: Penambahan skema migrasi basis data untuk tabel \texttt{users}, \texttt{links}, dan \texttt{visitors}, pendefinisian relasi model Eloquent, serta penyesuaian dependensi workflow CI.
+    \item \texttt{b323f91 - fix(migration, model)}: Perbaikan tata format impor pustaka dan penyesuaian gaya penulisan kode pada migrasi dan model agar mematuhi standar linter Laravel Pint.
+    \item \texttt{f1b78e5 - feat(login)}: Implementasi fitur autentikasi secara komprehensif, meliputi \textit{controller} \texttt{AuthController}, konfigurasi \textit{routing} web pada \texttt{routes/web.php}, serta tampilan antarmuka Blade untuk halaman login dan registrasi.
+\end{itemize}
+\par Riwayat commit di atas membuktikan bahwa setiap commit mewakili satu unit perubahan fungsional yang teratomisasi (\textit{atomic commit}), sehingga evolusi kode sumber terdokumentasi secara transparan dan teratur.
+
+\subsection{Tugas 1: Manajemen Branching Workflow dan Pull Request}
+
+\par Strategi manajemen \textit{branching} yang diterapkan pada repositori ini mengadopsi variasi standar industri \textit{Git Flow} dengan struktur tiga tingkatan hierarki \textit{branch}:
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{\textit{Main Branch} (\texttt{main})}: Berfungsi sebagai \textit{branch} rilis utama yang hanya memuat kode yang telah teruji secara penuh, stabil, dan siap dijalankan di lingkungan produksi. Segala bentuk \textit{direct push} ke \textit{branch} ini dilarang keras melalui aturan \textit{branch protection}.
+    \item \textbf{\textit{Development Branch} (\texttt{dev})}: Berfungsi sebagai \textit{branch} integrasi aktif tempat fitur-fitur baru digabungkan dan diuji secara komparatif sebelum dinyatakan siap dirilis ke \textit{branch} \texttt{main}.
+    \item \textbf{\textit{Feature Branch} (\texttt{feature/ci})}: Dibuat sebagai turunan dari \textit{branch} \texttt{dev} untuk mengerjakan fitur otomasi CI secara terisolasi tanpa mengganggu stabilitas basis kode yang sedang aktif dikembangkan.
+\end{enumerate}
+
+\par Sesuai dengan batasan instruksi tugas, penggabungan kode dari \textit{feature branch} hingga mencapai \textit{main branch} wajib melalui dua tahapan \textit{Pull Request} (PR):
+\begin{itemize}
+    \item \textbf{Pull Request \#1 (\texttt{feature/ci} $\rightarrow$ \texttt{dev})}: Bertujuan meninjau dan mengintegrasikan konfigurasi \textit{workflow} CI awal dari \textit{feature branch} ke dalam \textit{branch} pengembangan \texttt{dev}.
+    \item \textbf{Pull Request \#2 (\texttt{dev} $\rightarrow$ \texttt{main})}: Bertujuan menggabungkan seluruh hasil pengembangan aplikasi yang telah stabil dari \textit{branch} \texttt{dev} menuju \textit{branch} produksi \texttt{main} sebagai rilis awal tugas.
+\end{itemize}
+
+\par Bukti pelaksanaan kedua \textit{Pull Request} yang telah ditinjau, disetujui, dan di-\textit{merge} pada repositori GitHub disajikan pada Gambar \ref{fig:pull-requests}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{{resource/Tugas-1/SS/pull request}.png}
+    \caption{Daftar Pull Request Terverifikasi dan Dimerge pada Repositori GitHub}
+    \label{fig:pull-requests}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pull-requests}, terlihat dua riwayat \textit{Pull Request} dengan ikon ungu yang menandakan status \textit{merged} yang sukses:
+\begin{itemize}
+    \item PR \#1 dengan judul \textit{"ci: feature/ci to dev"} berhasil di-\textit{merge} ke \textit{branch} \texttt{dev} oleh pengguna Trisuladana melalui commit penggabungan \texttt{8f703bd}.
+    \item PR \#2 dengan judul \textit{"Release dev: dev to main"} berhasil di-\textit{merge} ke \textit{main branch} \texttt{main} melalui commit penggabungan \texttt{e720452}.
+\end{itemize}
+\par Kedua \textit{Pull Request} tersebut tidak mengalami konflik penggabungan (\textit{merge conflict}) karena perubahan kode dikerjakan secara modular dan teratur.
+
+\par Selain mekanisme \textit{Pull Request}, repositori juga dipasangi aturan proteksi melalui menu \textit{Settings} $\rightarrow$ \textit{Rules} pada GitHub untuk mengunci \textit{branch} \texttt{main} dan \texttt{dev}. Tampilan konfigurasi \textit{branch ruleset} ini disajikan pada Gambar \ref{fig:branch-ruleset}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{{resource/Tugas-1/SS/branch ruleset}.png}
+    \caption{Konfigurasi Aturan Branch Protection Ruleset pada GitHub}
+    \label{fig:branch-ruleset}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:branch-ruleset}, aturan proteksi \textit{Branch Rule} dikonfigurasikan pada dua target \textit{branch} sekaligus, yakni \textit{default branch} \texttt{main} dan \textit{branch} integrasi pengembangan (\texttt{dev}) sebagaimana tertera pada keterangan \textit{"Applies to 2 targets including dev, and main"}. Konfigurasi ini mengatur pembatasan pembuatan \textit{branch} (\textit{restrict creations}) serta pembatasan \textit{direct push} (\textit{restrict updates}) agar seluruh modifikasi kode terkontrol melalui alur \textit{Pull Request}. Pada bagian \textit{bypass list}, akun pengembang disetel dengan status \textit{Always allow} untuk memudahkan pengelolaan darurat. Selain itu, dosen pengampu (\DosenPengampu) juga telah ditambahkan sebagai kolaborator repositori dengan hak akses \textit{Read} guna memfasilitasi peninjauan kode dan pemantauan praktikum secara transparan.
+
+\subsection{Tugas 1: Konfigurasi Continuous Integration (CI) dan Analisis Log Workflow}
+
+\par Untuk menjamin kualitas mutu perangkat lunak serta mencegah masuknya kode yang rusak atau tidak terstandarisasi ke dalam \textit{main branch}, repositori diintegrasikan dengan sistem \textit{Continuous Integration} (CI) berbasis GitHub Actions. Konfigurasi otomasi didefinisikan pada berkas \texttt{.github/workflows/ci.yml} sebagaimana disajikan pada Kode \ref{lst:ci-workflow}.
+
+\begin{lstlisting}[language=yaml, caption={Konfigurasi Otomasi CI GitHub Actions (\texttt{.github/workflows/ci.yml})}, label={lst:ci-workflow}]
+name: CI
+
+on:
+  push:
+    branches: ['main', 'dev', 'feature/**']
+  pull_request:
+    branches: ['main', 'dev']
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+      - run: composer install --no-progress --no-interaction
+      - run: cp .env.example .env
+      - run: php artisan key:generate
+      - run: php artisan migrate --seed
+      - run: php artisan test
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+      - run: composer install --no-progress --no-interaction
+      - run: vendor/bin/pint --test
+\end{lstlisting}
+
+\par Berdasarkan sintaks pada Kode \ref{lst:ci-workflow}, berikut adalah penjelasan dari eksekusi kode per barisnya:
+\begin{itemize}
+    \item \texttt{name: CI}: Menetapkan label penamaan alur kerja otomasi integrasi berkelanjutan sebagai "CI".
+    \item \texttt{on: push: branches: ...} dan \texttt{pull\_request: ...}: Mendefinisikan aturan pemicu (\textit{triggers}) otomatis yang akan mengaktifkan workflow setiap kali terjadi peristiwa \textit{push} ke \textit{branch} \texttt{main}, \texttt{dev}, atau \textit{feature branch} (\texttt{feature/**}), serta saat pembukaan \textit{pull request} ke \textit{branch} \texttt{main} dan \texttt{dev}.
+    \item \texttt{jobs: test}: Mendefinisikan \textit{job} pengujian fungsional aplikasi pada lingkungan virtual \texttt{ubuntu-latest}.
+    \item \texttt{actions/checkout@v4}: Mengunduh dan menyalin kode sumber repositori ke dalam mesin virtual runner GitHub.
+    \item \texttt{setup-php@v2} (PHP 8.4): Mempersiapkan lingkungan eksekusi PHP versi 8.4 beserta ekstensi yang dipersyaratkan oleh Laravel.
+    \item \texttt{composer install}: Mengunduh dan menginstal seluruh pustaka dependensi PHP yang terdaftar pada \texttt{composer.json} secara otomatis tanpa prompt interaktif.
+    \item \texttt{cp .env.example .env}: Menyalin template konfigurasi variabel lingkungan untuk pengujian CI.
+    \item \texttt{php artisan key:generate}: Membuat kunci enkripsi aplikasi unik pada berkas konfigurasi \texttt{.env}.
+    \item \texttt{php artisan migrate --seed}: Mengeksekusi migrasi skema tabel ke basis data SQLite virtual dan mengisi data awal (\textit{seeding}).
+    \item \texttt{php artisan test}: Menjalankan seluruh pengujian unit dan fitur bawaan Laravel untuk memverifikasi fungsionalitas aplikasi.
+    \item \texttt{jobs: lint}: Mendefinisikan \textit{job} kedua untuk memverifikasi kerapian dan standar format kode sumber (\textit{code style}).
+    \item \texttt{vendor/bin/pint --test}: Menjalankan perkakas linter Laravel Pint dalam mode pengujian (\texttt{--test}) untuk memastikan seluruh berkas PHP mematuhi standar PSR-12 dan konvensi resmi Laravel.
+\end{itemize}
+
+\par Bukti riwayat eksekusi alur kerja GitHub Actions pada tab Actions repositori disajikan pada Gambar \ref{fig:github-actions}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-1/SS/action.png}
+    \caption{Riwayat Workflow Runs pada Tab Actions Repositori GitHub}
+    \label{fig:github-actions}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:github-actions}, visualisasi riwayat eksekusi workflow GitHub Actions memperlihatkan proses evolusi perangkat lunak yang dinamis dan mencerminkan skenario pemecahan masalah di dunia nyata:
+\begin{itemize}
+    \item \textbf{Analisis Insiden Kegagalan (Status Merah)}:
+          Pada workflow run untuk commit \texttt{d455005} (penambahan migrasi dan model) serta commit penggabungan \texttt{8f703bd}, sistem menampilkan status gagal (\textit{failed} / tanda silang merah). Melalui pembacaan log eksekusi pada tab Actions, teridentifikasi bahwa job \texttt{test} berhasil menyelesaikan seluruh tahapan instalasi, migrasi, dan pengujian secara sukses. Namun, kegagalan terjadi pada job \texttt{lint} pada langkah \texttt{vendor/bin/pint --test}. Linter Laravel Pint mendeteksi inkonsistensi spasi baris kosong pada model \texttt{User.php} dan \texttt{Visitor.php}, serta kesalahan penempatan \textit{curly brace} pada deklarasi \textit{anonymous migration class}.
+    \item \textbf{Tindakan Korektif dan Perbaikan Kode}:
+          Berdasarkan informasi diagnostik dari log tersebut, pengembang melakukan refaktorisasi kode sumber secara terarah. Perbaikan ini dicatatkan ke dalam riwayat repositori melalui commit \texttt{fix(migration, model): fix error importing} dengan hash \texttt{b323f91}. Perbaikan kode disesuaikan persis dengan aturan pemformatan yang dipersyaratkan oleh Laravel Pint.
+    \item \textbf{Hasil Akhir dan Verifikasi Keberhasilan (Status Hijau / Green Build)}:
+          Setelah commit perbaikan di-\textit{push}, sistem CI secara otomatis menjalankan ulang workflow (Run \#7 dan Run \#8) dan langsung menghasilkan status hijau sukses (\textit{passed}) untuk kedua job (\texttt{test} dan \texttt{lint}). Selanjutnya, penambahan fitur autentikasi pada commit \texttt{f1b78e5} (Run \#9 dan Run \#10) serta penggabungan PR \#2 ke \textit{branch} \texttt{main} (Run \#11) seluruhnya berhasil mempertahankan status hijau sempurna tanpa hambatan. Hal ini membuktikan efektivitas \textit{pipeline} CI sebagai \textit{automated quality gate} yang mencegah kode cacat lolos ke lingkungan produksi.
+\end{itemize}
+
+\subsection{Tugas 1: Kerapian Repositori dan Keamanan Kode (Repository Hygiene)}
+
+\par Selain aspek fungsionalitas dan otomasi pengujian, kerapian repositori dikelola secara disiplin untuk mencegah kebocoran informasi kredensial serta menjaga kebersihan repositori:
+\begin{itemize}
+    \item \textbf{Pencegahan Kebocoran Kredensial}: Berkas konfigurasi \texttt{.gitignore} diatur secara ketat untuk mengabaikan berkas-berkas sensitif seperti berkas lingkungan \texttt{.env}, berkas cadangan (\texttt{.env.backup}), berkas kunci sesi dan enkripsi (\texttt{storage/*.key}), berkas basis data SQLite lokal, serta direktori dependensi eksternal (\texttt{vendor/} dan \texttt{node\_modules/}). Penerapan ini mencegah kebocoran kredensial rahasia ke publik yang dapat dieksploitasi oleh pihak luar.
+    \item \textbf{Dokumentasi Repositori (\texttt{README.md})}: Berkas \texttt{README.md} disusun secara informatif dan komprehensif, memuat identitas pengembang, deskripsi singkat modul aplikasi, prasyarat sistem (PHP 8.4 dan Composer), panduan instalasi langkah demi langkah, instruksi konfigurasi basis data dan migrasi, serta perintah menjalankan unit test dan linter lokal.
+\end{itemize}
+
+
+\subsection{Tugas 2: Identitas Repositori dan Lingkungan Proyek}
+
+\par Melanjutkan praktikum sebelumnya, repositori \texttt{evolusi-pl-24-538699-SV-24524} pada organisasi GitHub \texttt{KEPL2026} dikembangkan untuk menerapkan alur kerja \textit{Continuous Delivery} (CD). Arsitektur otomasi diperluas menjadi pipeline empat tahap: \textit{Build}, \textit{Test}, \textit{Staging}, dan \textit{Production} dengan mekanisme pengamanan ketat.
+
+\par Metadata identitas repositori beserta tautan penelusuran publik diuraikan sebagai berikut:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Organisasi GitHub}: KEPL2026\\
+          {\footnotesize\url{https://github.com/KEPL2026}}
+    \item \textbf{Repositori Proyek}: \texttt{evolusi-pl-24-538699-SV-24524}\\
+          {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524}}
+    \item \textbf{Branch Utama (\texttt{main})}: Branch produksi stabil yang dilindungi oleh \textit{branch ruleset} dan menjadi satu-satunya sumber pemicu eksekusi tahap \textit{Production}.
+    \item \textbf{Branch Pengembangan (\texttt{dev})}: Branch perantara integrasi fitur sebelum digabungkan ke branch utama.
+    \item \textbf{Branch Fitur (\texttt{feature/link})}: Branch implementasi fitur CRUD pada modul URL Shortener.
+    \item \textbf{Branch Otomasi (\texttt{chore/ci})}: Branch eksperimen konfigurasi pipeline CI/CD empat tahap, integrasi \texttt{deploy.sh}, serta pengujian skenario kegagalan dan pemulihan.
+\end{itemize}
+
+\subsection[Tugas 2: Implementasi Web Laravel \& Pengujian CRUD]{Tugas 2: Implementasi Aplikasi Web Laravel\\ dan Pengujian Lokal CRUD Satu Tabel}
+
+\par Sesuai dengan instruksi penugasan langkah pertama, repositori dikembangkan menjadi aplikasi web fungsional menggunakan kerangka kerja Laravel 11 berbasis PHP versi 8.4. Fungsionalitas aplikasi difokuskan pada pengelolaan operasi CRUD satu tabel entitas utama, yaitu tabel \texttt{links} yang berperan sebagai sistem URL Shortener.
+
+\subsubsection{Struktur Data dan Arsitektur Backend}
+\par Struktur basis data tabel \texttt{links} menyimpan sejumlah atribut esensial yang mencakup:
+\begin{itemize}[leftmargin=*]
+    \item \texttt{id\_link}: Kunci utama bertipe integer \textit{auto-increment}.
+    \item \texttt{name}: Nama deskriptif atau label kampanye tautan yang ditentukan oleh pengguna.
+    \item \texttt{true\_link}: Alamat URL target asli berskala panjang yang valid secara sintaksis (\texttt{url}).
+    \item \texttt{new\_link}: Karakter alias unik untuk URL pendek, baik ditentukan secara kustom oleh pengguna maupun diakuisisi secara acak sepanjang 6 karakter alfanumerik.
+    \item \texttt{is\_active}: Nilai \textit{boolean} penanda status keterpakaian tautan aktif atau nonaktif.
+    \item \texttt{created\_at} dan \texttt{updated\_at}: Jejak waktu pembuatan dan pembaruan data.
+\end{itemize}
+
+\par Pada lapisan logika bisnis, aplikasi menerapkan prinsip pemisahan tanggung jawab melalui arsitektur MVC dan validasi berlapis menggunakan \textit{Form Request}:
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{\texttt{StoreLinkRequest}}: Memvalidasi payload masukan saat pembuatan tautan baru, memastikan atribut \texttt{target\_url} dan \texttt{name} terisi, serta menjamin keunikan \texttt{custom\_alias} pada tabel \texttt{links}.
+    \item \textbf{\texttt{UpdateLinkRequest}}: Memvalidasi pembaharuan data tautan dengan aturan keunikan alias yang mengabaikan ID tautan yang sedang disunting.
+    \item \textbf{\texttt{ShortenLinkRequest}}: Memproses permintaan pembuatan instan dari pengguna \textit{guest}.
+    \item \textbf{\texttt{LinkController}}: Mengatur alur data mulai dari penyajian tabel daftar tautan, penyimpanan tautan baru, pembaruan, penghapusan, hingga pemrosesan pengalihan HTTP 302 dari rute pendek menuju URL target asli.
+\end{enumerate}
+
+\subsubsection{Antarmuka Pengguna (UI) dan Fungsionalitas}
+\par Antarmuka aplikasi dirancang modern dan intuitif dengan dukungan \textit{dark mode}. Pengguna dapat membuka formulir modal untuk mendaftarkan tautan baru sebagaimana ditunjukkan pada Gambar \ref{fig:modal-buat-link}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-2/SS/modal-buat-link.png}
+    \caption{Antarmuka Modal Pembuatan Tautan Baru pada Aplikasi URL Shortener}
+    \label{fig:modal-buat-link}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:modal-buat-link}, formulir modal menyediakan bidang isian URL asli, nama tautan, alias kustom yang bersifat opsional, serta tombol pengalih status aktif. Apabila alias dikosongkan, sistem secara otomatis membangkitkan string acak unik sebanyak 6 karakter.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-2/SS/tabel-daftar-link.png}
+    \caption{Tabel Manajemen Daftar Tautan Pendek Aktif pada Dashboard Aplikasi}
+    \label{fig:tabel-daftar-link}
+\end{figure}
+
+\par Gambar \ref{fig:tabel-daftar-link} memperlihatkan baris tautan yang baru saja dibuat dengan rincian URL pendek \texttt{http://localhost:8000/classroom}, nama tautan, URL target Google Classroom, tanggal pembuatan, status aktif, serta tombol aksi sunting dan hapus. Fitur pencarian dan penyaringan juga disematkan di atas tabel untuk mempermudah penelusuran data secara dinamis.
+
+\subsubsection{Verifikasi Pengujian Lokal (\texttt{php artisan test})}
+\par Untuk menjamin keandalan fungsionalitas sebelum kode sumber diunggah ke repositori pusat, pengujian otomatis berbasis PHPUnit dijalankan secara lokal di laptop pengembang melalui perintah:
+\begin{center}
+    \texttt{php artisan test}
+\end{center}
+Pengujian fitur diatur pada \texttt{tests/Feature/LinkCrudTest.php}, sedangkan pengujian unit berada di \texttt{tests/Unit/ExampleTest.php}. Rangkuman luaran pengujian lokal disajikan pada Kode \ref{lst:test-local-output}.
+
+\begin{lstlisting}[caption={Keluaran Eksekusi Pengujian Lokal (\texttt{php artisan test --testdox})}, label={lst:test-local-output}]
+PHPUnit 12.5.34 by Sebastian Bergmann and contributors.
+Runtime:       PHP 8.4.24
+Configuration: phpunit.xml
+
+Example (Tests\Feature\Example)
+ [x] The application returns a successful response
+
+Example (Tests\Unit\Example)
+ [x] That true is true
+
+Link Crud (Tests\Feature\LinkCrud)
+ [x] Public user can view links page
+ [x] Dashboard redirects to links
+ [x] Public can create link with custom alias
+ [x] Public can create link with auto generated alias
+ [x] Create link validation requires target url and name
+ [x] Public can update link
+ [x] Public can delete link
+ [x] Active link redirects to true url
+ [x] Inactive link does not redirect to target
+ [x] Search and filter links
+ [x] Guest shorten endpoint
+
+OK (13 tests, 34 assertions)
+\end{lstlisting}
+
+\par Seluruh 13 skenario pengujian dengan total 34 \textit{assertions} berhasil lulus secara komprehensif tanpa kegagalan (\texttt{0 failures}), memastikan bahwa seluruh alur operasi CRUD tabel \texttt{links} dan penanganan \textit{routing} berjalan stabil di lingkungan lokal.
+
+\subsection{Tugas 2: Perancangan Pipeline Multi-Stage CI/CD Empat Tahap}
+
+\par Berdasarkan ketentuan penugasan langkah kedua, alur kerja otomasi GitHub Actions dirancang berupa \textit{multi-stage workflow} empat tahap yang saling terikat secara sekuensial menggunakan direktif \texttt{needs:}:
+\begin{center}
+    \textbf{Build} $\longrightarrow$ \textbf{Test} $\longrightarrow$ \textbf{Staging} $\longrightarrow$ \textbf{Production}
+\end{center}
+
+\par Rantai ketergantungan ini menjamin bahwa suatu tahapan hanya akan dieksekusi jika seluruh tahapan prasyarat sebelumnya telah tuntas dan berstatus \textit{passed}. Konfigurasi alur kerja didefinisikan pada berkas \texttt{.github/workflows/ci.yml} sebagaimana tercantum pada Kode \ref{lst:workflow-ci-cd}.
+
+\begin{lstlisting}[language=yaml, caption={Konfigurasi Lengkap Alur Kerja Multi-Stage CI/CD (\texttt{.github/workflows/ci.yml})}, label={lst:workflow-ci-cd}]
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: ['main', 'dev', 'feature/**', 'chore/**']
+  pull_request:
+    branches: ['main']
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - name: Install Dependencies
+        run: composer install --no-progress --no-interaction
+
+  test:
+    name: Test
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - name: Install Dependencies
+        run: composer install --no-progress --no-interaction
+
+      - name: Prepare Environment
+        run: cp .env.example .env
+
+      - name: Generate Application Key
+        run: php artisan key:generate
+
+      - name: Run Tests
+        run: php artisan test
+
+      - name: Code Style Check (Pint)
+        run: vendor/bin/pint --test
+
+  staging:
+    name: Staging
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Staging
+        run: |
+          echo "=== MEMULAI DEPLOYMENT KE ENVIRONMENT STAGING ==="
+          echo "Menyiapkan rilis aplikasi ke server staging..."
+          echo "Simulasi zero-downtime symlink swap pada server staging berhasil."
+          echo "Staging deployment selesai tanpa kendala."
+
+  production:
+    name: Production
+    needs: [staging]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Execute 7 Steps of deploy.sh
+        run: |
+          echo "=== MEMULAI DEPLOYMENT KE SERVER PRODUKSI ==="
+          echo "Langkah 1: Kunci pintu -- tampilkan halaman pemeliharaan"
+          echo "Command: php artisan down --retry=60"
+          echo "Langkah 2: Ambil kode terbaru dari repository"
+          echo "Command: git pull origin main"
+          echo "Langkah 3: Pasang dependensi (tanpa paket dev)"
+          echo "Command: composer install --no-dev --optimize-autoloader"
+          echo "Langkah 4: Ubah skema basis data, --force = jangan tanya"
+          echo "Command: php artisan migrate --force"
+          echo "Langkah 5: Bangun ulang cache dengan kode & config baru"
+          echo "Command: php artisan config:cache"
+          echo "Command: php artisan route:cache"
+          echo "Command: php artisan view:cache"
+          echo "Langkah 6: Muat ulang pekerja antrean"
+          echo "Command: php artisan queue:restart"
+          echo "Langkah 7: Buka pintu kembali"
+          echo "Command: php artisan up"
+          echo "=== DEPLOYMENT PRODUKSI SELESAI DENGAN SUKSES ==="
+\end{lstlisting}
+
+\par Penjelasan fungsional dari masing-masing job pada pipeline di atas diuraikan sebagai berikut:
+\begin{enumerate}[label=\alph*.]
+    \item \textbf{Job \texttt{build}}: Berfungsi menyalin basis kode via \texttt{actions/checkout@v4}, menyiapkan runtime PHP 8.4 via \texttt{setup-php@v2}, serta mengunduh seluruh dependensi paket melalui perintah \texttt{composer install} secara non-interaktif. Langkah ini memastikan keterpenuhan pustaka tanpa hambatan.
+    \item \textbf{Job \texttt{test}}: Bergantung pada penyelesaian build (\texttt{needs: [build]}). Job ini menyalin konfigurasi \texttt{.env}, membangkitkan \textit{APP\_KEY}, menjalankan seluruh pengujian otomatis via \texttt{php artisan test}, serta memeriksa kepatuhan standar kode PSR-12 dengan perkakas \texttt{vendor/bin/pint --test}.
+    \item \textbf{Job \texttt{staging}}: Terikat dengan deklarasi \texttt{needs: [test]}. Sesuai instruksi penugasan, deployment ke server aktual belum dilakukan, melainkan diekspresikan melalui serangkaian perintah \texttt{echo} yang merepresentasikan simulasi persiapan rilis dan pengujian pada \textit{staging environment}.
+    \item \textbf{Job \texttt{production}}: Terikat dengan deklarasi \texttt{needs: [staging]}. Job ini merepresentasikan puncak alur \textit{continuous delivery}, yang mencetak urutan 7 langkah eksekusi deployment standar Laravel secara terstruktur.
+\end{enumerate}
+
+\subsection{Tugas 2: Implementasi Script Deployment (\texttt{deploy.sh}) dan 7 Langkah Eksekusi Produksi}
+
+\par Berdasarkan instruksi langkah keempat dan materi kuliah (Slide 6), proses deployment aplikasi Laravel pada server produksi diotomatisasikan melalui skrip shell \texttt{deploy.sh} yang disimpan pada direktori akar repositori. Skrip ini wajib menyertakan flag pengaman \texttt{set -e} pada baris awal untuk memastikan bahwa eksekusi skrip segera berhenti secara \textit{fail-fast} apabila terdapat salah satu perintah yang menghasilkan \textit{non-zero exit code}. Berkas skrip \texttt{deploy.sh} disajikan secara lengkap pada Kode \ref{lst:deploy-sh}.
+
+\begin{lstlisting}[language=bash, caption={Skrip Otomasi Deployment Produksi (\texttt{deploy.sh})}, label={lst:deploy-sh}]
+#!/usr/bin/env bash
+set -e # berhenti bila ada perintah gagal
+
+cd /var/www/aplikasi
+
+# 1 . Kunci pintu -- tampilkan halaman pemeliharaan
+php artisan down --retry=60
+
+# 2 . Ambil kode terbaru
+git pull origin main
+
+# 3 . Pasang dependensi (tanpa paket dev)
+composer install --no-dev --optimize-autoloader
+
+# 4 . Ubah skema basis data, --force = jangan tanya
+php artisan migrate --force
+
+# 5 . Bangun ulang cache dengan kode & config baru
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+
+# 6 . Muat ulang pekerja antrean
+php artisan queue:restart
+
+# 7 . Buka pintu kembali
+php artisan up
+\end{lstlisting}
+
+\par Rincian tujuh langkah deployment standar industri pada Kode \ref{lst:deploy-sh} memiliki rasional teknis sebagai berikut:
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Langkah 1 -- Kunci Pintu} (\texttt{php artisan down --retry=60}):\\
+          Mengaktifkan \textit{maintenance mode}. Parameter \texttt{--retry=60} menginstruksikan peramban klien untuk mencoba memuat ulang setelah 60 detik agar pengguna tidak menemui error saat pembaruan berlangsung.
+    \item \textbf{Langkah 2 -- Ambil Kode Terbaru} (\texttt{git pull origin main}):\\
+          Mengunduh seluruh berkas kode sumber terbaru dari branch utama (\texttt{main}) ke direktori kerja server produksi.
+    \item \textbf{Langkah 3 -- Pasang Dependensi Produksi}:\\
+          Mengeksekusi perintah \texttt{composer install --no-dev --optimize-autoloader}. Langkah ini memasang pustaka tanpa paket pengembangan lokal sekaligus mengoptimasi \textit{classmap autoloader} demi akselerasi performa.
+    \item \textbf{Langkah 4 -- Ubah Skema Basis Data} (\texttt{php artisan migrate --force}):\\
+          Mengeksekusi penambahan atau pembaruan skema tabel ke basis data produksi. Pada lingkungan \textit{production}, Laravel secara bawaan memunculkan prompt konfirmasi untuk mencegah kehilangan data; flag \texttt{--force} digunakan agar otomasi CI/CD berjalan mandiri tanpa intervensi manual.
+    \item \textbf{Langkah 5 -- Bangun Ulang Cache Sistem}:\\
+          Membangun berkas tunggal terkompilasi untuk konfigurasi, \textit{routing}, dan template tampilan Blade melalui eksekusi berurutan: \texttt{config:cache}, \texttt{route:cache}, dan \texttt{view:cache}. Langkah ini mengeliminasi pembacaan berkas secara berulang dari disk pada setiap permintaan HTTP yang masuk.
+    \item \textbf{Langkah 6 -- Restart Queue Worker} (\texttt{php artisan queue:restart}):\\
+          Memerintahkan proses \textit{queue worker} di latar belakang untuk melakukan \textit{graceful stop} dan memuat ulang kode aplikasi terbaru ke memori kerja.
+    \item \textbf{Langkah 7 -- Buka Pintu Kembali} (\texttt{php artisan up}):\\
+          Menonaktifkan \textit{maintenance mode} dan membuka kembali akses publik aplikasi secara penuh kepada seluruh pengguna.
+\end{enumerate}
+
+\par Pada alur kerja GitHub Actions, seluruh langkah di atas dicetak secara berurutan dalam job \texttt{production} menggunakan perintah \texttt{echo} sebagaimana disajikan pada Kode \ref{lst:workflow-ci-cd} baris 72--92.
+
+\subsection{Tugas 2: Proteksi Lingkungan Produksi via Branch Condition dan Environment Reviewer}
+
+\par Sesuai dengan instruksi langkah ketiga, integritas lingkungan produksi harus dijaga melalui dua lapis proteksi utama:
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Kondisi Branch (Ekspresi \texttt{if})}:\\
+          Pada definisi job \texttt{production}, disematkan ekspresi kondisional:
+          \begin{center}
+              \texttt{if: github.ref == 'refs/heads/main'}
+          \end{center}
+          Aturan ini menegaskan bahwa job \texttt{production} hanya memiliki izin eksekusi apabila peristiwa \textit{push} terjadi langsung pada branch utama (\texttt{main}). Apabila pengembang melakukan \textit{push} ke branch fitur (\texttt{feature/link}) maupun branch eksperimen (\texttt{chore/ci}), job \texttt{build}, \texttt{test}, dan \texttt{staging} tetap berjalan normal untuk menguji integritas kode, namun job \texttt{production} secara otomatis di-\textit{skip}.
+    \item \textbf{Proteksi Environment GitHub via Required Reviewers}:\\
+          Job \texttt{production} dikaitkan dengan lingkungan terproteksi melalui klausa:
+          \begin{center}
+              \texttt{environment: production}
+          \end{center}
+          Pada tingkat konfigurasi repositori GitHub (\textit{Settings} $\rightarrow$ \textit{Environments} $\rightarrow$ \textit{production}), aturan \textit{Deployment protection rules} diaktifkan dengan opsi \textit{Required reviewers}. Melalui mekanisme ini, sekalipun sebuah commit telah berada di branch \texttt{main}, eksekusi langkah deployment pada job \texttt{production} akan ditahan dalam status \textit{waiting for approval} hingga peninjau yang berwenang memberikan persetujuan eksplisit. Hal ini mencegah rilis tidak sengaja ke sistem produksi kritis.
+\end{enumerate}
+
+\subsection{Tugas 2: Validasi dan Pembuktian Skenario Pipeline}
+
+\par Untuk membuktikan kebenaran dan ketahanan \textit{pipeline} CI/CD yang telah dibangun, dilakukan serangkaian pengujian skenario sesuai dengan instruksi penugasan langkah kelima. Seluruh riwayat eksekusi workflow dicatat secara transparan pada tab \textit{Actions} repositori GitHub sebagaimana dirangkum pada Gambar \ref{fig:riwayat-runs}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-2/SS/riwayat-workflow-runs.png}
+    \caption{Riwayat Eksekusi Pipeline CI/CD pada Tab Actions Repositori GitHub}
+    \label{fig:riwayat-runs}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:riwayat-runs}, terlihat rentetan eksekusi pipeline yang dipicu oleh commit pada berbagai \textit{branch} (\texttt{chore/ci}, \texttt{dev}, \texttt{feature/link}, dan \texttt{main}). Berikut adalah rincian pembuktian dari setiap skenario yang diujikan:
+
+\subsubsection{Skenario 1: Push ke Branch Fitur $\rightarrow$ Job Production Dilewati (Skipped)}
+\par Pada skenario awal, kode di-\textit{push} ke \textit{branch} non-utama (\texttt{chore/ci}) melalui commit \texttt{c7453fe} dengan pesan \textit{"feat(deploysh): add deploy.sh"}. Tampilan alur \textit{pipeline} pada run \#19 disajikan pada Gambar \ref{fig:pipeline-skipped}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-2/SS/pipeline-feature-branch-skipped.png}
+    \caption{Grafik Pipeline pada Branch Fitur (\texttt{chore/ci}): Job Production Dilewati}
+    \label{fig:pipeline-skipped}
+\end{figure}
+
+\par Berdasarkan visualisasi pada Gambar \ref{fig:pipeline-skipped}, tahapan \textbf{Build} (17 detik), \textbf{Test} (22 detik), dan \textbf{Staging} (2 detik) berhasil dieksekusi secara berurutan dan menghasilkan centang hijau berstatus \textit{passed}. Namun demikian, job \textbf{Production} menampilkan ikon lingkaran tercoret dengan durasi 0 detik yang menandakan bahwa job tersebut di-\textit{skip}.
+
+\par Pemeriksaan lebih mendalam pada rincian panel navigasi job \textbf{Production} disajikan pada Gambar \ref{fig:detail-skipped}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-2/SS/detail-production-skipped.png}
+    \caption{Detail Log Status Job Production: \textit{"This job was skipped"}}
+    \label{fig:detail-skipped}
+\end{figure}
+
+\par Keterangan eksplisit \textit{"This job was skipped"} pada Gambar \ref{fig:detail-skipped} membuktikan secara valid bahwa kondisi pengaman \texttt{if: github.ref == 'refs/heads/main'} berfungsi optimal dalam membatasi deployment hanya untuk \textit{branch} utama.
+
+\subsubsection{Skenario 2: Push ke Branch Main $\rightarrow$ Seluruh Tahapan Berhasil (Green Build)}
+\par Pada pengujian kedua, kode yang telah teruji digabungkan dan di-\textit{push} langsung ke \textit{branch} utama \texttt{main} pada commit yang sama (\texttt{c7453fe}). Hasil eksekusi grafik pipeline pada run \#21 disajikan pada Gambar \ref{fig:pipeline-main}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-2/SS/pipeline-main-branch-success.png}
+    \caption{Grafik Pipeline pada Branch \texttt{main}: Seluruh 4 Tahapan Berhasil Sukses}
+    \label{fig:pipeline-main}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pipeline-main}, seluruh rantai \textit{job} tereksekusi penuh dari awal hingga akhir: \textbf{Build} (20 detik) $\rightarrow$ \textbf{Test} (18 detik) $\rightarrow$ \textbf{Staging} (2 detik) $\rightarrow$ \textbf{Production} (4 detik), dengan total durasi 1 menit 31 detik dan berstatus akhir \textbf{Success}. Seluruh job menampilkan ikon hijau sempurna, membuktikan bahwa pada \textit{branch} \texttt{main}, simulasi 7 langkah deployment produksi tereksekusi tanpa hambatan.
+
+\subsubsection{Skenario 3: Simulasi Test Gagal $\rightarrow$ Pipeline Berhenti Merah (Fail-Fast)}
+\par Pada pengujian ketiga, diuji skenario \textit{quality gate} dengan sengaja menggagalkan salah satu unit test. Modifikasi dilakukan pada berkas \texttt{tests/Unit/ExampleTest.php} melalui commit \texttt{8df2314} dengan pesan \textit{"feat(test): buat 1 test salah cek merah"}. Potongan perubahan kode disajikan pada Kode \ref{lst:test-failure-diff}.
+
+\begin{lstlisting}[language=php, caption={Modifikasi Penggagalan Pengujian pada \texttt{tests/Unit/ExampleTest.php}}, label={lst:test-failure-diff}]
+public function test_that_true_is_true(): void
+{
+    // Mengubah asersi true menjadi false secara sengaja
+    $this->assertTrue(false, 'Sengaja digagalkan untuk membuktikan pipeline CI berhenti merah');
+}
+\end{lstlisting}
+
+\par Commit tersebut kemudian di-\textit{push} ke repositori pada \textit{branch} \texttt{chore/ci}. Dampak eksekusi terhadap workflow ditunjukkan pada Gambar \ref{fig:pipeline-gagal}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-2/SS/pipeline-test-gagal-merah.png}
+    \caption{Kegagalan Pipeline CI/CD (Status Merah) Akibat Unit Test yang Gagal}
+    \label{fig:pipeline-gagal}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pipeline-gagal}, run \#22 langsung menampilkan tanda silang merah dengan status \textit{failed} setelah berjalan selama 47 detik. Ketika tahapan \textbf{Test} gagal pada asersi pengujian, mekanisme rantai ketergantungan \texttt{needs: [test]} secara otomatis membatalkan dan mencegah eksekusi job \textbf{Staging} dan \textbf{Production}. Hal ini membuktikan bahwa pipeline berhasil bertindak sebagai perisai pelindung yang mencegah kode cacat menyebar ke tahapan rilis.
+
+\subsubsection{Skenario 4: Perbaikan Kode Pengujian $\rightarrow$ Pipeline Pulih Hijau}
+\par Pada pengujian keempat, tindakan perbaikan dilakukan dengan mengembalikan asersi pengujian ke nilai kebenaran yang valid (\texttt{\$this->assertTrue(true)}). Perubahan ini dicatatkan melalui commit \texttt{92a9f20} dengan pesan konvensional \textit{"fix(test): kembalikan asset ke true biar hijau"}. Bukti pemulihan \textit{pipeline} disajikan pada Gambar \ref{fig:pipeline-pulih}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-2/SS/pipeline-test-diperbaiki-hijau.png}
+    \caption{Pemulihan Pipeline CI/CD Kembali Berstatus Hijau Setelah Perbaikan Test}
+    \label{fig:pipeline-pulih}
+\end{figure}
+
+\par Gambar \ref{fig:pipeline-pulih} memperlihatkan bahwa pada run \#23 (2 menit setelah kegagalan), status pipeline langsung kembali hijau sempurna (berstatus \textit{passed} dengan tanda centang hijau) dalam durasi 51 detik. Keberhasilan ini menunjukkan siklus responsif pengembang dalam mendiagnosis log kegagalan, memperbaiki error, dan memulihkan kestabilan sistem secara cepat.
+
+
+\subsection{Tugas 3: Identitas Repositori dan Arsitektur Proyek}
+
+\par Praktikum Konstruksi dan Evolusi Perangkat Lunak Tugas 3 melanjutkan pengembangan repositori proyek\\
+\texttt{evolusi-pl-24-538699-SV-24524} di bawah naungan organisasi GitHub \texttt{KEPL2026}. Fokus utama penugasan ini mencakup integrasi aplikasi web \textit{frontend} berbasis kerangka kerja Vue 3 dengan lapisan layanan \textit{backend REST API} Laravel 11, serta perancangan pipeline otomasi \textit{Continuous Integration} dan \textit{Continuous Delivery} (CI/CD) mandiri berbasis GitHub Actions yang mencakup empat \textit{job} terangkai.
+
+\par Metadata repositori beserta struktur lingkungan kerja diuraikan sebagai berikut:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Organisasi GitHub}: KEPL2026\\
+          {\footnotesize\url{https://github.com/KEPL2026}}
+    \item \textbf{Repositori Proyek}: \texttt{evolusi-pl-24-538699-SV-24524}\\
+          {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524}}
+    \item \textbf{\textit{Branch} \texttt{main}}: \textit{Branch} produksi stabil yang menjadi target akhir rilis dan satu-satunya \textit{branch} yang diizinkan menjalankan \textit{job deployment}.
+    \item \textbf{\textit{Branch} \texttt{dev}}: \textit{Branch} integrasi perantara sebelum seluruh perubahan digabungkan ke \textit{branch} utama.
+    \item \textbf{\textit{Feature Branch} (\texttt{feature/vue} dan \texttt{feature/api})}: \textit{Branch} pengerjaan isolasi fungsionalitas modul REST API Laravel dan pengembangan antarmuka Vue 3.
+    \item \textbf{Struktur Repositori Terpisah}: Direktori \textit{root} memuat kerangka kerja Laravel 11 untuk penyedia data, sedangkan subdirektori \texttt{frontend/} memuat aplikasi \textit{Single Page Application} (SPA) Vue 3 yang dibangun menggunakan Vite dan TypeScript.
+\end{itemize}
+
+\subsection{Tugas 3: Penyediaan Endpoint REST API pada Backend Laravel}
+
+\par Memenuhi butir penugasan pertama, lapisan \textit{backend} Laravel dikembangkan untuk menyediakan \textit{endpoint} JSON dari tabel CRUD yang telah dibuat pada pertemuan sebelumnya, yaitu tabel \texttt{links} yang berfungsi sebagai sistem URL Shortener. \textit{Endpoint} ini dirancang mengikuti kaidah arsitektur RESTful yang rapi dengan pemanfaatan \textit{Resource Routing} dan pemisahan lapisan transformasi data.
+
+\subsubsection{Konfigurasi Routing dan Controller API}
+\par Definisi \textit{route} antarmuka data diatur pada berkas \texttt{routes/api.php} menggunakan kelompok penamaan \textit{route} \texttt{api.} sebagaimana ditunjukkan pada Kode \ref{lst:routes-api}.
+
+\begin{lstlisting}[language=php, caption={[Definisi Endpoint REST API]{Definisi Endpoint REST API pada \texttt{routes/api.php}}}, label={lst:routes-api}]
+<?php
+
+use App\Http\Controllers\Api\LinkController;
+use Illuminate\Support\Facades\Route;
+
+Route::name('api.')->group(function () {
+    Route::get('/links/stats/count', [LinkController::class, 'stats'])->name('links.stats');
+    Route::post('/links/shorten', [LinkController::class, 'shorten'])->name('links.shorten');
+    Route::apiResource('links', LinkController::class);
+});
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:routes-api}, registrasi \textit{route} melalui perintah \texttt{Route::apiResource('links', LinkController::class)} secara otomatis mendaftarkan lima operasi standar CRUD tanpa menyertakan \textit{route} formulir HTML (\texttt{create} dan \texttt{edit}), yaitu:
+\begin{itemize}[leftmargin=*]
+    \item \texttt{GET /api/links}: Mengambil seluruh koleksi data tautan aktif dan nonaktif dalam format JSON.
+    \item \texttt{POST /api/links}: Menyimpan entitas tautan baru ke basis data dengan validasi masukan.
+    \item \texttt{GET /api/links/\{id\}}: Mengambil rincian data satu entitas tautan spesifik.
+    \item \texttt{PUT/PATCH /api/links/\{id\}}: Memperbarui data entitas tautan yang telah ada.
+    \item \texttt{DELETE /api/links/\{id\}}: Menghapus data entitas tautan dari basis data.
+\end{itemize}
+
+\par Selain itu, disediakan \textit{route} pendukung \texttt{GET /api/links/stats/count} untuk rekapitulasi jumlah tautan aktif serta total tautan, dan \texttt{POST /api/links/shorten} untuk pemendekan instan. Pada sisi \textit{controller}, kelas \texttt{LinkController} memanfaatkan \texttt{LinkResource} guna memastikan struktur \textit{payload} JSON konsisten serta terisolasi dari tabel internal, seperti disajikan pada Kode \ref{lst:link-controller-api}.
+
+\begin{lstlisting}[language=php, caption={[Controller API \texttt{LinkController.php}]{Implementasi Controller API pada \texttt{app/Http/Controllers/Api/LinkController.php}}}, label={lst:link-controller-api}]
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\Api\StoreLinkRequest;
+use App\Http\Requests\Api\UpdateLinkRequest;
+use App\Http\Resources\ApiResource;
+use App\Http\Resources\ApiResourceCollection;
+use App\Http\Resources\LinkResource;
+use App\Models\Link;
+use Illuminate\Http\JsonResponse;
+
+class LinkController extends Controller
+{
+    public function index(): JsonResponse
+    {
+        $links = Link::latest()->get();
+        return (new ApiResourceCollection(
+            LinkResource::collection($links),
+            'Berhasil mengambil daftar tautan'
+        ))->response();
+    }
+
+    public function store(StoreLinkRequest $request): JsonResponse
+    {
+        $link = Link::create($request->validated());
+        return (new ApiResource($link, 'Tautan berhasil ditambahkan', 201))
+            ->response()
+            ->setStatusCode(201);
+    }
+}
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:link-controller-api}, seluruh respon dibungkus dalam format JSON terstandarisasi yang memuat atribut status, pesan konfirmasi, serta data \textit{payload}. Pola ini memudahkan lapisan klien dalam memproses hasil respon maupun mendeteksi galat secara seragam.
+
+\subsubsection{Pengelolaan Kebijakan Cross-Origin Resource Sharing (CORS)}
+\par Ketika aplikasi web antarmuka pengguna dijalankan pada server pengembangan Vite (berjalan pada alamat \texttt{http://localhost:5173}) dan mencoba melakukan permintaan data ke server Laravel (berjalan pada alamat \texttt{http://localhost:8000}), peramban web secara otomatis menerapkan mekanisme pengamanan \textit{Same-Origin Policy} (SOP). Perbedaan nomor \textit{port} antara \textit{origin} pemanggil dan tujuan permintaan mengharuskan server tujuan mengizinkan \textit{Cross-Origin Resource Sharing} (CORS).
+
+\par Pada kerangka kerja Laravel 11, mekanisme penanganan CORS ditangani secara bawaan oleh \textit{middleware} \texttt{HandleCors} (\texttt{Illuminate\textbackslash Http\textbackslash Middleware\textbackslash HandleCors}) yang terpasang pada tumpukan \textit{middleware} global aplikasi pada penanganan permintaan berkas \texttt{bootstrap/app.php}. Ketika permintaan HTTP metode \texttt{OPTIONS} (\textit{preflight request}) atau permintaan HTTP biasa dikirim oleh klien Vue, \textit{middleware} ini secara otomatis menyertakan tajuk respon keamanan:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{\texttt{Access-Control-Allow-Origin}}: Mengizinkan domain asal klien (\texttt{http://localhost:5173}) untuk mengakses sumber daya data.
+    \item \textbf{\texttt{Access-Control-Allow-Methods}}: Mengizinkan metode HTTP yang digunakan mencakup \texttt{GET, POST, PUT, PATCH, DELETE, OPTIONS}.
+    \item \textbf{\texttt{Access-Control-Allow-Headers}}: Mengizinkan tajuk kustom seperti \texttt{Content-Type}, \texttt{Accept}, dan \texttt{Authorization}.
+\end{itemize}
+Konfigurasi ini memastikan aplikasi antarmuka Vue 3 pada komputer lokal dapat berinteraksi dengan API Laravel secara mulus tanpa terblokir oleh kendala CORS.
+
+\subsection{Tugas 3: Pembangunan Aplikasi Frontend Vue 3 Berbasis Vite dan Router}
+
+\par Sesuai dengan instruksi butir penugasan kedua, aplikasi antarmuka pengguna dibangun di dalam subdirektori \texttt{frontend/} menggunakan pustaka Vue 3, Vite sebagai perkakas pembangunan modul modern, TypeScript untuk keamanan tipe data, serta Vue Router untuk manajemen navigasi \textit{Single Page Application} (SPA).
+
+\subsubsection{Inisialisasi Proyek Frontend}
+\par Pembuatan kerangka awal proyek dilakukan melalui \textit{Command Line Interface} (CLI) menggunakan perkakas paket modern \texttt{pnpm create vue@latest}. Bukti eksekusi inisialisasi disajikan pada Gambar \ref{fig:inisialisasi-vue}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-3/SS/inisialisasi-proyek-vue3.png}
+    \caption{Inisialisasi Proyek Vue 3 menggunakan CLI \texttt{pnpm create vue@latest}}
+    \label{fig:inisialisasi-vue}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:inisialisasi-vue}, proses \textit{scaffolding} proyek dikonfigurasi dengan parameter terstruktur: nama target direktori \texttt{frontend}, pengaktifan dukungan TypeScript (\textit{Yes}), penambahan modul navigasi \textit{Vue Router} untuk pengembangan SPA (\textit{Yes}), serta integrasi kakas pemeriksa kualitas kode ESLint dan pemformat kode Prettier (\textit{Yes}). Pemilihan inisialisasi awal proyek Vue yang bersih memberikan fondasi kode yang ringan dan siap dikembangkan sesuai kebutuhan sistem URL Shortener.
+
+\subsubsection{Konfigurasi Variabel Lingkungan API}
+\par Sesuai batasan penugasan, alamat URL server API tidak boleh di-\textit{hardcode} di dalam kode program, melainkan wajib diambil secara dinamis dari variabel lingkungan \texttt{VITE\_API\_URL}. Hal ini diterapkan dengan menyediakan berkas percontohan lingkungan \texttt{frontend/.env.example} dan modul pembacaan pada \texttt{frontend/src/services/api.ts} seperti ditunjukkan pada Kode \ref{lst:env-service-api}.
+
+\begin{lstlisting}[language=JavaScript, caption={[Pembacaan Environment API]{Pembacaan Variabel Lingkungan API pada \texttt{frontend/src/services/api.ts}}}, label={lst:env-service-api}]
+export function getBaseApiUrl(): string {
+  // Mengambil URL API secara dinamis dari variabel lingkungan Vite
+  const envUrl = import.meta.env.VITE_API_URL
+  if (!envUrl) {
+    // Nilai fallback yang aman untuk lingkungan pengembangan lokal
+    return 'http://localhost:8000/api'
+  }
+  return envUrl.replace(/\/+$/, '')
+}
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:env-service-api}, fungsi \texttt{getBaseApiUrl()} bertugas membaca konfigurasi lingkungan \texttt{import.meta.env.VITE\_API\_URL} yang disediakan oleh mesin Vite saat proses kompilasi maupun saat server pengembang dijalankan. Apabila variabel lingkungan tidak terdefinisi (misalnya saat proses pengujian lokal mandiri), fungsi secara cerdas menyediakan mekanisme \textit{fallback} terstandarisasi pada alamat \texttt{http://localhost:8000/api}. Dengan demikian, aplikasi dapat dengan mudah diarahkan ke alamat server \textit{staging} maupun \textit{production} yang berbeda hanya dengan mengubah konfigurasi lingkungan tanpa menyentuh kode sumber.
+
+\subsubsection{Perancangan Navigasi Antarmuka Multi-Halaman}
+\par Aplikasi antarmuka pengguna dilengkapi dengan modul manajemen \textit{routing} Vue Router pada berkas \texttt{frontend/src/router/index.ts}. Konfigurasi \textit{routing} disajikan pada Kode \ref{lst:vue-router}.
+
+\begin{lstlisting}[language=JavaScript, caption={[Konfigurasi Routing]{Konfigurasi Routing pada \texttt{frontend/src/router/index.ts}}}, label={lst:vue-router}]
+import { createRouter, createWebHistory } from 'vue-router'
+import LinksView from '../views/LinksView.vue'
+import QuickShortenView from '../views/QuickShortenView.vue'
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'links',
+      component: LinksView,
+    },
+    {
+      path: '/quick-shorten',
+      name: 'quick-shorten',
+      component: QuickShortenView,
+    },
+    {
+      path: '/links',
+      redirect: '/',
+    },
+  ],
+})
+
+export default router
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:vue-router}, aplikasi menyediakan dua halaman utama ber-router yang saling melengkapi:
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Halaman Daftar Tautan} (\texttt{LinksView.vue}): Terpetakan pada \textit{route} \texttt{/} yang menampilkan seluruh data tautan yang diambil dari \textit{endpoint} Laravel API, lengkap dengan kontrol pencarian, filter status, penambahan data melalui dialog modal, pengeditan, serta penghapusan data.
+    \item \textbf{Halaman Pemendek Cepat} (\texttt{QuickShortenView.vue}):\\
+          Terpetakan pada \textit{route} \texttt{/quick-shorten} yang menampilkan kartu ringkasan statistik tautan serta formulir pembuatan tautan instan tanpa memerlukan otentikasi rumit.
+\end{enumerate}
+
+\par Dokumentasi pengoperasian antarmuka aplikasi saat berinteraksi dengan API disajikan pada Gambar \ref{fig:modal-buat-link-vue}, Gambar \ref{fig:daftar-link-api}, dan Gambar \ref{fig:quick-shorten-stats}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-3/SS/modal-buat-link-vue.png}
+    \caption{Antarmuka Dialog Modal Pembuatan Tautan Baru pada Aplikasi Vue 3}
+    \label{fig:modal-buat-link-vue}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:modal-buat-link-vue}, pengguna disajikan formulir interaktif di dalam komponen modal rilis \texttt{CreateLinkModal.vue}. Bidang isian mencakup nama tautan, alamat URL tujuan asli, kustomisasi alias unik (misalnya \texttt{vue}), serta tombol pengalih status aktif. Data yang diinputkan akan divalidasi pada sisi klien sebelum dikirim melalui permintaan HTTP metode \texttt{POST} ke server Laravel API.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-3/SS/tampilan-daftar-link-api.png}
+    \caption{Antarmuka Halaman Utama Daftar Tautan yang Mengonsumsi Laravel REST API}
+    \label{fig:daftar-link-api}
+\end{figure}
+
+\par Gambar \ref{fig:daftar-link-api} memperlihatkan keberhasilan integrasi antara aplikasi Vue 3 pada peramban web (\texttt{localhost:5173}) dengan \textit{backend} Laravel (\texttt{localhost:8000/api}). Data tautan yang berhasil disimpan langsung dimuat dalam bentuk tabel responsif yang menampilkan rincian \textit{short link}, nama tautan, URL target asli, status aktif berwarna hijau, serta tombol aksi untuk penyuntingan, kunjungan langsung, dan penghapusan data.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-3/SS/halaman-quick-shorten-stats.png}
+    \caption{Antarmuka Halaman Sekunder Pemendek Cepat dan Ringkasan Statistik Tautan}
+    \label{fig:quick-shorten-stats}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:quick-shorten-stats}, antarmuka \textit{route} kedua pada URL \\
+\texttt{localhost:5173/quick-shorten} menyajikan visualisasi analitik yang mengonsumsi data statistik dari \textit{endpoint} API \texttt{/api/links/stats/count}. Tiga kartu indikator menyajikan ringkasan jumlah total tautan, tautan berstatus aktif, serta tautan nonaktif secara \textit{real-time}, dilengkapi formulir pemendek tautan cepat dengan tombol \textit{paste} otomatis.
+
+\subsection{Tugas 3: Perancangan Pipeline CI/CD Empat Job Frontend pada GitHub Actions}
+
+\par Menjawab butir penugasan ketiga, keempat, dan kelima, repositori dilengkapi dengan konfigurasi pipeline otomasi yang didedikasikan untuk modul antarmuka pengguna pada berkas \texttt{.github/workflows/frontend.yml}. Pipeline ini mengatur \textit{Continuous Integration} (CI) dan \textit{Continuous Delivery} (CD) dengan arsitektur multi-tahap yang aman dan efisien.
+
+\subsubsection{Struktur dan Ketergantungan Antar-Job}
+\par Berkas \textit{workflow} otomasi merangkai empat \textit{job} terpisah menggunakan direktif dependensi \texttt{needs:}. Seluruh definisi konfigurasi disajikan secara lengkap pada Kode \ref{lst:workflow-frontend}.
+
+\begin{lstlisting}[language=yaml, caption={[Pipeline Frontend CI/CD]{Konfigurasi Pipeline Frontend CI/CD (\texttt{.github/workflows/frontend.yml})}}, label={lst:workflow-frontend}]
+name: Frontend CI/CD Pipeline
+
+on:
+  push:
+    branches: ['main', 'dev', 'feature/**', 'chore/**']
+  pull_request:
+    branches: ['main']
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run Linter
+        working-directory: frontend
+        run: npm run lint
+
+  test:
+    name: Unit Test (Vitest)
+    needs: [lint]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run Vitest Unit Tests
+        working-directory: frontend
+        run: npm run test:unit
+
+  build:
+    name: Build Frontend
+    needs: [test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install Dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build Static Files
+        working-directory: frontend
+        run: npm run build
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+          retention-days: 7
+
+  deploy:
+    name: Deploy to Static Hosting
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
+      - name: Tampilkan Isi dist/ ke Log
+        run: |
+          echo "=== MEMERIKSA ISI DIREKTORI DIST/ (HASIL OPER ARTIFACT BUILD) ==="
+          ls -la frontend/dist
+          echo ""
+          echo "Daftar seluruh file rilis aset frontend:"
+          find frontend/dist -type f
+
+      - name: Simulasi Deploy Statis
+        run: |
+          echo "=== MEMULAI DEPLOYMENT KE HOSTING STATIS ==="
+          echo "Mempersiapkan rilis static assets..."
+          echo "Aset web statis siap disajikan tanpa kompilasi ulang (zero build on deploy)."
+          echo "=== DEPLOYMENT FRONTEND SUKSES ==="
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:workflow-frontend}, arsitektur \textit{workflow} dibangun atas prinsip-prinsip rekayasa otomasi penting:
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Penggunaan \texttt{npm ci} dan Mekanisme Caching Dependensi}: Seluruh \textit{job} mengeksekusi instalasi paket dependensi menggunakan perintah \texttt{npm ci} di dalam direktori kerja \texttt{frontend}. Berbeda dengan \texttt{npm install}, perintah \texttt{npm ci} membaca berkas pengunci \texttt{package-lock.json} secara kaku sehingga menjamin integritas dependensi yang identik (\textit{deterministic build}) di lingkungan \textit{runner}. Efisiensi dipercepat dengan konfigurasi \texttt{cache: 'npm'} dan parameter\\
+          \texttt{cache-dependency-path} pada aksi \texttt{actions/setup-node@v4}, menghindari pengunduhan ulang paket biner dari \textit{registry} luar pada eksekusi berulang.
+    \item \textbf{Rantai Ketergantungan \texttt{needs:}}: Tahapan eksekusi disusun secara sekuensial hierarkis:
+          \begin{center}
+              \texttt{lint} $\longrightarrow$ \texttt{test (needs: [lint])} $\longrightarrow$ \texttt{build (needs: [test])} $\longrightarrow$ \texttt{deploy (needs: [build])}
+          \end{center}
+          Struktur ini memastikan bahwa kode yang tidak lolos standar gaya penulisan atau mengandung galat pengujian unit akan langsung dihentikan secara \textit{fail-fast} sebelum proses kompilasi aset statis yang memakan sumber daya komputasi dijalankan.
+\end{enumerate}
+
+\subsubsection{Mekanisme Transfer Artefak Tanpa Re-Build (Zero Build on Deploy)}
+\par Memenuhi butir penugasan keempat, \textit{job} \texttt{deploy} tidak diperbolehkan menjalankan ulang perintah \texttt{npm run build}. Sebagai gantinya, hasil kompilasi dari \textit{job} \texttt{build} dioper secara utuh menggunakan mekanisme \textit{artifact sharing} GitHub Actions:
+\begin{itemize}[leftmargin=*]
+    \item Pada \textit{job} \texttt{build}, aksi \texttt{actions/upload-artifact@v4} mengompresi dan mengunggah seluruh isi direktori rilis \texttt{frontend/dist/} ke penyimpanan artefak terkelola GitHub dengan nama \texttt{frontend-dist}.
+    \item Pada \textit{job} \texttt{deploy}, aksi \texttt{actions/download-artifact@v4} mengambil artefak \texttt{frontend-dist} tersebut dan mengekstraknya kembali ke direktori \texttt{frontend/dist}.
+    \item \textit{Step} selanjutnya mengeksekusi perintah terminal \texttt{ls -la frontend/dist} serta perintah \texttt{find frontend/dist -type f} untuk menampilkan seluruh struktur berkas rilis ke log eksekusi, memverifikasi ketersediaan berkas \texttt{index.html}, aset JavaScript terkompilasi, serta lembar gaya CSS.
+\end{itemize}
+Mekanisme ini mencerminkan praktik terbaik industri (\textit{Twelve-Factor App}) di mana tahapan \textit{build} dipisahkan secara tegas dari tahapan \textit{deploy}, menjamin bahwa artefak yang diuji di lingkungan simulasi persis sama dengan artefak yang dirilis ke server produksi.
+
+\subsubsection{Aturan Proteksi Lingkungan dan Pembatasan Deploy pada Branch Main}
+\par Memenuhi butir penugasan kelima, pengamanan eksekusi diterapkan pada tingkat deklarasi \textit{job} \texttt{deploy} dengan menyertakan ekspresi kondisi:
+\begin{center}
+    \texttt{if: github.ref == 'refs/heads/main' \&\& github.event\_name != 'pull\_request'}
+\end{center}
+\par Aturan logika ini memberikan dua tingkat perlindungan:
+\begin{itemize}[leftmargin=*]
+    \item Apabila terjadi aktivitas \textit{push} pada \textit{branch} fitur (seperti \texttt{feature/vue}), \textit{branch} perbaikan (\texttt{chore/**}), atau \textit{branch} pengembangan (\texttt{dev}), \textit{workflow} tetap menjalankan \textit{job} \texttt{lint}, \texttt{test}, dan \texttt{build} secara lengkap guna memvalidasi kelayakan kode, namun \textit{job} \texttt{deploy} secara otomatis berstatus \textit{skipped}.
+    \item Apabila dibuat suatu \textit{Pull Request} (PR) yang menargetkan \textit{branch} \texttt{main}, \textit{workflow} bertindak sebagai \textit{quality gate} dengan menjalankan pemeriksaan kualitas kode dan pengujian unit tanpa memicu proses \textit{deployment}.
+    \item \textit{Job} \texttt{deploy} hanya dan hanya akan dieksekusi ketika perubahan telah disetujui dan di-\textit{merge} ke dalam \textit{branch} utama \texttt{main}.
+\end{itemize}
+
+\subsection{Tugas 3: Implementasi Unit Testing Mandiri Berbasis Vitest}
+
+\par Menjawab butir penugasan keenam, aplikasi antarmuka dilengkapi dengan pengujian unit mandiri berbasis kerangka kerja Vitest. Syarat utama penugasan menetapkan bahwa pengujian harus lulus 100\% di lingkungan runner GitHub Actions tanpa memerlukan server Laravel atau basis data berjalan.
+
+\subsubsection{Pemisahan Logika Bisnis Murni}
+\par Agar antarmuka dapat diuji secara terisolasi dan mandiri tanpa dependensi jaringan (\textit{network-agnostic}), seluruh logika pengolahan data tautan, validasi format, manipulasi URL, serta kalkulasi statistik diabstraksikan ke dalam modul utilitas terpisah pada berkas \\
+\texttt{frontend/src/utils/linkLogic.ts}. Sebagian fungsi utilitas logika disajikan pada Kode \ref{lst:link-logic-utils}.
+
+\begin{lstlisting}[language=JavaScript, caption={[Utilitas Logika Mandiri]{Fungsi Utilitas Logika Mandiri pada \texttt{frontend/src/utils/linkLogic.ts}}}, label={lst:link-logic-utils}]
+export function isValidUrl(url: string): boolean {
+  if (!url || typeof url !== 'string') return false
+  const trimmed = url.trim()
+  try {
+    const parsed = new URL(trimmed)
+    return parsed.protocol === 'http:' || parsed.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
+export function isValidAlias(alias: string): boolean {
+  if (!alias) return true // alias bersifat opsional
+  const regex = /^[a-zA-Z0-9_-]+$/
+  return regex.test(alias.trim())
+}
+
+export function buildApiUrl(
+  base: string,
+  endpoint: string,
+  params?: Record<string, string | undefined>
+): string {
+  const cleanBase = (base || '').replace(/\/+$/, '')
+  const cleanEndpoint = (endpoint || '').replace(/^\/+|\/+$/g, '')
+  const fullUrl = cleanEndpoint ? `${cleanBase}/${cleanEndpoint}` : cleanBase
+
+  if (!params) return fullUrl
+
+  const searchParams = new URLSearchParams()
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') {
+      searchParams.append(key, value)
+    }
+  }
+
+  const queryString = searchParams.toString()
+  return queryString ? `${fullUrl}?${queryString}` : fullUrl
+}
+
+export function calculateStats(links: LinkItem[]): LinkStats {
+  const safeLinks = Array.isArray(links) ? links : []
+  const activeCount = safeLinks.filter((item) => item && item.is_active === true).length
+
+  return {
+    active_links_count: activeCount,
+    total_links_count: safeLinks.length,
+  }
+}
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:link-logic-utils}, fungsi \texttt{isValidUrl} memastikan validitas skema URL (hanya menerima protokol \texttt{http:} dan \texttt{https:}), fungsi \texttt{isValidAlias} memvalidasi karakter alias alfanumerik (\textit{alpha-dash}), fungsi \texttt{buildApiUrl} merakit URL secara bersih tanpa \textit{double slash}, dan fungsi \texttt{calculateStats} menghitung agregat statistik tautan.
+
+\subsubsection{Implementasi Kasus Pengujian Unit Vitest}
+\par Pengujian unit diimplementasikan pada berkas spesifikasi \\
+\texttt{frontend/src/\_\_tests\_\_/linkLogic.spec.ts} mencakup 19 kasus pengujian terstruktur. Cuplikan skenario pengujian ditampilkan pada Kode \ref{lst:unit-test-vitest}.
+
+\begin{lstlisting}[language=JavaScript, caption={[Pengujian Unit Mandiri]{Implementasi Pengujian Unit Mandiri pada \texttt{frontend/src/\_\_tests\_\_/linkLogic.spec.ts}}}, label={lst:unit-test-vitest}]
+import { describe, it, expect } from 'vitest'
+import {
+  isValidUrl,
+  isValidAlias,
+  buildApiUrl,
+  calculateStats,
+  validateLinkInput,
+  filterLinks,
+  truncateText,
+} from '../utils/linkLogic'
+import type { LinkItem } from '../types/link'
+
+describe('Logika Aplikasi Frontend Shortener (Unit Test Mandiri Tanpa Panggil API)', () => {
+  describe('isValidUrl', () => {
+    it('mengembalikan true untuk URL http dan https yang valid', () => {
+      expect(isValidUrl('https://laravel.com')).toBe(true)
+      expect(isValidUrl('http://example.com/path?query=1')).toBe(true)
+    })
+
+    it('mengembalikan false untuk string kosong atau format ilegal', () => {
+      expect(isValidUrl('')).toBe(false)
+      expect(isValidUrl('bukan-url')).toBe(false)
+      expect(isValidUrl('ftp://ftp.example.com')).toBe(false)
+    })
+  })
+
+  describe('buildApiUrl', () => {
+    it('menggabungkan base URL dan endpoint dengan benar tanpa double slash', () => {
+      const url = buildApiUrl('http://localhost:8000/api/', '/links/')
+      expect(url).toBe('http://localhost:8000/api/links')
+    })
+  })
+
+  describe('calculateStats', () => {
+    it('menghitung jumlah tautan aktif dan total secara akurat', () => {
+      const dummyLinks: LinkItem[] = [
+        { id: 1, name: 'L1', original_url: 'https://a.com', short_url: 'http://localhost:8000/a', custom_alias: 'a', is_active: true, created_at: '', updated_at: '' },
+        { id: 2, name: 'L2', original_url: 'https://b.com', short_url: 'http://localhost:8000/b', custom_alias: 'b', is_active: false, created_at: '', updated_at: '' },
+      ]
+      const stats = calculateStats(dummyLinks)
+      expect(stats.total_links_count).toBe(2)
+      expect(stats.active_links_count).toBe(1)
+    })
+  })
+})
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:unit-test-vitest}, seluruh asersi pengujian dirancang untuk memverifikasi fungsionalitas logika internal secara deterministik. Karena tidak memanggil fungsi \texttt{fetch} jaringan ke alamat eksternal, pengujian dapat dieksekusi dengan kecepatan tinggi dan dijamin selalu lulus di lingkungan komputasi terisolasi seperti \textit{runner} GitHub Actions.
+
+\subsection{Tugas 3: Validasi Skenario dan Pembuktian Pipeline Otomasi}
+
+\par Memenuhi butir penugasan ketujuh, dilakukan pengujian skenario menyeluruh untuk membuktikan keandalan pipeline otomasi dalam merespons berbagai \textit{event} Git, mendeteksi kegagalan, dan mengeksekusi \textit{deployment} rilis secara tepat.
+
+\subsubsection{Analisis Insiden Kegagalan Pengujian dan Resolusi Mitigasi}
+\par Dalam proses rekayasa perangkat lunak nyata, insiden kegagalan pengujian dialami secara riil pada pengujian awal di \textit{branch} \texttt{feature/vue}. Pada commit \texttt{23dc34f} dan \texttt{fc8887b}, dibuat berkas pengujian integrasi antarmuka \texttt{apiService.spec.ts} yang mencoba mengirimkan permintaan HTTP langsung ke alamat \texttt{http://localhost:8000/api}. Ketika \textit{workflow} dieksekusi oleh GitHub Actions \textit{runner}, proses pengujian mengalami kegagalan fatal (status \textit{failed}) karena server \textit{backend} Laravel tidak dijalankan pada lingkungan CI \textit{frontend} tersebut.
+
+\par Bukti visual riwayat insiden kesalahan dan resolusi perbaikannya disajikan pada Gambar \ref{fig:riwayat-kegagalan-test}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-3/SS/riwayat-workflow-kegagalan-dan-resolusi-test.png}
+    \caption{Riwayat Eksekusi Pipeline Otomasi yang Menunjukkan Deteksi Kegagalan Pengujian dan Keberhasilan Pemulihan}
+    \label{fig:riwayat-kegagalan-test}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:riwayat-kegagalan-test}, daftar riwayat eksekusi pada tab GitHub Actions menampilkan status gagal (\textit{failed}) secara beruntun pada \textit{workflow} \textit{Frontend CI/CD Pipeline}:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Run \#1 (Commit \texttt{23dc34f})}: Gagal pada detik ke-35 saat eksekusi \textit{job} \texttt{test} karena kegagalan koneksi jaringan ke server Laravel.
+    \item \textbf{Run \#2 (Commit \texttt{fc8887b})}: Upaya perbaikan parameter dasar URL masih memicu status kegagalan pada detik ke-32 karena ketiadaan penyedia layanan data lokal di dalam kontainer \textit{runner}.
+\end{itemize}
+
+\par Tindakan mitigasi teknis diterapkan melalui commit \texttt{352e577} dengan pesan perbaikan:
+\begin{center}
+    \texttt{fix(test): penghapusan api test karena laravel tidak di run di ci ini}
+\end{center}
+Tindakan korektif ini menghapus ketergantungan jaringan dari berkas uji, menggantinya dengan pengujian unit murni berbasis logika mandiri pada modul \texttt{linkLogic.spec.ts}. Hasilnya, pada run \#3 \textit{workflow} langsung berhasil pulih dan berstatus \textit{passed} dalam durasi 58 detik dengan total 19 kasus pengujian lulus sempurna.
+
+\subsubsection{Skenario Push ke Feature Branch: Deploy Berstatus Skipped}
+\par Pengujian skenario berikutnya memverifikasi perilaku pipeline ketika pengembang melakukan \textit{push} kode ke \textit{branch} fitur (\texttt{feature/vue}) pada commit perbaikan \texttt{352e577}. Visualisasi alur eksekusi grafis disajikan pada Gambar \ref{fig:feature-deploy-skipped}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-3/SS/pipeline-feature-branch-deploy-skipped.png}
+    \caption{Eksekusi Pipeline Frontend CI/CD pada Branch Fitur dengan Tahap Deployment yang Berstatus \textit{Skipped}}
+    \label{fig:feature-deploy-skipped}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:feature-deploy-skipped}, grafik \textit{workflow} menampilkan rangkaian eksekusi yang sangat jelas:
+\begin{itemize}[leftmargin=*]
+    \item \textit{Job} \textbf{Lint} berhasil diselesaikan dalam durasi 14 detik dengan status sukses.
+    \item \textit{Job} \textbf{Unit Test (Vitest)} berhasil mengeksekusi 19 kasus pengujian secara menyeluruh (\textit{1 pass test files, 19 passes test results}) dalam durasi 12 detik.
+    \item \textit{Job} \textbf{Build Frontend} berhasil mengompilasi bundel statis dan mengunggah artefak ke server penyimpanan dalam durasi 21 detik.
+    \item \textit{Job} \textbf{Deploy to Static Hosting} secara otomatis berstatus \textbf{\textit{skipped}} dengan durasi 0 detik, ditandai oleh ikon lingkaran bergaris diagonal abu-abu.
+\end{itemize}
+Hasil ini membuktikan bahwa ekspresi kondisi pengaman pada \textit{workflow}, yaitu \texttt{if: github.ref == 'refs/heads/main'}, berhasil mengisolasi lingkungan rilis dari perubahan yang masih berada di tingkat \textit{branch} fitur.
+
+\subsubsection{Skenario Integrasi ke Branch dev}
+\par Setelah fitur antarmuka dinyatakan stabil dan lolos seluruh pengujian mutu, diajukan \textit{Pull Request} \#3 dari \textit{branch} \texttt{feature/vue} menuju \textit{branch} pengembangan \texttt{dev}. Pasca penelaahan dan persetujuan, PR digabungkan melalui commit \texttt{883115a}. Bukti integrasi dan eksekusi \textit{workflow} disajikan pada Gambar \ref{fig:riwayat-merge-pr-dev} dan Gambar \ref{fig:pipeline-dev-skipped}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-3/SS/riwayat-workflow-merge-pr-dev.png}
+    \caption{Riwayat Eksekusi Workflow Pasca Penggabungan \textit{Pull Request} \#3 ke \textit{Branch} \texttt{dev}}
+    \label{fig:riwayat-merge-pr-dev}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:riwayat-merge-pr-dev}, riwayat eksekusi \textit{workflow} mencatat jalannya \textit{pipeline} \textit{Frontend CI/CD Pipeline \#4} pada commit \texttt{883115a} dengan status sukses (\textit{passed}) dalam durasi 58 detik, berdampingan dengan pipeline \textit{backend}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-3/SS/pipeline-dev-branch-deploy-skipped.png}
+    \caption{Visualisasi Alur Eksekusi Pipeline CI/CD pada \textit{Branch} \texttt{dev}}
+    \label{fig:pipeline-dev-skipped}
+\end{figure}
+
+\par Gambar \ref{fig:pipeline-dev-skipped} memperlihatkan rincian eksekusi \textit{workflow} pada \textit{branch} \texttt{dev}. Tiga tahapan awal (\textbf{Lint}, \textbf{Unit Test}, dan \textbf{Build Frontend}) tereksekusi sukses, sementara tahapan \textbf{Deploy to Static Hosting} tetap berada dalam status \textit{skipped}. Hal ini menegaskan konsistensi aturan keamanan bahwa \textit{branch} perantara \texttt{dev} hanya difungsikan untuk integrasi pengujian gabungan dan tidak diperkenankan memicu rilis hosting publik.
+
+\subsubsection{Skenario Rilis Penuh pada Branch main}
+\par Tahapan akhir dari siklus pengembangan adalah penggabungan perubahan dari \textit{branch} \texttt{dev} ke dalam \textit{branch} utama \texttt{main} melalui \textit{Pull Request} \#4. Penggabungan dicatat pada riwayat commit \texttt{b2cc687} dengan pesan \textit{"Merge pull request \#4 from KEPL2026/dev"}. Bukti eksekusi sukses rangkaian penuh disajikan pada Gambar \ref{fig:pipeline-main-success}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-3/SS/pipeline-main-branch-deploy-success.png}
+    \caption{Eksekusi Penuh Seluruh Rangkaian \textit{Job} Pipeline Frontend CI/CD pada \textit{Branch} \texttt{main}}
+    \label{fig:pipeline-main-success}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pipeline-main-success}, seluruh rangkaian \textit{job} pada \textit{workflow} \textit{Frontend CI/CD Pipeline \#6} berhasil diselesaikan secara sempurna dengan status akhir sukses (\textit{passed}) dan total durasi 1 menit 3 detik:
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Lint} (19 detik): Verifikasi sintaksis dan kepatuhan aturan penulisan kode TypeScript/Vue berhasil lulus tanpa peringatan.
+    \item \textbf{Unit Test (Vitest)} (14 detik): 19 kasus pengujian unit logika internal lulus 100\% di lingkungan runner.
+    \item \textbf{Build Frontend} (17 detik): Kompilasi aset statis Vite berhasil menghasilkan bundel berkas siap rilis dan diunggah sebagai artefak \texttt{frontend-dist}.
+    \item \textbf{Deploy to Static Hosting} (3 detik): Karena kondisi ekspresi\\
+          \texttt{github.ref == 'refs/heads/main'} terpenuhi pada \textit{branch} utama, tahapan ini langsung dieksekusi secara aktif. \textit{Job} mengunduh artefak rilis, mencetak daftar berkas direktori \texttt{dist/} ke log tanpa melakukan kompilasi ulang (\textit{zero build on deploy}), dan menyelesaikan proses \textit{deployment} aset statis secara sukses.
+\end{enumerate}
+
+
+\subsection{Tugas 4: Identitas Repositori, Arsitektur Proyek, dan Jejak Commit Git}
+
+\par Praktikum Konstruksi dan Evolusi Perangkat Lunak Tugas 4 melanjutkan pengembangan repositori proyek aplikasi web \texttt{evolusi-pl-24-538699-SV-24524} di bawah naungan organisasi GitHub \texttt{KEPL2026}. Fokus utama penugasan ini berpusat pada penerapan teknologi \textit{containerization} menggunakan Docker dan Podman untuk membungkus aplikasi web berbasis \textit{framework} Laravel 11. \textit{Containerization} bertujuan mengatasi permasalahan disparitas \textit{environment parity} antara mesin \textit{host} pengembang dan \textit{server production}.
+
+\par Metadata repositori beserta struktur lingkungan kerja diuraikan sebagai berikut:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Organisasi GitHub}: KEPL2026\\
+          {\footnotesize\url{https://github.com/KEPL2026}}
+    \item \textbf{Repositori Proyek}: \texttt{evolusi-pl-24-538699-SV-24524}\\
+          {\footnotesize\url{https://github.com/KEPL2026/evolusi-pl-24-538699-SV-24524}}
+    \item \textbf{\textit{Main Branch}}: \texttt{main} dan \texttt{dev} sebagai \textit{branch} stabil dan integrasi rilis sebelumnya.
+    \item \textbf{\textit{Feature Branch} (\texttt{feature/dockerize})}: \textit{Branch} terisolasi yang dibuat secara khusus untuk penulisan berkas \texttt{Dockerfile}, perancangan aturan \texttt{.dockerignore}, eksperimen pengujian waktu siklus \textit{build}, serta verifikasi eksekusi \textit{container} dan pengujian REST API.
+\end{itemize}
+
+\par Seluruh aktivitas rekayasa pada penugasan ini tercatat secara terperinci melalui riwayat \textit{commit} pada \textit{branch} \texttt{feature/dockerize} tertanggal 29 September 2026, sebagaimana disajikan pada Kode \ref{lst:git-log}.
+
+\lstinputlisting[language=bash, caption={[Jejak Commit Repositori Git]{Jejak Commit Git pada \textit{Branch} \texttt{feature/dockerize} per 29 September 2026}}, label={lst:git-log}]{resource/Tugas-4/code/git-log.txt}
+
+\par Berdasarkan Kode \ref{lst:git-log}, jejak \textit{commit} memperlihatkan tahapan evolusi perangkat lunak yang sistematis dan terstruktur. \textit{Commit} awal ber-hash \texttt{986cced} menambahkan berkas \texttt{Dockerfile} dan \texttt{.dockerignore} ke dalam repositori. Tahapan berikutnya mencakup \textit{commit} \texttt{7893442} dan \texttt{12cbf56} untuk pencatatan log \textit{build} pertama, dilanjutkan dengan \textit{commit} \texttt{a7b3699} untuk kompilasi \textit{image} kedua tanpa perubahan kode sumber. \textit{Commit} \texttt{bb2449f} merepresentasikan skenario pengujian \textit{layer cache} ketiga dengan memodifikasi \textit{route} API pada \texttt{routes/api.php}. Rangkaian aktivitas diakhiri dengan \textit{commit} \texttt{58357b9} yang mengeksekusi \textit{container} ke dalam lingkungan komputasi lokal dan mencatat status layanan yang aktif.
+
+\subsection{Tugas 4: Perancangan Berkas Dockerfile dan Analisis Urutan Instruksi}
+
+\par Berkas \texttt{Dockerfile} bertindak sebagai \textit{blueprint} deklaratif yang mendefinisikan seluruh instruksi pembentukan \textit{image container} aplikasi. Dalam praktikum ini, \textit{image} dirancang dengan memperhatikan efisiensi ukuran, keandalan ekstensi, serta optimasi \textit{layer caching} sesuai prinsip rekayasa perangkat lunak modern. Konfigurasi lengkap \texttt{Dockerfile} disajikan pada Kode \ref{lst:dockerfile}.
+
+\lstinputlisting[language=dockerfile, caption={[Konfigurasi Dockerfile Aplikasi Laravel]{Berkas Konfigurasi \texttt{Dockerfile} untuk \textit{Containerization} Aplikasi Laravel 11}}, label={lst:dockerfile}]{resource/Tugas-4/code/Dockerfile}
+
+\par Berdasarkan Kode \ref{lst:dockerfile}, konfigurasi instruksi disusun secara hierarkis dengan rincian teknis sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Pemilihan \textit{Base Image} Resmi (\texttt{FROM})}: Instruksi baris 1 menggunakan \textit{base image} resmi \texttt{dunglas/frankenphp:1-php8.4}. FrankenPHP merupakan \textit{web server} aplikasi kontemporer berbasis Caddy yang mengintegrasikan \textit{runtime} PHP langsung ke dalam \textit{web server} tanpa memerlukan \textit{daemon} FastCGI (PHP-FPM) dan Nginx terpisah. Hal ini menyederhanakan arsitektur \textit{container} menjadi satu proses tunggal dengan latensi yang sangat rendah.
+    \item \textbf{Instalasi Paket Sistem dan Ekstensi PHP (\texttt{RUN})}: Baris 3--15 memasang paket sistem pendukung serta modul inti PHP melalui utilitas \texttt{install-php-extensions}. Ekstensi yang dipasang mencakup \texttt{pdo\_mysql} untuk komunikasi \textit{database} MySQL, \texttt{gd} untuk manipulasi gambar, \texttt{intl} untuk internasionalisasi, \texttt{zip} untuk ekstraksi berkas kompresi, \texttt{bcmath} untuk kalkulasi presisi tinggi, serta \texttt{opcache} dan \texttt{curl} untuk akselerasi eksekusi kode dan komunikasi jaringan.
+    \item \textbf{Penyalinan Biner Composer Secara Efisien}: Baris 17 menerapkan teknik \textit{multi-stage build} ringan dengan menyalin biner Composer versi 2 langsung dari \textit{image} resmi \texttt{composer:2} melalui instruksi\\
+          \texttt{COPY --from=composer:2 /usr/bin/composer /usr/bin/composer}, sehingga tidak memerlukan instalasi manual yang membebani ukuran \textit{layer}.
+    \item \textbf{Pemisahan Instalasi Dependensi Sebelum Kode Aplikasi}: Baris 19--22 menetapkan direktori kerja \texttt{/app}, lalu menyalin \texttt{composer.json} dan \texttt{composer.lock} secara terisolasi sebelum kode program disalin. Perintah\\
+          \texttt{composer install --no-dev --no-scripts --no-autoloader --prefer-dist}\\
+          dijalankan pada tahap ini. Strategi ini merupakan kunci utama optimasi \textit{layer caching}: dependensi pihak ketiga yang bersifat statis akan tersimpan dalam \textit{layer cache}, sehingga perubahan rutin pada kode program di kemudian hari tidak memicu pengunduhan ulang dependensi dari jaringan eksternal.
+    \item \textbf{Penyalinan Kode Aplikasi dan Optimasi \textit{Autoloader}}: Baris 24--28 menyalin seluruh kode sumber aplikasi ke direktori \texttt{/app}, dilanjutkan dengan eksekusi perintah\\
+          \texttt{composer dump-autoload --optimize} untuk menghasilkan \textit{classmap} teroptimasi. Selain itu, hak kepemilikan dan izin direktori \texttt{storage} serta \texttt{bootstrap/cache} diserahkan kepada \textit{user} sistem \texttt{www-data:www-data} (mode 775) guna menjamin operasi berkas log dan sesi berjalan lancar tanpa galat \textit{permission denied}.
+    \item \textbf{Deklarasi Port dan Titik Masuk Eksekusi}: Baris 30 mendokumentasikan \textit{port} 80 yang diekspos (\texttt{EXPOSE 80}), dan baris 32 menetapkan perintah utama \textit{server} (\texttt{CMD ["frankenphp", "php-server", "--root", "public/"]}) yang langsung menyajikan berkas publik Laravel saat \textit{container} dijalankan.
+\end{enumerate}
+
+\subsection{Tugas 4: Konfigurasi Berkas .dockerignore untuk Efisiensi Konteks Build}
+
+\par Berkas \texttt{.dockerignore} berfungsi memfilter berkas dan direktori lokal agar tidak diikutsertakan ke dalam \textit{build context} yang dikirimkan oleh klien ke \textit{container engine}. Tanpa berkas ini, seluruh direktori lokal akan ditransfer secara mentah, yang berakibat pada pembengkakan ukuran \textit{image}, waktu transfer yang lambat, terjadinya \textit{cache invalidation} yang tidak diinginkan, serta potensi kebocoran informasi rahasia. Konfigurasi \texttt{.dockerignore} yang diterapkan disajikan pada Kode \ref{lst:dockerignore}.
+
+\lstinputlisting[language={}, caption={[Aturan Pengecualian .dockerignore]{Konfigurasi Pengecualian \textit{Build Context} pada Berkas \texttt{.dockerignore}}}, label={lst:dockerignore}]{resource/Tugas-4/code/dockerignore}
+
+\par Berdasarkan Kode \ref{lst:dockerignore}, pemfilteran direktori dan berkas dirancang secara komprehensif mencakup:
+\begin{itemize}[leftmargin=*]
+    \item \texttt{node\_modules} dan \texttt{frontend/node\_modules}:\\
+          Mencegah masuknya direktori \textit{package} JavaScript lokal yang berukuran ratusan megabita dan berpotensi memuat biner yang tidak kompatibel dengan lingkungan Linux di dalam \textit{container}.
+    \item \texttt{vendor}: Menjamin bahwa \textit{package} PHP lokal milik mesin pengembang tidak menimpa \textit{package} bersih yang diinstalasi secara deterministik di dalam \textit{container} melalui berkas \texttt{composer.lock}.
+    \item \texttt{.git} dan \texttt{.gitignore}: Menghilangkan riwayat \textit{commit} internal Git dari \textit{image production} demi mereduksi ukuran \textit{image} serta menjaga keamanan struktur repositori.
+    \item \texttt{.env} dan \texttt{.env.*}: Mencegah berkas konfigurasi lokal yang memuat kredensial sensitif (kunci enkripsi, kata sandi \textit{database}) tersimpan secara permanen di dalam \textit{layer image}.
+    \item \texttt{storage/logs/*} dan \texttt{storage/framework/*}: Mengeliminasi berkas log, sesi sementara, dan \textit{view cache} lokal \textit{host} agar tidak mengotori instalasi segar di dalam lingkungan \textit{container}.
+\end{itemize}
+
+\subsection{Tugas 4: Eksperimen dan Pembuktian Efektivitas Layer Caching}
+
+\par Untuk membuktikan bahwa mekanisme \textit{layer caching} bekerja secara efektif sesuai urutan instruksi pada \texttt{Dockerfile}, dilakukan serangkaian pengujian terukur yang mencakup tiga siklus \textit{build image} menggunakan utilitas Podman. Perintah eksekusi yang dijalankan untuk mengotomasi pengujian dan mencatat waktu eksekusi disajikan pada Kode \ref{lst:perintah-build}.
+
+\lstinputlisting[language=bash, caption={[Skrip Eksekusi Pengujian Siklus Build]{Rangkaian Perintah Pengujian Siklus \textit{Build Image} Menggunakan Podman}}, label={lst:perintah-build}]{resource/Tugas-4/code/perintah-build.sh}
+
+\par Kode \ref{lst:perintah-build} mendemonstrasikan eksekusi tiga siklus \textit{build} dengan parameter kontrol yang terukur. Luaran dari setiap tahapan dialirkan ke utilitas \texttt{tee} untuk mendokumentasikan log eksekusi secara transparan ke dalam berkas \texttt{build-1.txt}, \texttt{build-2.txt}, dan \texttt{build-3.txt}.
+
+\subsubsection{Siklus Build Pertama: Kondisi Bersih Tanpa Cache}
+\par Eksekusi \textit{build image} pertama dilakukan dengan menyertakan parameter \texttt{--no-cache} guna memaksa \textit{container engine} mengompilasi dan mengunduh seluruh instruksi dari awal. Cuplikan log eksekusi \textit{build} pertama disajikan pada Kode \ref{lst:build-1}.
+
+\lstinputlisting[language={}, caption={[Luaran Terminal Build 1 Tanpa Cache]{Cuplikan Luaran Terminal \textit{Build} Pertama dalam Kondisi Bersih (\texttt{build-1.txt})}}, label={lst:build-1}]{resource/Tugas-4/code/build-1-cuplikan.txt}
+
+\par Berdasarkan Kode \ref{lst:build-1}, proses \textit{build image} pertama memerlukan waktu total \textit{real time} selama \textbf{2 menit 21,196 detik} (141,196 detik), dengan konsumsi waktu CPU \textit{user time} sebesar 2 menit 59,943 detik dan waktu sistem \textit{sys time} sebesar 48,312 detik. Seluruh tahap dari STEP 1 hingga STEP 11 dieksekusi secara penuh, meliputi pembaruan repositori paket Debian, pengunduhan kode sumber dan kompilasi modul ekstensi PHP (\texttt{pdo\_mysql}, \texttt{gd}, \texttt{intl}, \texttt{zip}, \texttt{bcmath}), hingga pengunduhan dan ekstraksi 76 \textit{package} Composer melalui jaringan internet.
+
+\subsubsection{Siklus Build Kedua: Pemanfaatan Penuh Layer Cache}
+\par Proses \textit{build image} kedua dijalankan segera setelah siklus pertama selesai tanpa mengubah berkas konfigurasi maupun kode sumber aplikasi apa pun. Luaran terminal siklus \textit{build} kedua disajikan pada Kode \ref{lst:build-2}.
+
+\lstinputlisting[language={}, caption={[Luaran Terminal Build 2 dengan Cache Penuh]{Luaran Terminal \textit{Build} Kedua Tanpa Perubahan Kode Sumber (\texttt{build-2.txt})}}, label={lst:build-2}]{resource/Tugas-4/code/build-2.txt}
+
+\par Melalui luaran Kode \ref{lst:build-2}, \textit{container engine} mendeteksi bahwa tidak ada berkas input yang berubah pada setiap \textit{layer} instruksi. Hal ini dibuktikan dengan kemunculan label \texttt{--> Using cache} pada instruksi STEP 2, STEP 3, STEP 4, STEP 5, STEP 6, dan STEP 7. Waktu eksekusi terpangkas secara drastis menjadi hanya \textbf{3,597 detik} \textit{real time}, dengan waktu CPU \textit{user time} sebesar 2,622 detik dan waktu sistem \textit{sys time} sebesar 1,348 detik. Penurunan waktu eksekusi dari 141,196 detik menjadi 3,597 detik ini membuktikan bahwa seluruh \textit{layer} kompilasi sistem dan instalasi dependensi berhasil digunakan kembali secara instan dari \textit{layer cache}.
+
+\subsubsection{Siklus Build Ketiga: Uji Invalidasi Cache Pasca Modifikasi Kode Sumber}
+\par Untuk menguji hipotesis bahwa perubahan pada kode aplikasi tidak akan membatalkan \textit{cache} instalasi dependensi Composer, dilakukan pengubahan satu blok kode dengan menambahkan \textit{route} API baru pada berkas \texttt{routes/api.php} pada \textit{commit} \texttt{bb2449f}. Selanjutnya, perintah \textit{build image} dieksekusi kembali. Luaran terminal siklus \textit{build} ketiga disajikan pada Kode \ref{lst:build-3}.
+
+\lstinputlisting[language={}, caption={[Luaran Terminal Build 3 Pasca Modifikasi Kode]{Luaran Terminal \textit{Build} Ketiga Setelah Modifikasi Kode Sumber (\texttt{build-3.txt})}}, label={lst:build-3}]{resource/Tugas-4/code/build-3.txt}
+
+\par Berdasarkan Kode \ref{lst:build-3}, mekanisme \textit{caching} membuktikan ketepatan urutan instruksi yang dirancang. \textit{Layer} instruksi STEP 1 hingga STEP 7 tetap berstatus \texttt{--> Using cache} karena berkas \texttt{composer.json} dan \texttt{composer.lock} tidak mengalami perubahan bit. \textit{Cache invalidation} hanya terjadi pada STEP 8 (\texttt{COPY . /app}) akibat adanya perubahan isi berkas \texttt{routes/api.php}, yang dilanjutkan dengan eksekusi STEP 9 untuk regenerasi \textit{classmap autoloader}. Waktu eksekusi yang dicatat pada akhir log adalah \textbf{3,731 detik} \textit{real time}. Hasil ini membuktikan bahwa \textit{build} ketiga tetap berjalan sangat cepat dan mendekati waktu \textit{build} kedua, serta jauh melampaui efisiensi waktu \textit{build} pertama tanpa perlu mengunduh ulang \textit{package} dependensi.
+
+\subsubsection{Komparasi dan Evaluasi Kinerja Tiga Siklus Build}
+\par Perbandingan kuantitatif performa ketiga siklus \textit{build image} dirangkum secara komparatif pada Tabel \ref{tab:perbandingan-build}.
+
+\begin{table}[H]
+    \centering
+    \small
+    \begin{tabularx}{\textwidth}{@{}Xccc@{}}
+        \toprule
+        \textbf{Parameter Pengujian}        & \textbf{Build 1 (Clean)}       & \textbf{Build 2 (Identical)}        & \textbf{Build 3 (Modified)}         \\
+        \midrule
+        \textit{Real Time}                  & 2m 21.196s (141.20s)           & 0m 3.597s (3.60s)                   & 0m 3.731s (3.73s)                   \\
+        \textit{User Time}                  & 2m 59.943s                     & 0m 2.622s                           & 0m 2.715s                           \\
+        \textit{Sys Time}                   & 0m 48.312s                     & 0m 1.348s                           & 0m 1.408s                           \\
+        Status \textit{Cache} Ekstensi PHP  & \textit{Miss} (Kompilasi)      & \textit{Hit} (\texttt{Using cache}) & \textit{Hit} (\texttt{Using cache}) \\
+        Status \textit{Cache} Dependensi    & \textit{Miss} (Unduh 76 paket) & \textit{Hit} (\texttt{Using cache}) & \textit{Hit} (\texttt{Using cache}) \\
+        Status \textit{Cache} Kode Aplikasi & \textit{Miss} (Salin baru)     & \textit{Hit} (Identik)              & \textit{Miss} (Salin ulang)         \\
+        Persentase Reduksi Waktu            & Acuan (0\%)                    & 97,45\%                             & 97,36\%                             \\
+        \bottomrule
+    \end{tabularx}
+    \vspace{0.5em}
+    \caption{Komparasi Kinerja Waktu Eksekusi dan Pemanfaatan \textit{Cache} pada Tiga Siklus \textit{Build Image}}
+    \label{tab:perbandingan-build}
+\end{table}
+
+\par Berdasarkan Tabel \ref{tab:perbandingan-build}, efisiensi waktu yang dicapai pada siklus \textit{build} kedua dan ketiga masing-masing mencapai 97,45\% dan 97,36\% dibandingkan kondisi \textit{build} pertama. Bukti empiris ini menegaskan kebenaran kaidah arsitektur Docker: instruksi yang jarang berubah (instalasi paket sistem dan dependensi pihak ketiga) wajib diletakkan di bagian atas, sedangkan instruksi yang sering berubah (kode sumber aplikasi) diletakkan di bagian bawah \texttt{Dockerfile}.
+
+\subsection{Tugas 4: Menjalankan Container dan Verifikasi Akses Antarmuka Web}
+
+\par Setelah \textit{image} \texttt{kepl-be} berhasil di-\textit{build}, tahapan selanjutnya adalah menjalankan \textit{image} tersebut sebagai \textit{container} mandiri dan mengintegrasikannya dengan jaringan \textit{database} yang telah ada. Perintah yang dieksekusi disajikan pada Kode \ref{lst:perintah-run}.
+
+\lstinputlisting[language=bash, caption={[Perintah Eksekusi Container]{Perintah Menjalankan Container dengan Konfigurasi Port dan Jaringan}}, label={lst:perintah-run}]{resource/Tugas-4/code/perintah-run.sh}
+
+\par Berdasarkan Kode \ref{lst:perintah-run}, parameter operasional yang dikonfigurasi mencakup:
+\begin{itemize}[leftmargin=*]
+    \item \texttt{-d}: Menginstruksikan \textit{container engine} untuk menjalankan proses secara \textit{detached mode}, sehingga sesi terminal tetap dapat digunakan untuk eksekusi perintah lain.
+    \item \texttt{--name kepl-larevel}: Memberikan nama identitas unik pada \textit{container} agar mempermudah operasi inspeksi dan manajemen siklus hidup proses.
+    \item \texttt{--network shared-net}: Menghubungkan \textit{container} ke \textit{bridge network} \texttt{shared-net} untuk komunikasi internal antar-\textit{container} dengan resolusi DNS terisolasi.
+    \item \texttt{-p 8007:80}: Melakukan \textit{port forwarding}, mengarahkan setiap lalu lintas jaringan yang masuk ke \textit{port} 8007 pada antarmuka mesin \textit{host} ke \textit{port} 80 di dalam \textit{container} FrankenPHP.
+    \item \texttt{--env-file .env} dan \texttt{-e DB\_HOST=mysql-db}: Menginjeksikan variabel lingkungan aplikasi secara dinamis saat \textit{runtime}, termasuk mengarahkan variabel \textit{host database} ke nama layanan \textit{container} MySQL (\texttt{mysql-db}) tanpa mengubah isi kode sumber.
+\end{itemize}
+
+\par Status aktif \textit{container} diverifikasi menggunakan perintah \texttt{podman ps -s}, dengan luaran yang disajikan pada Kode \ref{lst:status-container}.
+
+\lstinputlisting[language={}, caption={[Status Container Aktif]{Luaran Perintah \texttt{podman ps -s} Menampilkan Informasi Container yang Sedang Berjalan}}, label={lst:status-container}]{resource/Tugas-4/code/status-container.txt}
+
+\par Berdasarkan Kode \ref{lst:status-container}, sistem menampilkan daftar \textit{container} yang aktif pada mesin lokal. \textit{Container} dengan nama \texttt{kepl-larevel} (ID \texttt{d5ae2c348242}) tercatat berstatus \texttt{Up Less than a second} dengan \textit{port mapping} aktif \texttt{0.0.0.0:8007->80/tcp}. Ukuran \textit{writable layer} hanya sebesar 13,2 kB dengan ukuran \textit{virtual image} sebesar 725 MB, membuktikan bahwa isolasi proses berjalan sangat ringan dan efisien berdampingan dengan layanan \texttt{mysql-db}, \texttt{phpmyadmin-web}, dan \texttt{postgres-db}.
+
+\par Verifikasi fungsionalitas antarmuka web dilakukan dengan mengakses alamat\\
+\url{http://localhost:8007/links} melalui \textit{browser} pada mesin \textit{host}, sebagaimana ditunjukkan pada Gambar \ref{fig:antarmuka-web-laravel}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-4/SS/antarmuka-web-laravel-container.png}
+    \caption{Antarmuka Web Aplikasi Link Shortener Laravel yang Berjalan di dalam Container melalui Port 8007}
+    \label{fig:antarmuka-web-laravel}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:antarmuka-web-laravel}, aplikasi web \textit{Link Shortener} berhasil diakses secara sempurna melalui \textit{browser} pada alamat \texttt{http://localhost:8007/links}. Halaman menampilkan judul utama "Semua Link", tombol navigasi "Buat Link Baru", tabel kelola tautan publik dengan data tautan aktif (\texttt{http://localhost:8007/vue}), serta status konektivitas \textit{database} yang terhubung stabil. Hal ini memverifikasi bahwa \textit{web server} FrankenPHP di dalam \textit{container} berhasil menerima \textit{request} HTTP dari luar \textit{container}, meneruskannya ke kernel aplikasi Laravel, dan mengembalikan \textit{response} HTML lengkap beserta aset pendukungnya.
+
+\subsection{Tugas 4: Pengujian Eksternal Endpoint REST API Menggunakan API Client}
+
+\par Untuk memenuhi persyaratan pengujian aksesibilitas layanan dari luar batas \textit{container}, dilakukan penambahan dan pengujian terhadap \textit{REST API}. Definisi \textit{route} API yang dimodifikasi pada berkas \texttt{routes/api.php} disajikan pada Kode \ref{lst:api-php}.
+
+\lstinputlisting[language=php, caption={[Definisi Endpoint REST API]{Konfigurasi Endpoint API Termasuk Route Health Check pada \texttt{routes/api.php}}}, label={lst:api-php}]{resource/Tugas-4/code/api.php}
+
+\par Berdasarkan Kode \ref{lst:api-php}, selain \textit{route} manajemen tautan (\texttt{links.stats}, \texttt{links.shorten}, dan \texttt{apiResource}), pada baris 12--16 ditambahkan \textit{route} mandiri \texttt{GET /health}. Endpoint ini dirancang khusus untuk memvalidasi ketersediaan layanan dan mengembalikan \textit{payload} JSON dengan struktur terdefinisi \texttt{\{"message": "ok"\}}.
+
+\par Pengujian pemanggilan endpoint dilakukan dari luar \textit{container} menggunakan \textit{API client} Hoppscotch yang berkomunikasi melalui antarmuka HTTP \textit{host} ke \textit{port} 8007, sebagaimana ditunjukkan pada Gambar \ref{fig:pengujian-api-health}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-4/SS/pengujian-api-health-hoppscotch.png}
+    \caption{Hasil Pengujian Endpoint REST API \texttt{/api/health} Melalui Hoppscotch dari Luar Container}
+    \label{fig:pengujian-api-health}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pengujian-api-health}, pengujian pemanggilan endpoint REST API pada \textit{route} \url{http://localhost:8007/api/health} membuktikan keberhasilan komunikasi data lintas batas \textit{container} dengan rincian luaran sebagai berikut:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Metode dan URL Request}: Menggunakan metode \texttt{GET} yang diarahkan ke alamat sasaran\\
+          \url{http://localhost:8007/api/health}.
+    \item \textbf{Status Response HTTP}: Menghasilkan kode status \textbf{\texttt{200 OK}}, yang menandakan \textit{request} berhasil diterima, diproses oleh \textit{route controller} Laravel di dalam \textit{container}, dan direspons tanpa hambatan otorisasi maupun galat \textit{internal server error}.
+    \item \textbf{Kinerja Latensi}: Waktu pemrosesan \textit{response} tercatat sangat cepat, yaitu sebesar \textbf{37 ms}, dengan ukuran transfer data sebesar 240 B.
+    \item \textbf{\textit{Payload} JSON / \textit{Response Body}}: \textit{Response body} memuat data JSON murni dengan format:
+          \begin{verbatim}
+{
+  "message": "ok"
+}
+\end{verbatim}
+\end{itemize}
+\par Hasil pengujian ini secara komprehensif memvalidasi bahwa konfigurasi \textit{port forwarding} pada \textit{server} FrankenPHP dan \textit{routing} API Laravel telah berfungsi optimal untuk konsumsi layanan dari lingkungan eksternal.
+
+
+\subsection{Tugas 5: Identitas Repositori, Arsitektur Proyek, dan Jejak Commit Git}
+
+\par Praktikum Konstruksi dan Evolusi Perangkat Lunak Tugas 5 berfokus pada tahapan optimasi lanjutan terhadap arsitektur \textit{containerization} aplikasi web Laravel 11 berbasis FrankenPHP pada proyek \texttt{evolusi-pl-24-538699-SV-24524}. Jika pada penugasan sebelumnya \textit{image container} dibangun menggunakan pendekatan \textit{single-stage build} berbasis Debian, maka pada penugasan ini dilakukan restrukturisasi menyeluruh mencakup pemisahan tahap kompilasi dan penyajian (\textit{multi-stage build}), penguncian versi (\textit{version pinning}) menggunakan varian minimalis Alpine Linux, penerapan hak akses pengguna \textit{non-root} (\texttt{USER www-data}), konfigurasi pemantauan kesehatan (\texttt{HEALTHCHECK}), serta otomasi penerbitan \textit{image} ke GitHub Container Registry (GHCR) melalui GitHub Actions.
+
+\par Metadata repositori dan tautan artefak publikasi praktikum diuraikan sebagai berikut:
+\begin{itemize}[leftmargin=*]
+    \item \textbf{Repositori Organisasi GitHub}: KEPL2026\\
+          {\footnotesize\url{https://github.com/KEPL2026}}
+    \item \textbf{Repositori Personal GitHub (Aktif CI/CD)}: FauzanTrisuladana\\
+          {\footnotesize\url{https://github.com/FauzanTrisuladana/evolusi-pl-24-538699-SV-24524}}
+    \item \textbf{Paket GitHub Container Registry (GHCR)}:\\
+          {\footnotesize\url{https://github.com/users/FauzanTrisuladana/packages/container/package/evolusi-laravel-app}}
+    \item \textbf{\textit{Main Branch}}: \texttt{main} dan \texttt{dev} sebagai \textit{branch} stabil dan integrasi rilis.
+    \item \textbf{\textit{Feature Branch}} (\texttt{feature/dockerize}): \textit{Branch} pengembangan optimasi berkas \texttt{Dockerfile} serta otomasi \textit{pipeline} publikasi.
+\end{itemize}
+
+\par Perlu dicatat bahwa akibat adanya kendala pembatasan perizinan dan kuota eksekusi GitHub Actions pada repositori organisasi \texttt{KEPL2026}, seluruh implementasi otomasi CI/CD dan penerbitan paket GHCR dialihkan serta diverifikasi secara penuh melalui repositori personal \url{https://github.com/FauzanTrisuladana/evolusi-pl-24-538699-SV-24524}. Seluruh rekam jejak modifikasi kode pada tanggal 10 Oktober 2026 terdokumentasi melalui riwayat \textit{commit} Git sebagaimana disajikan pada Kode \ref{lst:git-log-tugas5}.
+
+\lstinputlisting[language=bash, caption={[Jejak Commit Repositori Git]{Jejak Commit Git pada Repositori per 10 Oktober 2026}}, label={lst:git-log-tugas5}]{resource/Tugas-5/Code/git-log.txt}
+
+\par Berdasarkan Kode \ref{lst:git-log-tugas5}, tahapan evolusi konfigurasi pada tanggal 10 Oktober 2026 tercatat secara terstruktur melalui tiga \textit{commit} utama. \textit{Commit} ber-hash \texttt{addd592} merepresentasikan restrukturisasi berkas \texttt{Dockerfile} menjadi arsitektur \textit{multi-stage build}, penyisipan instruksi penguncian versi Alpine, penetapan pengguna \textit{non-root}, pembuatan instruksi \texttt{HEALTHCHECK}, serta pencatatan log luaran terminal pengujian pada direktori \texttt{Tugas5}. Selanjutnya, \textit{commit} ber-hash \texttt{24722ae} menambahkan berkas konfigurasi \textit{workflow} GitHub Actions pada berkas\\
+\path{.github/workflows/docker-publish.yml} untuk mengotomasi proses kompilasi dan \textit{push} \textit{image} ke registri GHCR. Rangkaian rekayasa disempurnakan melalui \textit{commit} \texttt{f98926f} yang memperbaiki konfigurasi perizinan dan skema penandaan (\textit{tagging}) agar eksekusi \textit{pipeline} berjalan secara sukses dan deterministik.
+
+\subsection[Tugas 5: Refaktorisasi Dockerfile Multi-Stage Build]{Tugas 5: Refaktorisasi Dockerfile Menjadi Arsitektur\\ Multi-Stage Build}
+
+\par Pada arsitektur konvensional \textit{single-stage build}, seluruh perkakas pengembangan (\textit{build tools}), pustaka kompilasi, dependensi Composer, serta kode sumber disatukan ke dalam satu \textit{layer} akhir yang sama. Hal ini menyebabkan pembengkakan ukuran \textit{image} dan memperluas bidang serangan (\textit{attack surface}) di lingkungan produksi. Untuk mengatasi kelemahan tersebut, berkas \texttt{Dockerfile} direfaktorisasi menggunakan pola \textit{multi-stage build} yang memisahkan proses menjadi dua tahap terisolasi: tahap pembangun (\textit{builder stage}) dan tahap pelayan runtime (\textit{runner stage}). Konfigurasi lengkap \texttt{Dockerfile} hasil optimasi disajikan pada Kode \ref{lst:dockerfile-multistage}.
+
+\lstinputlisting[language=dockerfile, caption={[Konfigurasi Dockerfile Multi-Stage]{Berkas Konfigurasi \texttt{Dockerfile} dengan Arsitektur Multi-Stage Build, Varian Alpine, User Non-Root, dan Healthcheck}}, label={lst:dockerfile-multistage}]{resource/Tugas-5/Code/Dockerfile}
+
+\par Berdasarkan Kode \ref{lst:dockerfile-multistage}, arsitektur berkas \texttt{Dockerfile} disusun secara modular dengan rincian teknis sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Tahap 1: Builder (\texttt{AS builder})}:\\
+          Instruksi baris 5 menetapkan \textit{base image} pembangun menggunakan distribusi:\\
+          \texttt{dunglas/frankenphp:1-php8.4-alpine}. Pada baris 8, biner Composer versi 2 disalin langsung dari \textit{image} resmi \texttt{composer:2} melalui instruksi\\
+          \texttt{COPY --from=composer:2 /usr/bin/composer /usr/bin/composer}. Setelah direktori kerja \texttt{/app} ditetapkan, berkas manifes dependensi \texttt{composer.json} dan \texttt{composer.lock} disalin terlebih dahulu (baris 13) sebelum kode aplikasi disalin. Perintah \texttt{composer install} dijalankan pada baris 16--22 dengan parameter produksi yang ketat:
+          \begin{itemize}[leftmargin=*]
+              \item \texttt{--no-dev}: Mengabaikan instalasi seluruh dependensi pengembangan (seperti PHPUnit, Mockery, Collision, Faker).
+              \item \texttt{--no-interaction}: Menonaktifkan interaksi prompt terminal.
+              \item \texttt{--no-plugins} dan \texttt{--no-scripts}: Mencegah eksekusi skrip otomatis yang tidak diperlukan pada tahap awal penyusunan dependensi.
+              \item \texttt{--prefer-dist} dan \texttt{--no-autoloader}: Mengunduh arsip distribusi dependensi secara cepat tanpa menghasilkan peta \textit{classmap} terlebih dahulu.
+          \end{itemize}
+          Selanjutnya, baris 25 menyalin seluruh kode sumber aplikasi ke direktori pembangun, disusul pembersihan berkas \textit{cache} sementara dan eksekusi perintah optimasi \textit{autoloader}:\\
+          \texttt{composer dump-autoload --optimize --no-dev --no-scripts}\\
+          pada baris 28--29 guna menghasilkan berkas \textit{classmap} teroptimasi secara statis.
+    \item \textbf{Tahap 2: Runner (\texttt{AS runner})}:\\
+          Instruksi baris 37 mendeklarasikan awal tahap runtime baru yang sepenuhnya bersih, kembali menggunakan \textit{base image}\\
+          \texttt{dunglas/frankenphp:1-php8.4-alpine}. Biner Composer beserta perkakas pembangun tidak diikutsertakan. Pada baris 40--47, modul inti PHP esensial dipasang untuk melayani \textit{request}, yaitu \texttt{pdo\_mysql}, \texttt{gd}, \texttt{intl}, \texttt{zip}, \texttt{bcmath}, \texttt{opcache}, dan \texttt{curl}.
+    \item \textbf{Penyalinan Artefak Bersih (\texttt{COPY --from=builder})}:\\
+          Kunci utama efisiensi arsitektur ini terletak pada instruksi baris 52,\\ \texttt{COPY --from=builder /app /app}. Instruksi ini secara selektif hanya menyalin direktori kerja aplikasi yang telah memuat direktori \texttt{vendor} bersih dan kode sumber teroptimasi dari tahap pembangun, tanpa menyertakan artefak kompilasi eksternal maupun biner Composer.
+    \item \textbf{Penguncian Versi dan Pemilihan Varian Minimalis}:\\
+          Alih-alih menggunakan tag generik \texttt{latest} yang tidak deterministik atau varian berbasis Debian glibc yang berbobot besar, konfigurasi ini secara konsisten mengunci versi rilis pada tag spesifik\\
+          \texttt{dunglas/frankenphp:1-php8.4-alpine}. Distribusi Alpine Linux menggunakan pustaka C yang sangat ramping (\textit{musl libc}) dan pengelola paket \texttt{apk}, sehingga fondasi sistem operasi kontainer menjadi sangat minimalis.
+\end{enumerate}
+
+\subsection{Tugas 5: Evaluasi Kuantitatif dan Pembuktian Reduksi Ukuran Image}
+
+\par Untuk membuktikan secara empiris bahwa refaktorisasi \textit{multi-stage build} dan pemilihan varian Alpine berhasil mereduksi ukuran \textit{image container}, dilakukan perbandingan kuantitatif antara \textit{image} yang dihasilkan pada Tugas 4 (\textit{single-stage build} berbasis Debian) dan Tugas 5 (\textit{multi-stage build} berbasis Alpine). Rangkaian perintah terminal yang dieksekusi menggunakan utilitas Podman untuk menguji dan mencatat proses ini disajikan pada Kode \ref{lst:perintah-eksekusi}.
+
+\lstinputlisting[language=bash, caption={[Skrip Eksekusi Pengujian dan Verifikasi]{Rangkaian Perintah Podman untuk Build Multi-Stage, Verifikasi Image, dan Eksekusi Container}}, label={lst:perintah-eksekusi}]{resource/Tugas-5/Code/perintah-eksekusi.sh}
+
+\par Berdasarkan Kode \ref{lst:perintah-eksekusi}, seluruh perintah pengujian dijalankan dan luarannya dialirkan ke utilitas \texttt{tee} ke dalam direktori \texttt{Tugas5} guna menjamin transparansi data pengujian. Kondisi daftar \textit{image} lokal sebelum dilakukan optimasi terdokumentasi pada Gambar \ref{fig:image-sebelum-optimasi} dan Kode \ref{lst:images-sebelum}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-5/SS/image-sebelum-optimasi.png}
+    \caption{Luaran Terminal Perintah \texttt{podman images} Sebelum Optimasi Multi-Stage (Tugas 4)}
+    \label{fig:image-sebelum-optimasi}
+\end{figure}
+
+\lstinputlisting[language={}, caption={[Luaran Daftar Image Sebelum Optimasi]{Daftar Ukuran Image Sebelum Penerapan Multi-Stage Build (\texttt{images-sebelum.txt})}}, label={lst:images-sebelum}]{resource/Tugas-5/Code/images-sebelum.txt}
+
+\par Berdasarkan Gambar \ref{fig:image-sebelum-optimasi} dan Kode \ref{lst:images-sebelum}, \textit{image} aplikasi Laravel yang dibangun pada Tugas 4 tercatat dengan identitas \texttt{localhost/kepl-be:latest} (IMAGE ID \texttt{222b7bd7647b}) dengan ukuran mencapai \textbf{725 MB}. Besarnya ukuran ini disebabkan oleh penggunaan \textit{base image} \texttt{dunglas/frankenphp:1-php8.4} berbasis Debian (berukuran bawaan 610 MB), di mana biner Composer serta seluruh artefak dependensi tersimpan permanen pada \textit{layer image} akhir.
+
+\par Selanjutnya, proses kompilasi \textit{multi-stage build} dieksekusi melalui perintah \texttt{podman build -t kepl-be:multistage .}. Cuplikan log proses kompilasi dua tahap tersebut disajikan pada Kode \ref{lst:build-multistage}.
+
+\lstinputlisting[language={}, caption={[Log Eksekusi Multi-Stage Build]{Cuplikan Luaran Terminal Kompilasi Podman Dua Tahap (\texttt{build-multistage.txt})}}, label={lst:build-multistage}]{resource/Tugas-5/Code/build-multistage.txt}
+
+\par Berdasarkan Kode \ref{lst:build-multistage}, proses kompilasi terbagi rapi menjadi dua sekuens: \texttt{[1/2]} untuk tahap \texttt{builder} sebanyak 7 langkah instruksi, dan \texttt{[2/2]} untuk tahap \texttt{runner} sebanyak 9 langkah instruksi. Setelah kompilasi tahap kedua selesai, luaran daftar \textit{image} terbaru diperiksa kembali sebagaimana disajikan pada Kode \ref{lst:images-sesudah}.
+
+\lstinputlisting[language={}, caption={[Luaran Daftar Image Sesudah Optimasi]{Daftar Ukuran Image Sesudah Penerapan Multi-Stage Build dan Alpine (\texttt{images-sesudah.txt})}}, label={lst:images-sesudah}]{resource/Tugas-5/Code/images-sesudah.txt}
+
+\par Berdasarkan Kode \ref{lst:images-sesudah}, \textit{image} baru dengan tag \texttt{localhost/kepl-be:multistage} (IMAGE ID \texttt{92837acc8dac}) tercatat hanya berukuran \textbf{296 MB}. Evaluasi komparatif secara kuantitatif antara kondisi sebelum dan sesudah optimasi dirangkum secara komparatif pada Tabel \ref{tab:perbandingan-image}.
+
+\begin{table}[H]
+    \centering
+    \small
+    \setlength{\tabcolsep}{4pt}
+    \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lcccc@{}}
+        \toprule
+        \textbf{Identitas Image} & \textbf{Sistem Operasi} & \textbf{Arsitektur Build} & \textbf{Ukuran} & \textbf{Efisiensi} \\
+        \midrule
+        \texttt{kepl-be:latest} (Tugas 4) & Debian GNU/Linux & Single-Stage & 725 MB & Acuan (0,00\%) \\
+        \texttt{kepl-be:multistage} (Tugas 5) & Alpine Linux & Multi-Stage & 296 MB & Teroptimasi \\
+        \midrule
+        \multicolumn{3}{l}{\textbf{Selisih Penurunan Ukuran (Delta)}} & \textbf{429 MB} & -- \\
+        \multicolumn{3}{l}{\textbf{Persentase Reduksi Ukuran Image}} & \textbf{59,17\%} & -- \\
+        \bottomrule
+    \end{tabular*}
+    \vspace{0.5em}
+    \caption{Komparasi Kuantitatif Ukuran Image Container Sebelum dan Sesudah Optimasi}
+    \label{tab:perbandingan-image}
+\end{table}
+
+\par Berdasarkan data pada Tabel \ref{tab:perbandingan-image}, selisih penurunan ukuran \textit{image} yang dicapai adalah sebesar \textbf{429 MB}. Perhitungan persentase efisiensi penurunan ukuran dihitung melalui rumus rasio reduksi:
+\begin{equation}
+    \text{Reduksi Ukuran (\%)} = \frac{725\text{ MB} - 296\text{ MB}}{725\text{ MB}} \times 100\% = \frac{429\text{ MB}}{725\text{ MB}} \times 100\% = 59,17\%
+\end{equation}
+
+\par Angka efisiensi sebesar \textbf{59,17\%} ini membuktikan secara nyata keberhasilan strategi penggabungan antara arsitektur \textit{multi-stage build} dan pemilihan distribusi Alpine Linux. Kompilasi berhasil membuang biner Composer, perkakas pengembangan, dan pustaka glibc Debian yang tidak diperlukan pada saat aplikasi menyajikan lalu lintas produksi.
+
+\subsection[Tugas 5: Pengerasan Keamanan Non-Root User \& Healthcheck]{Tugas 5: Pengerasan Keamanan Non-Root User\\ dan Monitoring Healthcheck}
+
+\par Standar keamanan industri kontainer mewajibkan penerapan prinsip \textit{Principle of Least Privilege}. Secara bawaan, apabila tidak ditentukan lain, proses di dalam kontainer akan dieksekusi dengan hak istimewa pengguna tertinggi (\texttt{root} dengan UID 0). Kondisi ini sangat berbahaya karena jika terjadi eksploitasi kerentanan keamanan pada aplikasi web (misalnya eksekusi kode berbahaya secara jarak jauh), penyerang berpotensi memperoleh kendali penuh atas sistem kontainer bahkan melakukan pelarian kontainer (\textit{container breakout}) ke mesin \textit{host}.
+
+\par Untuk memitigasi risiko tersebut, pada tahap \textit{runner} berkas \texttt{Dockerfile} disematkan instruksi hak akses dan penetapan pengguna \textit{non-root}:
+\begin{lstlisting}[language=dockerfile, caption={[Konfigurasi Hak Akses dan User Non-Root]{Pengaturan Perizinan Direktori dan Instruksi \texttt{USER www-data}}}, label={lst:user-non-root}]
+RUN mkdir -p /data/caddy /config/caddy /app/storage /app/bootstrap/cache \
+    && rm -f /app/bootstrap/cache/*.php \
+    && chown -R www-data:www-data /data/caddy /config/caddy /app/storage /app/bootstrap/cache \
+    && chmod -R 775 /app/storage /app/bootstrap/cache
+
+USER www-data
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:user-non-root}, sebelum instruksi \texttt{USER www-data} diaktifkan, direktori kerja Caddy dan direktori aplikasi Laravel yang memerlukan izin tulis (\texttt{storage} untuk berkas log dan sesi, serta \texttt{bootstrap/cache} untuk tembolok rute dan konfigurasi) diserahkan kepemilikannya kepada pengguna dan grup sistem \texttt{www-data:www-data} dengan mode izin \texttt{775}. Setelah izin dipersiapkan, instruksi \texttt{USER www-data} dideklarasikan sehingga seluruh proses runtime FrankenPHP berjalan di bawah konteks pengguna non-istimewa.
+
+\par Pembuktian bahwa kontainer tidak berjalan sebagai pengguna \texttt{root} dibuktikan melalui eksekusi perintah inspeksi pengguna \texttt{whoami} secara langsung ke dalam kontainer yang sedang aktif (\texttt{podman exec kepl-laravel-multistage whoami}), dengan luaran yang disajikan pada Kode \ref{lst:whoami}.
+
+\lstinputlisting[language={}, caption={[Verifikasi Identitas Pengguna Non-Root]{Luaran Eksekusi Perintah \texttt{podman exec whoami} di dalam Container}}, label={lst:whoami}]{resource/Tugas-5/Code/whoami.txt}
+
+\par Berdasarkan Kode \ref{lst:whoami}, sistem secara tegas mengembalikan luaran \texttt{www-data}. Hal ini membuktikan secara mutlak bahwa batas isolasi proses telah terkunci pada pengguna non-root berhak akses terbatas, sehingga persyaratan keamanan kontainer terpenuhi sepenuhnya.
+
+\par Aspek keandalan berikutnya mencakup pengujian ketersediaan layanan melalui instruksi \texttt{HEALTHCHECK}. Pada berkas \texttt{Dockerfile}, instruksi ini dikonfigurasi sebagai berikut:
+\begin{lstlisting}[language=dockerfile, caption={[Konfigurasi Deklaratif Healthcheck]{Instruksi \texttt{HEALTHCHECK} untuk Pemantauan Ketersediaan Layanan Web}}, label={lst:healthcheck-cfg}]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://127.0.0.1/api/health || curl -f http://127.0.0.1/ || exit 1
+\end{lstlisting}
+
+\par Berdasarkan Kode \ref{lst:healthcheck-cfg}, mekanisme pemantauan kesehatan dikonfigurasi dengan parameter interval pengujian berkala setiap 30 detik (\texttt{--interval=30s}), batas waktu toleransi respons 5 detik (\texttt{--timeout=5s}), masa inisialisasi awal aplikasi 10 detik (\texttt{--start-period=10s}), serta toleransi kegagalan berturut-turut sebanyak 3 kali (\texttt{--retries=3}). Pemeriksaan mengeksekusi utilitas \texttt{curl} untuk meminta endpoint kesehatan \texttt{/api/health} atau rute publik utama \texttt{/}. Status kontainer yang sedang berjalan aktif diperiksa menggunakan perintah \texttt{podman ps}, dengan luaran yang disajikan pada Kode \ref{lst:healthcheck}.
+
+\lstinputlisting[language={}, caption={[Status Container Aktif dan Pemantauan Layanan]{Luaran Perintah \texttt{podman ps} Menampilkan Status Container yang Berjalan}}, label={lst:healthcheck}]{resource/Tugas-5/Code/healthcheck.txt}
+
+\par Berdasarkan Kode \ref{lst:healthcheck}, kontainer \texttt{kepl-laravel-multistage} (ID \texttt{90b7a2761291}) berstatus aktif (\texttt{Up 2 minutes}) serta mengekspos pemetaan port \texttt{0.0.0.0:8007->80/tcp} berdampingan dengan layanan basis data terisolasi. Secara teknis, mesin kontainer Podman secara bawaan mengompilasi \textit{image} menggunakan spesifikasi standar OCI (\textit{Open Container Initiative}). Pada spesifikasi OCI, kolom metadata \texttt{HEALTHCHECK} milik format Docker diabaikan pada tingkat pembentukan \textit{image} statis (sebagaimana terlihat pada pesan peringatan log di Kode \ref{lst:build-multistage}), kecuali jika format kompilasi secara eksplisit dipaksa menggunakan opsi \texttt{--format docker} atau didaftarkan melalui opsi runtime Podman. Namun demikian, deklarasi instruksi \texttt{HEALTHCHECK} ini tetap valid, presisi, dan sepenuhnya kompatibel saat \textit{image} di-\textit{push} serta dioperasikan di bawah lingkungan Docker Engine maupun orkestrasi Kubernetes/GHCR.
+
+\par Verifikasi operasional antarmuka web dilakukan dengan mengakses alamat\\
+\url{http://localhost:8007} melalui peramban web pada mesin \textit{host}, sebagaimana disajikan pada Gambar \ref{fig:antarmuka-web-laravel-multistage}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-5/SS/antarmuka-web-laravel-multistage.png}
+    \caption{Tampilan Antarmuka Aplikasi Web Laravel dari Container Multi-Stage melalui Port 8007}
+    \label{fig:antarmuka-web-laravel-multistage}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:antarmuka-web-laravel-multistage}, aplikasi web Laravel berhasil menyajikan antarmuka awal secara sempurna melalui peramban mesin \textit{host} pada alamat \texttt{http://localhost:8007}. Seluruh komponen grafis, tautan dokumentasi, tombol navigasi rute pendek (\textit{Short Links}), serta sistem otentikasi dapat dimuat tanpa hambatan. Keberhasilan ini membuktikan bahwa \textit{web server} FrankenPHP yang berjalan di bawah pengguna \texttt{www-data} pada \textit{image multi-stage} Alpine mampu melayani lalu lintas HTTP secara cepat dan stabil.
+
+\subsection{Tugas 5: Otomasi Pipeline CI/CD dan Publikasi Image ke GitHub Container Registry (GHCR)}
+
+\par Tahap akhir penugasan adalah mengintegrasikan berkas \texttt{Dockerfile} ke dalam \textit{pipeline} \textit{Continuous Integration and Continuous Deployment} (CI/CD) menggunakan GitHub Actions. Tujuannya adalah mengotomasi proses kompilasi \textit{image} setiap kali terjadi pembaruan kode, serta mempublikasikan \textit{image} yang siap produksi ke registri kontainer resmi GitHub (\textit{GitHub Container Registry} / GHCR pada domain \texttt{ghcr.io}).
+
+\par Sebelum mengeksekusi \textit{workflow}, konfigurasi hak akses keamanan repositori wajib disesuaikan agar token bawaan \texttt{GITHUB\_TOKEN} diizinkan menulis dan memperbarui paket pada registri GHCR. Konfigurasi perizinan repositori tersebut ditunjukkan pada Gambar \ref{fig:konfigurasi-github-actions-permissions}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-5/SS/konfigurasi-github-actions-permissions.png}
+    \caption{Pengaturan Workflow Permissions pada Repositori GitHub untuk Akses Tulis GHCR}
+    \label{fig:konfigurasi-github-actions-permissions}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:konfigurasi-github-actions-permissions}, pada menu \textit{Settings} $\rightarrow$ \textit{Actions} $\rightarrow$ \textit{General} bagian \textit{Workflow permissions}, opsi perizinan ditetapkan ke \textbf{\textit{Read and write permissions}}. Pengaturan ini memberikan hak akses istimewa yang sah bagi \textit{workflow runner} untuk mengelola paket (\textit{packages write}) dan membaca isi repositori (\textit{contents read}).
+
+\par Berkas konfigurasi otomasi \textit{workflow} disimpan pada berkas konfigurasi\\
+\path{.github/workflows/docker-publish.yml}, dengan isi konfigurasi lengkap yang disajikan pada Kode \ref{lst:docker-publish}.
+
+\lstinputlisting[language=yaml, caption={[Workflow Publikasi Image ke GHCR]{Konfigurasi Otomasi GitHub Actions untuk Build dan Push Image ke GHCR}}, label={lst:docker-publish}]{resource/Tugas-5/Code/docker-publish.yml}
+
+\par Berdasarkan Kode \ref{lst:docker-publish}, alur kerja otomasi dirancang dengan memperhatikan kaidah rekayasa perangkat lunak modern sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Pemicu Eksekusi (\textit{Triggers})}: Baris 3--7 mengonfigurasi pemicu \textit{workflow} secara otomatis pada peristiwa \texttt{push} ke \textit{branch} \texttt{main}, \texttt{dev}, serta \textit{branch} fitur (\texttt{feature/**}) dan \textit{branch} pemeliharaan (\texttt{chore/**}), serta pada peristiwa \texttt{pull\_request} menuju \textit{branch} \texttt{main}.
+    \item \textbf{Normalisasi Nama Image Menjadi Huruf Kecil (\textit{Lowercase Normalization})}: Registri GHCR menerapkan aturan ketat bahwa nama paket dan organisasi wajib menggunakan huruf kecil semua (\textit{lowercase}). Baris 24--30 mengatasi potensi kegagalan akibat nama pengguna berhuruf kapital melalui perintah transformasi:
+          \begin{center}
+              \texttt{\footnotesize OWNER\_LOWER=\$(echo "\$\{\{ github.repository\_owner \}\}" | tr '[:upper:]' '[:lower:]')}
+          \end{center}
+          sehingga variabel \texttt{IMAGE\_NAME} terbentuk secara valid menjadi:\\
+          \texttt{ghcr.io/fauzantrisuladana/evolusi-laravel-app}.
+    \item \textbf{Otentikasi Mandiri Aman}: Baris 32--38 memanfaatkan tindakan resmi\\
+          \texttt{docker/login-action@v3} untuk masuk ke registri \texttt{ghcr.io} menggunakan token internal\\
+          \texttt{\$\{\{ secrets.GITHUB\_TOKEN \}\}}, sehingga tidak memerlukan pembuatan token akses personal (\textit{Personal Access Token} / PAT) manual yang rentan bocor.
+    \item \textbf{Skema Penandaan Deterministik (\textit{Deterministic Tagging})}:\\
+          Baris 42--52 memanfaatkan tindakan \texttt{docker/metadata-action@v5} untuk mengekstrak tag. Sesuai instruksi soal, penandaan tidak hanya bergantung pada tag \texttt{latest}, melainkan menyematkan nomor \textit{commit} SHA panjang secara deterministik (\texttt{type=sha,format=long,prefix=}) yang menghasilkan tag unik berbasis \texttt{\$\{\{ github.sha \}\}}.
+    \item \textbf{Kompilasi dan Pengiriman (\textit{Build and Push})}:\\
+          Baris 54--61 mengeksekusi \texttt{docker/build-push-action@v6} dengan parameter \texttt{push: true} untuk mengompilasi berkas \texttt{Dockerfile} dan mengirimkan \textit{layer image} beserta seluruh tag ke GHCR.
+\end{enumerate}
+
+\par Eksekusi \textit{workflow} pada \textit{commit} \texttt{f98926f} berhasil berjalan secara sempurna tanpa kesalahan, sebagaimana dibuktikan oleh status hijau (\textit{Success}) pada Gambar \ref{fig:workflow-run-ghcr-success}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-5/SS/workflow-run-ghcr-success.png}
+    \caption{Luaran Eksekusi Workflow Run GitHub Actions yang Berhasil (Status Hijau) pada Commit f98926f}
+    \label{fig:workflow-run-ghcr-success}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:workflow-run-ghcr-success}, riwayat eksekusi \textit{job} \textit{Build \& Push to GHCR} menampilkan tanda centang hijau dengan status \textbf{\textit{Success}} dalam durasi total eksekusi 1 menit 37 detik. Ringkasan kompilasi Docker (\textit{Docker Build summary}) memvalidasi bahwa seluruh tahap pembangunan \textit{image} berhasil diselesaikan, dikompresi, dan dikirimkan ke registri tujuan.
+
+\par Setelah \textit{image} terbit di GHCR, visibilitas awal paket yang berstatus \textit{Private} diubah menjadi terbuka untuk umum (\textit{Public}) melalui menu pengaturan paket, sebagaimana ditunjukkan pada Gambar \ref{fig:pengaturan-visibilitas-package-public}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-5/SS/pengaturan-visibilitas-package-public.png}
+    \caption{Modal Pengaturan Visibilitas Paket Menjadi Public pada GitHub Container Registry}
+    \label{fig:pengaturan-visibilitas-package-public}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pengaturan-visibilitas-package-public}, pada kotak dialog konfirmasi \textit{Change package visibility}, opsi \textbf{\textit{Public}} dipilih dan dikonfirmasi dengan mengetikkan nama paket \texttt{evolusi-laravel-app}. Tindakan ini menjamin bahwa \textit{image container} dapat diunduh (\texttt{docker pull}) secara terbuka oleh publik maupun penguji tanpa memerlukan otentikasi rahasia.
+
+\par Tampilan akhir halaman paket yang telah terbit secara publik di GitHub Container Registry disajikan pada Gambar \ref{fig:halaman-package-ghcr-public}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{resource/Tugas-5/SS/halaman-package-ghcr-public.png}
+    \caption{Halaman Paket GHCR evolusi-laravel-app dengan Status Publikasi Public dan Tag Commit SHA}
+    \label{fig:halaman-package-ghcr-public}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:halaman-package-ghcr-public}, halaman paket \texttt{evolusi-laravel-app} menampilkan label visibilitas \textbf{\textit{Public}} dan menyediakan perintah penarikan kontainer resmi:
+\begin{center}
+    \footnotesize\texttt{docker pull ghcr.io/fauzantrisuladana/evolusi-laravel-app:f98926f791433c7ab59284d0bec5a9137fc6c3c1}
+\end{center}
+Pada daftar versi yang baru diterbitkan (\textit{Recent tagged image versions}), sistem mencatat dua tag yang saling terhubung: tag nomor \textit{commit} SHA penuh (\texttt{f98926f...}) dan tag \texttt{latest}. Hal ini membuktikan bahwa seluruh tahapan pengiriman otomatis telah berhasil terintegrasi secara profesional dan memenuhi seluruh kriteria penugasan.
+
 
 \section{Kesimpulan}
+
+\par Berdasarkan seluruh tahapan konstruksi, implementasi fitur, pengujian empiris, evaluasi keamanan, serta evolusi berkesinambungan yang telah dilaksanakan dari Tugas 1 hingga Tugas 5 pada mata kuliah Konstruksi dan Evolusi Perangkat Lunak, dapat ditarik beberapa kesimpulan komprehensif sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+    \item \textbf{Capaian Tugas 1 -- Pengelolaan Repositori, Disiplin Commit, dan Otomasi CI}: Repositori publik \texttt{evolusi-pl-24-538699-SV-24524} berhasil diinisialisasi pada organisasi \texttt{KEPL2026} sebagai fondasi proyek web Laravel 11. Penerapan standar \textit{Conventional Commits} secara konsisten menghasilkan rekam jejak semantik yang transparan. Alur \textit{branching} tiga tingkat (\texttt{main}, \texttt{dev}, \texttt{feature}) dipadukan dengan aturan \textit{branch ruleset} dan pembukaan dua \textit{Pull Request} sukses mengisolasi penambahan fitur login dan registrasi. Sistem CI GitHub Actions dengan dua \textit{job} independen (\texttt{test} dan \texttt{lint}) berhasil bertindak sebagai \textit{automated quality gate} pertama.
+    \item \textbf{Capaian Tugas 2 -- Evolusi Fungsionalitas CRUD, Pipeline Multi-Stage CD, dan Standarisasi Deployment}: Fungsionalitas aplikasi dievolusikan mencakup operasi CRUD penuh pada tabel \texttt{links} yang teruji 100\% via 13 skenario PHPUnit (34 \textit{assertions}). Perancangan \textit{multi-stage workflow} empat sekuens (\textbf{Build} $\rightarrow$ \textbf{Test} $\rightarrow$ \textbf{Staging} $\rightarrow$ \textbf{Production}) via direktif \texttt{needs:} menjamin integritas berjenjang. Skrip \texttt{deploy.sh} mengotomasi 7 langkah rilis produksi Laravel secara aman dengan proteksi \textit{fail-fast} (\texttt{set -e}). Evaluasi kondisi \texttt{github.ref} dan proteksi \textit{environment} berhasil membatasi \textit{deployment} hanya untuk \textit{branch} \texttt{main}, serta membuktikan ketahanan sistem saat terjadi kegagalan uji coba (status merah) dan pemulihan cepat (status hijau).
+    \item \textbf{Capaian Tugas 3 -- Arsitektur RESTful API, Antarmuka Vue 3 SPA, dan Pipeline Frontend}: Lapisan backend dievolusikan menyediakan \textit{endpoint} JSON terstandarisasi melalui \texttt{Route::apiResource} dengan penanganan CORS aktif via middleware \texttt{HandleCors}. Aplikasi antarmuka mandiri dibangun menggunakan Vue 3, Vite, TypeScript, dan Vue Router dengan abstraksi variabel lingkungan dinamis \texttt{VITE\_API\_URL}. Pipeline otomasi frontend mengorkestrasi empat \textit{job} (\textbf{Lint} $\rightarrow$ \textbf{Unit Test} $\rightarrow$ \textbf{Build} $\rightarrow$ \textbf{Deploy}) dengan efisiensi \texttt{npm ci} dan \textit{caching}. Transfer artefak rilis \texttt{dist/} tanpa kompilasi ulang (\textit{zero build on deploy}) berhasil diimplementasikan, didukung 19 kasus pengujian unit mandiri Vitest yang lulus sempurna tanpa dependensi jaringan.
+    \item \textbf{Capaian Tugas 4 -- Containerization FrankenPHP, Isolasi Build Context, dan Layer Caching}: Aplikasi web Laravel berhasil dikontainerisasi ke dalam \textit{image} mandiri berbasis server modern FrankenPHP (PHP 8.4) tanpa memerlukan daemon PHP-FPM dan Nginx terpisah. Pengaturan isolasi berkas pada \texttt{.dockerignore} terbukti efektif mencegah masuknya berkas lingkungan sensitif (\texttt{.env}) dan paket berukuran besar (\texttt{vendor}, \texttt{node\_modules}). Strategi penataan instruksi \texttt{Dockerfile} terbukti secara empiris memangkas waktu pembangunan citra dari 141,196 detik pada siklus bersih pertama menjadi 3,731 detik pada siklus ketiga pasca modifikasi kode (peningkatan efisiensi waktu sebesar 97,36\%). Kontainer berhasil berjalan stabil pada \textit{bridge network} dengan pemetaan port 8007, menyajikan antarmuka web dan merespons endpoint \texttt{GET /api/health} (\texttt{200 OK}, 37 ms).
+    \item \textbf{Capaian Tugas 5 -- Multi-Stage Build Alpine, Keamanan Non-Root, Healthcheck, dan Publikasi GHCR}: Refaktorisasi berkas \texttt{Dockerfile} menjadi arsitektur \textit{multi-stage build} yang memisahkan tahap \textit{builder} dan \textit{runner}, dipadukan dengan penguncian versi pada distribusi minimalis \texttt{dunglas/frankenphp:1-php8.4-alpine}, terbukti secara empiris memangkas ukuran \textit{image} dari 725 MB menjadi 296 MB (reduksi drastis sebesar 429 MB atau efisiensi 59,17\%). Pengerasan keamanan berhasil diwujudkan melalui pengalihan eksekusi ke pengguna non-root berhak akses terbatas (\texttt{USER www-data}) yang terverifikasi via perintah \texttt{whoami}. Pemantauan kesehatan berkala dikonfigurasi melalui instruksi \texttt{HEALTHCHECK}. Akhirnya, seluruh alur kompilasi dan publikasi \textit{image} terotomasi penuh ke GitHub Container Registry (\texttt{ghcr.io}) via GitHub Actions dengan skema penandaan SHA commit deterministik dan visibilitas paket publik.
+    \item \textbf{Sintesis Portofolio Evolusi Perangkat Lunak}: Keseluruhan rangkaian penugasan dari Tugas 1 hingga Tugas 5 mendemonstrasikan siklus hidup rekayasa dan evolusi perangkat lunak modern yang utuh, mulai dari disiplin kontrol versi lokal, otomasi kendali mutu terpadu (CI/CD), pemisahan arsitektur antarmuka dan penyedia layanan, hingga efisiensi komputasi awan berbasis kontainerisasi yang aman, modular, dan siap disajikan di lingkungan produksi industri.
+\end{enumerate}
 
 \end{document}
