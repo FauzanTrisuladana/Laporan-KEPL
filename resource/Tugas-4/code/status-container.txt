@@ -1,0 +1,7 @@
+d5ae2c34824246e0da9835e2fb9a23284e3b6dd429c806c09d5e4f9fe8624ca9
+CONTAINER ID  IMAGE                                COMMAND               CREATED                 STATUS                 PORTS                                             NAMES           SIZE
+99c660ce7560  docker.io/library/mysql:latest       mysqld                2 months ago            Up 42 hours            0.0.0.0:3306->3306/tcp, 33060/tcp                 mysql-db        11.7kB (virtual 962MB)
+edb6362da843  docker.io/library/phpmyadmin:latest  apache2-foregroun...  2 months ago            Up 42 hours            0.0.0.0:8080->80/tcp                              phpmyadmin-web  800kB (virtual 589MB)
+6bc8771c5cd5  docker.io/library/postgres:latest    postgres              2 weeks ago             Up 42 hours            0.0.0.0:5432->5432/tcp                            postgres-db     1.09MB (virtual 465MB)
+4c8b5c1e5f02  docker.io/dpage/pgadmin4:latest                            2 weeks ago             Up 42 hours            0.0.0.0:8081->80/tcp, 443/tcp                     pgadmin-web     4.22MB (virtual 552MB)
+d5ae2c348242  localhost/kepl-be:latest             frankenphp php-se...  Less than a second ago  Up Less than a second  0.0.0.0:8007->80/tcp, 443/tcp, 2019/tcp, 443/udp  kepl-larevel    13.2kB (virtual 725MB)
