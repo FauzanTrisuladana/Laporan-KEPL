@@ -1,0 +1,10 @@
+{"level":"warn","ts":1792336769.1607544,"logger":"admin","msg":"admin endpoint disabled"}
+{"level":"warn","ts":1792336769.1609051,"logger":"http.auto_https","msg":"server is listening only on the HTTP port, so no automatic HTTPS will be applied to this server","server_name":"php","http_port":80}
+{"level":"info","ts":1792336769.1609883,"logger":"tls.cache.maintenance","msg":"started background certificate maintenance","cache":"0x3231c60dde00"}
+{"level":"info","ts":1792336769.1723766,"logger":"tls","msg":"cleaning storage unit","storage":"FileStorage:/data/caddy"}
+{"level":"info","ts":1792336769.1823928,"logger":"tls","msg":"finished cleaning storage units"}
+{"level":"info","ts":1792336769.18799,"logger":"frankenphp","msg":"FrankenPHP started [PHP]","php_version":"8.4.26","total_threads":24,"worker_threads":0,"max_threads":24,"max_requests":0}
+{"level":"warn","ts":1792336769.188293,"logger":"http","msg":"HTTP/2 skipped because it requires TLS","network":"tcp","addr":":80"}
+{"level":"warn","ts":1792336769.188304,"logger":"http","msg":"HTTP/3 skipped because it requires TLS","network":"tcp","addr":":80"}
+{"level":"info","ts":1792336769.1883066,"logger":"http.log","msg":"server running","name":"php","protocols":["h1","h2","h3"]}
+{"level":"info","ts":1792336769.1883273,"msg":"Caddy serving PHP app on :80"}

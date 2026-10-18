@@ -1,0 +1,25 @@
+$ pnpm create vue@latest
++  Vue.js - The Progressive JavaScript Framework
+|
+*  Project name (target directory):
+|  frontend
+|
+*  Use TypeScript?
+|  Yes
+|
+*  Select features to include in your project:
+|  Router (SPA development), Vitest (unit testing), Linter (error prevention), Prettier (code formatting)
+|
+*  Select experimental features to include in your project:
+|  none
+|
+*  Skip all example code and start with a blank Vue project?
+|  Yes
+
+Scaffolding project in .../uts-pl-24-538699-SV-24524/frontend...
++  Done. Now run:
+
+   cd frontend
+   pnpm install
+   pnpm format
+   pnpm dev

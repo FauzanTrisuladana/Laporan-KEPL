@@ -1,0 +1,5 @@
+CONTAINER ID  IMAGE                                                COMMAND               CREATED         STATUS                   PORTS                                             NAMES
+a4ccfa622704  docker.io/library/mysql:latest                       mysqld                15 minutes ago  Up 15 minutes (healthy)  0.0.0.0:3307->3306/tcp, 33060/tcp                 uts-kepl-mysql
+085fd8af7558  docker.io/library/phpmyadmin:latest                  apache2-foregroun...  15 minutes ago  Up 15 minutes            0.0.0.0:8082->80/tcp                              uts-kepl-phpmyadmin
+5312c2a27e21  localhost/uts-pl-24-538699-sv-24524_backend:latest   frankenphp php-se...  15 minutes ago  Up 15 minutes (healthy)  0.0.0.0:8007->80/tcp, 443/tcp, 2019/tcp, 443/udp  uts-kepl-backend
+cd73bdcf3de1  localhost/uts-pl-24-538699-sv-24524_frontend:latest  nginx -g daemon o...  24 seconds ago  Up 23 seconds (healthy)  0.0.0.0:3001->80/tcp                              uts-kepl-frontend

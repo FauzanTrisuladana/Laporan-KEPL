@@ -1,0 +1,97 @@
+services:
+  db:
+    image: docker.io/library/mysql:latest
+    container_name: uts-kepl-mysql
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: ${MYSQL_ALLOW_EMPTY_PASSWORD:-yes}
+      MYSQL_DATABASE: ${DB_DATABASE:-uts-kepl}
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-}
+    volumes:
+      - kepl_mysql_data:/var/lib/mysql:Z
+    ports:
+      - "${MYSQL_HOST_PORT:-3307}:3306"
+    networks:
+      - kepl
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  phpmyadmin:
+    image: docker.io/phpmyadmin:latest
+    container_name: uts-kepl-phpmyadmin
+    restart: always
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    ports:
+      - "${PMA_HOST_PORT:-8081}:80"
+    depends_on:
+      - db
+    networks:
+      - kepl
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: uts-kepl-backend
+    restart: always
+    ports:
+      - "${BACKEND_HOST_PORT:-8000}:80"
+    environment:
+      APP_NAME: ${APP_NAME:-Laravel}
+      APP_ENV: ${APP_ENV:-local}
+      APP_KEY: ${APP_KEY}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      APP_URL: ${APP_URL:-http://localhost:8000}
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-uts-kepl}
+      DB_USERNAME: ${DB_USERNAME:-root}
+      DB_PASSWORD: ${DB_PASSWORD:-}
+      SESSION_DRIVER: database
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kepl
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/api/status"]
+      interval: 1h
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: /api
+    container_name: uts-kepl-frontend
+    restart: always
+    ports:
+      - "${FRONTEND_HOST_PORT:-3000}:80"
+    depends_on:
+      - backend
+    networks:
+      - kepl
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+networks:
+  kepl:
+    name: kepl
+
+volumes:
+  kepl_mysql_data:
+    name: kepl_mysql_data

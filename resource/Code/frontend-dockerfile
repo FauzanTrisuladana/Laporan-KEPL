@@ -1,0 +1,52 @@
+# ==============================================================================
+# TAHAP 1: BUILDER (Tahap Membangun Aplikasi Vue)
+# Lingkungan build: Node.js 24 Alpine, kompilasi TypeScript dan bundler Vite.
+# ==============================================================================
+FROM node:24-alpine AS builder
+
+WORKDIR /app
+
+# Pasang pnpm untuk manajemen dependensi yang cepat dan deterministik
+RUN npm install -g pnpm@10
+
+# Salin berkas manifes dependensi terlebih dahulu agar memanfaatkan cache lapisan Docker
+COPY package.json pnpm-lock.yaml* package-lock.json* ./
+
+# Pasang seluruh dependensi build
+RUN if [ -f pnpm-lock.yaml ]; then pnpm install --frozen-lockfile; else npm ci; fi
+
+# Salin seluruh kode sumber proyek ke container builder
+COPY . .
+
+# Argument build untuk URL API (default ke /api untuk reverse proxy Nginx)
+ARG VITE_API_URL=/api
+ENV VITE_API_URL=${VITE_API_URL}
+
+# Bangun aplikasi Vue.js untuk mode produksi (output ke /app/dist)
+RUN if [ -f pnpm-lock.yaml ]; then pnpm run build; else npm run build; fi
+
+
+# ==============================================================================
+# TAHAP 2: RUNNER (Tahap Menyajikan Aplikasi dengan Nginx)
+# Image runtime ramping Nginx Alpine (tanpa node, tanpa npm/pnpm, tanpa node_modules).
+# ==============================================================================
+FROM nginx:1.27-alpine AS runner
+
+# Pasang curl untuk healthcheck monitoring
+RUN apk add --no-cache curl
+
+# Salin konfigurasi kustom Nginx untuk routing SPA dan reverse proxy API
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Salin berkas static aset hasil build dari tahap builder ke direktori html Nginx
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Konfigurasi HEALTHCHECK untuk memantau ketersediaan server web Nginx
+HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+    CMD curl -f http://127.0.0.1/ || exit 1
+
+# Port HTTP standar yang diekspos
+EXPOSE 80
+
+# Jalankan server web Nginx di foreground
+CMD ["nginx", "-g", "daemon off;"]

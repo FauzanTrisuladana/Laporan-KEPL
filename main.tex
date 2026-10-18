@@ -12,14 +12,17 @@
 \usepackage{geometry}           % untuk margin
 \usepackage{setspace}           % untuk spasi baris
 \usepackage{fancyhdr}           % untuk header/footer
-\usepackage{hyperref}           % untuk link dan bookmark
-\usepackage{listings}           % untuk code Python
-\usepackage{xcolor}             % untuk warna
 \usepackage{float}              % untuk posisi gambar
+\usepackage{hyperref}           % untuk link dan bookmark
+\usepackage{listings}           % untuk code formatting
+\usepackage{xcolor}             % untuk warna
 \usepackage{tocloft}            % Untuk membuat daftar isi menampilkan "Bab 1. Pendahuluan" instead of "1. Pendahuluan",
 \usepackage{lipsum}             % untuk lorem ipsum
 \usepackage{indentfirst}        % untuk indent paragraf pertama
 \usepackage{enumitem}           % untuk kustomisasi penomoran list (A., B., dst)
+\usepackage{booktabs}           % untuk tabel profesional
+\usepackage{tabularx}           % untuk tabel auto-wrap dengan lebar presisi
+\usepackage{amsmath}            % untuk rumus matematika dan \text{}
 
 % Pengaturan layout
 \geometry{left=3cm, right=2cm, top=2cm, bottom=2cm}
@@ -40,8 +43,7 @@
 \titleformat{\chapter}[hang]
   {\normalfont\huge\bfseries\centering}{\chaptertitlename\ \thechapter.}{1em}{}
 
-% Format code Python
-% --- VS Code-like code style (dark) ---
+% Format code (VS Code-like dark theme)
 \definecolor{vscodeBg}{HTML}{1E1E1E}
 \definecolor{vscodeFg}{HTML}{D4D4D4}
 \definecolor{vscodeKeyword}{HTML}{569CD6}
@@ -50,9 +52,43 @@
 \definecolor{vscodeNumber}{HTML}{858585}
 \definecolor{vscodeRule}{HTML}{3C3C3C}
 
+\lstdefinelanguage{dockerfile}{
+  keywords={FROM, RUN, CMD, LABEL, MAINTAINER, EXPOSE, ENV, ADD, COPY, ENTRYPOINT, VOLUME, USER, WORKDIR, ARG, ONBUILD, STOPSIGNAL, HEALTHCHECK, SHELL, AS},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinelanguage{yaml}{
+  keywords={name, on, push, pull_request, branches, env, jobs, runs-on, permissions, contents, packages, steps, uses, with, run, id, tags, labels, services, image, container_name, restart, environment, volumes, ports, networks, healthcheck, test, interval, timeout, retries, start_period, depends_on, condition, build, context, dockerfile, args, defaults, working-directory},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinelanguage{javascript}{
+  keywords={import, from, const, let, var, export, default, return, if, else, function, async, await, true, false, null, undefined},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  sensitive=true,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]",
+  morestring=[b]`
+}
+
 \lstdefinestyle{vscode-dark}{
-  language=Python,
-  basicstyle=\ttfamily\small\color{vscodeFg},
+  basicstyle=\ttfamily\footnotesize\color{vscodeFg},
   backgroundcolor=\color{vscodeBg},
   keywordstyle=\color{vscodeKeyword}\bfseries,
   commentstyle=\color{vscodeComment},
@@ -66,10 +102,9 @@
   columns=fullflexible,
   keepspaces=true,
   tabsize=2,
-  xleftmargin=2cm,
-  xrightmargin=1cm,
-  captionpos=b,
-  morekeywords={np, pd, plt, sns, array, DataFrame, Series, read_csv, read_excel, head, tail, info, describe, plot, scatter, bar, hist, fit, predict, transform, merge, concat, groupby, drop, fillna, dropna, iloc, loc}
+  xleftmargin=1.5cm,
+  xrightmargin=0.5cm,
+  captionpos=b
 }
 
 \lstset{style=vscode-dark}
@@ -86,10 +121,9 @@
 
 % Info dokumen
 \newcommand{\Pertemuan}{UTS}
-\newcommand{\Materi}{UTS}
+\newcommand{\Materi}{Integrasi Sistem Full-Stack Laravel 12 dan Vue.js 3, Otomasi CI/CD GitHub Actions, serta Orkestrasi Multi-Container FrankenPHP dan Podman Compose}
 \title{Laporan \\ Konstruksi dan Evolusi Perangkat Lunak\\
-Tugas \Pertemuan\\
-\Materi}
+Tugas \Pertemuan}
 \newcommand{\NamaMahasiswa}{Muhammad Fauzan Putra Trisuladana}
 \newcommand{\NIMMahasiswa}{24/538699/SV/24524}
 \newcommand{\KelasMahasiswa}{A1}
@@ -98,9 +132,6 @@ Tugas \Pertemuan\\
 \author{\NamaMahasiswa\\\NIMMahasiswa}
 
 \begin{document}
-
-% Jika ingin daftar pustaka muncul meskipun belum ada entri di ref.bib,
-% tambahkan entri BibTeX ke file ref.bib terlebih dulu.
 
 % Title Page
 \begin{titlingpage} 
@@ -195,31 +226,371 @@ Tugas \Pertemuan\\
 % Daftar Listing
 \lstlistoflistings
 
-% --- Halaman Laporan Pertemuan (seperti contoh gambar) ---
-% Tidak pakai \chapter agar bisa menyatu dengan halaman sebelumnya.
+% --- Halaman Laporan Pertemuan ---
 \newpage
 \begin{center}
-  \textbf{\LARGE Tugas \Pertemuan\\
-  {[{\Materi}]}}
+  \textbf{\LARGE Tugas \Pertemuan}
 \end{center}
-
-%contoh gambar dan kode
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{resource/contoh-gambar.png}
-%     \caption{Contoh Gambar}
-%     \label{fig:contoh-gambar}
-% \end{figure}
-
-% \begin{lstlisting}[language=php, caption={Contoh Kode Python}, label={lst:contoh-kode}]
-% def hello_world():
-%     print("Hello, World!")
-% \end{lstlisting}
 
 \section{Hasil dan Pembahasan}
 
-\par Sesuai dengan tujuan praktikum, berikut adalah hasil yang diperoleh dan pembahasan terkait materi yang telah dipelajari.
+\subsection{Identitas Repository, Live Deployment, dan Rangkaian Command Eksekusi}
+
+\par Ujian Tengah Semester (UTS) Praktikum Konstruksi dan Evolusi Perangkat Lunak mengintegrasikan seluruh kompetensi rekayasa perangkat lunak ke dalam satu sistem terpadu. Proyek yang dikembangkan mengangkat studi kasus baru yang berbeda dari penugasan mingguan sebelumnya, yaitu \textbf{Sistem Informasi Akuntansi Pemuda (Nogotirto V)}. Sistem ini dirancang untuk mengelola pembukuan keuangan organisasi kepemudaan yang mencakup manajemen kas, pencatatan transaksi pemasukan dan pengeluaran, mutasi antar-rekening, pengelolaan penanggung jawab kegiatan, rekonsiliasi saldo riil harian, hingga ekspor laporan keuangan dalam format PDF.
+
+\par Secara arsitektural, sistem memisahkan \textit{backend} RESTful API berbasis Laravel 12 yang dijalankan di atas \textit{application server} FrankenPHP dengan \textit{frontend} \textit{Single Page Application} (SPA) berbasis Vue.js 3, TypeScript, dan Tailwind CSS di dalam satu \textit{monorepo} publik bernama \texttt{uts-pl-24-538699-SV-24524}. Seluruh siklus pengembangan dikelola menggunakan \textit{Git workflow} dengan \textit{branch protection ruleset}, diotomasi melalui \textit{pipeline} \textit{Continuous Integration} (CI) dan \textit{Continuous Deployment} (CD) pada GitHub Actions, dipublikasikan sebagai \textit{container image} ke GitHub Container Registry (GHCR), serta diorkestrasi menggunakan Podman Compose.
+
+\par Metadata lengkap \textit{repository}, lokasi \textit{API collection}, \textit{package container}, serta akses \textit{production environment} yang telah di-\textit{deploy} diuraikan sebagai berikut:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{URL Public Repository GitHub}:\\
+        {\footnotesize\url{https://github.com/FauzanTrisuladana/uts-pl-24-538699-SV-24524}}
+  \item \textbf{URL GitHub Actions (CI \& CD Workflows)}:\\
+        {\footnotesize\url{https://github.com/FauzanTrisuladana/uts-pl-24-538699-SV-24524/actions}}
+  \item \textbf{Lokasi API Request Collection (Hoppscotch / Kompatibel Postman)}:\\
+        Folder \texttt{hoppscotch-collection} di dalam direktori \texttt{documentation} menyimpan berkas JSON \textit{API collection}.
+  \item \textbf{Package Image Backend pada GHCR (\texttt{uts-backend})}:\\
+        {\footnotesize\url{https://github.com/users/FauzanTrisuladana/packages/container/package/uts-backend}}
+  \item \textbf{Package Image Frontend pada GHCR (\texttt{uts-frontend})}:\\
+        {\footnotesize\url{https://github.com/users/FauzanTrisuladana/packages/container/package/uts-frontend}}
+  \item \textbf{URL Live Deployment (Production Environment)}:\\
+        {\footnotesize\url{https://kepl.trisuladana.com}}
+  \item \textbf{Kredensial Login Pengujian untuk Dosen Pengampu}:
+        \begin{itemize}[leftmargin=*]
+          \item \textbf{Email}: \texttt{fauzantrisuladana@gmail.com}
+          \item \textbf{Password}: \texttt{password}
+          \item \textbf{Role}: \texttt{bendahara} (Akses penuh seluruh fitur CRUD)
+        \end{itemize}
+\end{itemize}
+
+\par Dalam pelaksanaan praktikum ini, diterapkan beberapa penyesuaian \textit{tooling} teknis yang tetap memenuhi seluruh spesifikasi ujian secara ekuivalen:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Penggunaan Podman sebagai \textit{Container Engine}}: Seluruh proses \textit{image build} dan eksekusi \textit{container} dijalankan menggunakan \textbf{Podman} (\texttt{podman} dan \texttt{podman compose}) sebagai \textit{daemonless container engine} yang kompatibel penuh dengan spesifikasi Docker serta standar \textit{Open Container Initiative} (OCI).
+  \item \textbf{Penggunaan Hoppscotch sebagai \textit{HTTP Client} Pengujian API}: Pengujian seluruh \textit{endpoint} RESTful API dilakukan menggunakan \textbf{Hoppscotch}. Berkas \textit{collection} yang diekspor ke dalam direktori \texttt{documentation/hoppscotch-collection/} berformat JSON standar sehingga tetap dapat diimpor secara langsung ke dalam \textbf{Postman} maupun Hoppscotch.
+  \item \textbf{Standarisasi Nama Berkas \texttt{compose.yml}}: Berkas konfigurasi orkestrasi \textit{multi-container} di \textit{root repository} dinamai \texttt{compose.yml} mengikuti standar terbaru \textit{Compose Specification}, menggantikan penamaan \texttt{docker-compose.yml}.
+\end{enumerate}
+
+\par Berkas \texttt{perintah.sh} pada folder \texttt{document} di dalam direktori \texttt{documentation} menyimpan rangkaian \textit{command} utama sejak inisialisasi proyek hingga verifikasi \textit{container}, sebagaimana ditampilkan pada Kode \ref{lst:perintah-sh}.
+
+\lstinputlisting[language=bash, caption={[Rangkaian Command Eksekusi Proyek (\texttt{perintah.sh})]{Daftar Command Inisialisasi Proyek, Eksekusi Podman Compose, Database Migration, dan Pemeriksaan Container Logs}}, label={lst:perintah-sh}]{resource/Code/perintah.sh}
+
+\par Berdasarkan Kode \ref{lst:perintah-sh}, setiap blok \textit{command} dilengkapi dengan komentar fungsi di bagian atasnya. Pada baris 1--2, \textit{command} \texttt{composer create-project} dijalankan untuk menginisialisasi proyek Laravel 12 pada direktori \texttt{backend}. Selanjutnya pada baris 4--5, \textit{command} \texttt{pnpm create vue@latest} dieksekusi guna melakukan \textit{scaffolding} proyek Vue.js 3 pada direktori \texttt{frontend}. Baris 7--8 menjalankan \textit{command} \texttt{podman compose up -d} untuk melakukan \textit{build} sekaligus menjalankan seluruh \textit{service container} di \textit{background}, sementara \textit{output} terminalnya dicatat ke dalam berkas \texttt{compose-up.txt} melalui utilitas \texttt{tee}. Pada baris 10--11, status dan hasil \textit{healthcheck} seluruh \textit{container} yang sedang berjalan diperiksa menggunakan \textit{command} \texttt{podman ps}. Kemudian pada baris 13--14, dijalankan \textit{database migration} beserta \textit{seeding} melalui eksekusi \textit{command} \texttt{migrate --seed} pada \textit{artisan} di dalam \textit{container} \texttt{uts-kepl-backend}. Sebagai penutup, baris 16--17 menjalankan \textit{command} \texttt{podman logs uts-kepl-backend} untuk merekam \textit{runtime logs} dari \textit{container backend} guna membuktikan bahwa \textit{HTTP request} dilayani oleh FrankenPHP.
+
+\subsection{Pengembangan Backend RESTful API Berbasis Laravel 12 (Soal 1)}
+
+\par Lapisan \textit{backend} dikembangkan menggunakan Laravel 12 pada direktori \texttt{backend/} untuk menyediakan \textit{service} RESTful API dengan format pertukaran data JSON. Arsitektur berlapis dari sistem \textit{backend} yang dibangun divisualisasikan pada Gambar \ref{fig:arsitektur-backend}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/arsitektur-backend.png}
+  \caption{Diagram Layered Architecture Backend RESTful API Laravel 12 dan FrankenPHP}
+  \label{fig:arsitektur-backend}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:arsitektur-backend}, arsitektur \textit{backend} tersusun atas lima \textit{layer} utama yang saling terintegrasi. \textit{Layer} pertama merupakan konfigurasi \textit{environment} melalui berkas \texttt{.env} yang menyimpan pengaturan koneksi \textit{database}, \textit{encryption key} \texttt{APP\_KEY}, konfigurasi Laravel Sanctum, serta kebijakan \textit{Cross-Origin Resource Sharing} (CORS). \textit{Layer} kedua adalah \textit{HTTP Routing \& Security Layer} yang ditenagai oleh \textit{application server} FrankenPHP dan berkas \texttt{routes/api.php}, dilengkapi proteksi \textit{middleware} \texttt{auth:sanctum} untuk verifikasi token serta \texttt{CheckRole} untuk otorisasi \textit{role} pengguna. \textit{Layer} ketiga memuat sembilan \textit{API Controller} dan \textit{Form Request} yang menangani validasi \textit{input} dengan pengembalian \textit{HTTP status code} \texttt{422} apabila data tidak valid. \textit{Layer} keempat mencakup \textit{model} Eloquent ORM beserta \textit{API Resource} untuk memformat struktur \textit{payload} JSON secara seragam, sedangkan \textit{layer} kelima menangani persistensi data pada \textit{database} MySQL.
+
+\par Implementasi definisi \textit{route} RESTful API pada berkas \texttt{backend/routes/api.php} disajikan pada Kode \ref{lst:api-routes}.
+
+\lstinputlisting[language=PHP, caption={[Konfigurasi Route RESTful API (\texttt{routes/api.php})]{Definisi Endpoint RESTful API dengan Proteksi Middleware Sanctum pada Laravel 12}}, label={lst:api-routes}]{resource/Code/api-routes.php}
+
+\par Berdasarkan Kode \ref{lst:api-routes}, \textit{route} publik \texttt{GET /api/status} disediakan pada baris 16--18 untuk keperluan pemantauan \texttt{healthcheck} \textit{container}. \textit{Route} autentikasi didefinisikan pada grup \textit{prefix} \texttt{auth} (baris 21--26), di mana \texttt{POST /api/auth/login} bersifat terbuka bagi \textit{client} yang mengirimkan kredensial \textit{email} dan \textit{password} untuk memperoleh \textit{Bearer token} Laravel Sanctum, sedangkan \texttt{POST /api/auth/logout} dilindungi oleh \textit{middleware} \texttt{auth:sanctum} untuk mencabut token aktif dari tabel \texttt{personal\_access\_tokens}. Seluruh \textit{route} bisnis lainnya dibungkus di dalam grup \texttt{Route::middleware('auth:sanctum')} (baris 28--70), sehingga setiap \textit{request} tanpa token yang valid akan langsung ditolak dengan \textit{response} JSON berstatus \texttt{401 Unauthorized}. Di dalam grup \textit{middleware} \texttt{role:bendahara}, didefinisikan berbagai \textit{resource route} dengan operasi CRUD lengkap (\texttt{index}, \texttt{show}, \texttt{store}, \texttt{update}, \texttt{destroy}), meliputi \texttt{penanggung-jawab}, \texttt{akun}, \texttt{transaksi}, \texttt{mutasi-rekening}, \texttt{history-riil}, dan \texttt{user}.
+
+\par Pengujian fungsional seluruh \textit{endpoint} dilakukan menggunakan \textit{HTTP client} Hoppscotch. Hasil eksekusi \textit{request} beserta struktur pengorganisasian \textit{API collection} ditunjukkan pada Gambar \ref{fig:pengujian-api-hoppscotch}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/pengujian-api-hoppscotch.png}
+  \caption{Pengujian Endpoint RESTful API dan Request Collection pada Antarmuka Hoppscotch}
+  \label{fig:pengujian-api-hoppscotch}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pengujian-api-hoppscotch}, \textit{request collection} bernama \texttt{KEPL-UTS} memiliki folder autentikasi (\texttt{Login} dan \texttt{Logout}) serta folder \texttt{(Auth)} yang memuat seluruh modul fungsional, meliputi manajemen profil, pengguna, penanggung jawab, riwayat riil, akun keuangan, mutasi rekening, transaksi, laporan, dan ringkasan \textit{dashboard}. Ketika \textit{request} pengambilan daftar penanggung jawab dieksekusi dengan menyertakan \textit{Bearer token} pada \textit{header} \texttt{Authorization}, \textit{server} merespons dengan \textit{status code} \texttt{200 OK} dalam waktu 39 milidetik dan mengirimkan \textit{payload} JSON berisi daftar objek penanggung jawab dari \textit{database}. Seluruh \textit{collection} ini telah diekspor ke dalam berkas \texttt{all-collection.json} serta \texttt{collection-env.json} pada folder \texttt{hoppscotch-collection} di direktori dokumentasi \textit{repository}, sehingga dapat diimpor langsung ke dalam Hoppscotch maupun Postman.
+
+\par Untuk menjamin keandalan setiap \textit{endpoint} terhadap perubahan kode, disusun rangkaian \textit{feature test} otomatis berbasis PHPUnit pada direktori \texttt{backend/tests/Feature/}. Secara keseluruhan terdapat 11 berkas \textit{feature test}, dengan dua sampel utama yaitu \texttt{AuthTest.php} dan \texttt{AkunTest.php} sebagaimana ditampilkan pada Kode \ref{lst:auth-test} serta Kode \ref{lst:akun-test}.
+
+\lstinputlisting[language=PHP, caption={[Feature Test Autentikasi API (\texttt{AuthTest.php})]{Implementasi Feature Test untuk Skenario Login, Validasi 422, Penolakan 401, dan Logout}}, label={lst:auth-test}]{resource/Code/auth-test.php}
+
+\par Berdasarkan Kode \ref{lst:auth-test}, kelas \texttt{AuthTest} memanfaatkan \textit{trait} \texttt{RefreshDatabase} agar setiap \textit{test case} dieksekusi pada skema \textit{database} SQLite \textit{in-memory} yang terisolasi. Metode pengujian memverifikasi lima \textit{test case} utama: keberhasilan \textit{login} yang mengembalikan \textit{status code} \texttt{200} beserta struktur token Sanctum (baris 13--40), penolakan \textit{login} dengan \textit{password} salah yang mengembalikan \textit{status code} \texttt{401} (baris 42--58), kegagalan validasi \textit{input} yang mengembalikan \textit{status code} \texttt{422} beserta rincian \textit{error} atribut (baris 60--70), keberhasilan pencabutan token saat \textit{logout} (baris 72--87), serta pemblokiran akses \textit{logout} tanpa token dengan \textit{status code} \texttt{401} (baris 89--96).
+
+\lstinputlisting[language=PHP, caption={[Feature Test CRUD Akun Keuangan (\texttt{AkunTest.php})]{Implementasi Feature Test untuk Operasi Index, Store (201), Show, Update, dan Destroy pada Resource Akun}}, label={lst:akun-test}]{resource/Code/akun-test.php}
+
+\par Berdasarkan Kode \ref{lst:akun-test}, kelas \texttt{AkunTest} menguji siklus operasi CRUD lengkap pada \textit{endpoint} \texttt{/api/akun}. Fungsi bantuan \texttt{getBendaharaToken()} membuat data \textit{user} aktif ber-\textit{role} \texttt{bendahara} serta mencetak token Sanctum untuk disertakan pada \textit{header} \texttt{Authorization}. Rangkaian \textit{assertion} memvalidasi pengambilan daftar akun dengan filter kas (\texttt{200 OK}), pembuatan akun baru melalui \texttt{postJson('/api/akun')} yang menghasilkan \textit{status code} \texttt{201 Created} sekaligus memverifikasi keberadaan baris data di tabel \texttt{akun} melalui \texttt{assertDatabaseHas} (baris 43--64), pengambilan detail satu akun (\texttt{getJson}), pembaruan data akun (\texttt{putJson}), hingga penghapusan akun (\texttt{deleteJson}) yang terverifikasi melalui \texttt{assertSoftDeleted}.
+
+\subsection{Pengembangan Aplikasi Frontend SPA Berbasis Vue.js 3 (Soal 2)}
+
+\par Aplikasi \textit{frontend} dibangun pada direktori \texttt{frontend/} menggunakan \textit{framework} Vue.js 3 dengan pendekatan \textit{Composition API} dan bahasa pemrograman TypeScript. Proses inisialisasi proyek dilakukan menggunakan \textit{command} \texttt{pnpm create vue@latest} sebagaimana terekam pada Kode \ref{lst:vue-init}.
+
+\lstinputlisting[language={}, caption={[Inisialisasi Proyek Vue.js 3]{Output Terminal Scaffolding Proyek Frontend Menggunakan \texttt{pnpm create vue@latest}}}, label={lst:vue-init}]{resource/Code/vue-init.txt}
+
+\par Berdasarkan Kode \ref{lst:vue-init}, proyek dikonfigurasi dengan dukungan pemeriksaan tipe statis TypeScript, modul \textit{routing} \textit{Vue Router} untuk navigasi \textit{Single Page Application} (SPA), \textit{Vitest} untuk \textit{unit testing}, serta \textit{ESLint} dan \textit{Prettier} untuk menjaga konsistensi kualitas penulisan kode. Hubungan antar-komponen dan modul \textit{service} di dalam aplikasi \textit{frontend} ditunjukkan pada diagram arsitektur Gambar \ref{fig:arsitektur-frontend}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/arsitektur-frontend.png}
+  \caption{Diagram Arsitektur Modular Aplikasi Frontend Vue.js 3 dan Axios Service Layer}
+  \label{fig:arsitektur-frontend}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:arsitektur-frontend}, struktur aplikasi \textit{frontend} terbagi menjadi empat \textit{layer} modular yang terpisah secara jelas. \textit{Layer} paling atas membaca konfigurasi URL \textit{server} melalui \textit{environment variable} \texttt{VITE\_API\_URL}. \textit{Layer} inti dan jaringan memuat modul \textit{router} Vue Router yang dilengkapi \textit{navigation guard}, pengelola \textit{reactive authentication state} pada berkas \texttt{useAuth.ts}, serta instans \textit{HTTP client} terpusat pada berkas \texttt{api.ts}. Di bawahnya terdapat sepuluh modul \textit{domain service} yang menangani logika pemanggilan API untuk fitur autentikasi, penanggung jawab, akun keuangan, serta transaksi secara terpisah dari sebelas komponen \textit{view} di dalam aplikasi.
+
+\par Agar URL \textit{server} API tidak ditulis secara \textit{hardcode} di dalam komponen serta memastikan token autentikasi selalu dikirim pada setiap \textit{request} berikutnya, disusun berkas konfigurasi Axios terpusat pada \texttt{frontend/src/services/api.ts} seperti tampak pada Kode \ref{lst:api-axios}.
+
+\lstinputlisting[language=javascript, caption={[Konfigurasi HTTP Client Axios dan Interceptor (\texttt{src/services/api.ts})]{Pengaturan Base URL Berbasis Environment Variable dan Penyematan Otomatis Bearer Token}}, label={lst:api-axios}]{resource/Code/api-axios.ts}
+
+\par Berdasarkan Kode \ref{lst:api-axios}, properti \texttt{import.meta.env.VITE\_API\_URL} pada baris 3 dibaca sebagai nilai \texttt{baseURL} dengan nilai \textit{fallback} \texttt{http://127.0.0.1:8000/api} untuk \textit{local development}. Pada baris 15--21, diterapkan \textit{request interceptor} yang secara otomatis memeriksa keberadaan token pada \texttt{localStorage.getItem('token')} sebelum setiap \textit{HTTP request} dikirimkan. Apabila token tersedia, sistem menyematkan \textit{header} \texttt{Authorization: Bearer \$\{token\}} secara otomatis. Sebaliknya, pada baris 24--38 diterapkan \textit{response interceptor} yang memantau \textit{status code} dari \textit{server}; apabila \textit{server} mengembalikan status \texttt{401 Unauthorized} akibat token kedaluwarsa atau tidak valid, sistem secara otomatis menghapus data sesi dari \texttt{localStorage} dan melakukan \textit{redirect} ke \textit{route} \texttt{/login}.
+
+\par Tampilan antarmuka aplikasi web Vue.js saat menyajikan halaman Manajemen Pengguna ditunjukkan pada Gambar \ref{fig:tampilan-manajemen-pengguna}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/tampilan-manajemen-pengguna.png}
+  \caption{Tampilan Antarmuka View Manajemen Pengguna pada Aplikasi Frontend Vue.js 3}
+  \label{fig:tampilan-manajemen-pengguna}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:tampilan-manajemen-pengguna}, antarmuka aplikasi menampilkan \textit{sidebar} navigasi yang memuat identitas pengguna yang sedang aktif (\texttt{Fauzan Trisuladana} dengan \textit{role badge} \texttt{BENDAHARA}), menu navigasi antar-modul akuntansi, serta tombol \texttt{Keluar Sistem} untuk menjalankan proses \textit{logout}. Pada area konten utama, tabel daftar pengguna menampilkan data yang diambil secara dinamis melalui Axios dari \textit{endpoint} \texttt{GET /api/user}, lengkap dengan fitur pencarian, filter \textit{role} dan status akun, tombol tambah pengguna, serta tombol aksi ubah \textit{role}, \textit{toggle} status aktif, dan hapus pengguna.
+
+\subsection{Manajemen Kode Sumber GitHub, Branch Protection, dan Pipeline CI (Soal 3)}
+
+\par \textit{Repository} publik GitHub \texttt{uts-pl-24-538699-SV-24524} digunakan untuk menyimpan seluruh kode sumber proyek dalam dua direktori utama di tingkat \textit{root}, yaitu folder \texttt{backend} untuk aplikasi Laravel 12 dan folder \texttt{frontend} untuk aplikasi Vue.js 3. Pengelolaan versi menerapkan struktur \textit{branching} yang terdiri atas \textit{main branch} \texttt{main}, \textit{integration branch} \texttt{dev}, serta tiga \textit{feature branch} terpisah yang mencakup pengembangan \textit{backend}, \textit{frontend}, dan konfigurasi \textit{deployment}.
+
+\par Untuk menegakkan aturan bahwa tidak ada perubahan kode yang boleh di-\textit{push} secara langsung ke \textit{branch} \texttt{main} maupun \texttt{dev}, serta mewajibkan setiap proses \textit{merge} melewati \textit{Pull Request} dengan \textit{status checks} yang berstatus \textit{passed}, dikonfigurasi \textit{branch protection ruleset} melalui menu \texttt{Settings -> Rules -> Rulesets}. Konfigurasi pembuatan \textit{ruleset} tersebut ditunjukkan pada Gambar \ref{fig:konfigurasi-branch-ruleset}, sedangkan status \textit{ruleset} yang telah aktif ditampilkan pada Gambar \ref{fig:hasil-branch-ruleset-aktif}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/konfigurasi-branch-ruleset.png}
+  \caption{Konfigurasi Branch Protection Ruleset untuk Target Branch \texttt{main} dan \texttt{dev}}
+  \label{fig:konfigurasi-branch-ruleset}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:konfigurasi-branch-ruleset}, \textit{ruleset} diberi nama \texttt{main-dev protection} dengan bagian \textit{Bypass list} yang dikosongkan agar aturan berlaku mutlak bagi seluruh kontributor termasuk pemilik \textit{repository}. Pada bagian \textit{Target branches}, target proteksi diarahkan pada \textit{branch} \texttt{main} dan \texttt{dev}. Selanjutnya, pada bagian \textit{Branch rules}, diaktifkan opsi \textit{Require a pull request before merging} untuk mewajibkan pembuatan \textit{Pull Request}, serta opsi \textit{Require status checks to pass} yang mensyaratkan dua \textit{job} pengujian CI (\texttt{Backend Test (Laravel)} dan \texttt{Frontend Build (Vue.js)}) berstatus \textit{passed} sebelum proses \textit{merge} diizinkan.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/hasil-branch-ruleset-aktif.png}
+  \caption{Daftar Branch Protection Ruleset \texttt{main-dev protection} yang Aktif pada Pengaturan Repository}
+  \label{fig:hasil-branch-ruleset-aktif}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:hasil-branch-ruleset-aktif}, halaman \texttt{Settings -> Rules -> Rulesets} mengonfirmasi bahwa \textit{ruleset} \texttt{main-dev protection} telah aktif dan menargetkan dua \textit{branch} utama (\texttt{targeting 2 branches}) dengan empat aturan proteksi (\texttt{4 branch rules}), mencakup pemblokiran penghapusan \textit{branch}, pemblokiran \textit{force push}, kewajiban \textit{Pull Request}, serta kewajiban kelulusan \textit{status checks} CI.
+
+\par Untuk menjalankan \textit{automated quality gate} pada setiap aktivitas \textit{push} dan \textit{Pull Request}, disusun berkas \textit{workflow} \texttt{.github/workflows/ci.yml} sebagaimana disajikan pada Kode \ref{lst:ci-yml}.
+
+\lstinputlisting[language=yaml, caption={[Konfigurasi Workflow Continuous Integration (\texttt{ci.yml})]{Definisi Pipeline CI dengan Job Backend Test Laravel dan Job Frontend Build Vue.js}}, label={lst:ci-yml}]{resource/Code/ci.yml}
+
+\par Berdasarkan Kode \ref{lst:ci-yml}, \textit{workflow} bernama \texttt{CI Pipeline} dipicu secara otomatis pada \textit{event} \texttt{push} ke \textit{branch} \texttt{main}, \texttt{dev}, \texttt{feature/**}, dan \texttt{chore/**}, serta pada \textit{event} \texttt{pull\_request} yang menargetkan \textit{branch} \texttt{main} dan \texttt{dev} (baris 3--7). Di dalamnya didefinisikan dua \textit{job} independen yang berjalan secara paralel di atas \textit{runner} \texttt{ubuntu-latest}:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Job Backend Test (\texttt{backend-test})}: Menetapkan folder \texttt{backend} sebagai \textit{working directory} (baris 15), melakukan \textit{checkout} kode sumber \textit{repository}, menyiapkan \textit{environment} PHP 8.4 beserta ekstensi SQLite menggunakan \textit{action} \texttt{shivammathur/setup-php@v2}, lalu menginstal seluruh \textit{dependency} Composer. Setelah itu, \textit{step} berikutnya menyalin berkas \texttt{.env.example} ke \texttt{.env}, men-generate \texttt{APP\_KEY} melalui \textit{command} \texttt{php artisan key:generate}, dan mengeksekusi \textit{automated test suite} menggunakan \texttt{php artisan test} (baris 37).
+  \item \textbf{Job Build Frontend (\texttt{frontend-build})}: Mengarahkan \textit{working directory} ke dalam folder \texttt{frontend} (baris 44), menyiapkan \textit{runtime environment} Node.js versi 24 menggunakan \textit{action} resmi \texttt{setup-node@v4}, memastikan ketersediaan berkas \textit{lockfile}, menginstal seluruh \textit{dependency} secara deterministik melalui \textit{command} \texttt{npm ci} (baris 58), serta menjalankan \textit{type-checking} TypeScript sekaligus \textit{production build} melalui \textit{command} \texttt{npm run build} (baris 61).
+\end{enumerate}
+
+\par Bukti keberhasilan eksekusi \textit{workflow} \texttt{CI Pipeline} pada tab \textit{Actions} di \textit{repository} GitHub ditampilkan pada Gambar \ref{fig:ci-pipeline-status-hijau}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/ci-pipeline-status-hijau.png}
+  \caption{Riwayat Eksekusi Workflow CI Pipeline yang Mencapai Status Passed (Hijau) pada Tab GitHub Actions}
+  \label{fig:ci-pipeline-status-hijau}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:ci-pipeline-status-hijau}, riwayat eksekusi \texttt{CI Pipeline} memperlihatkan proses verifikasi otomatis yang berjalan pada berbagai \textit{branch}. Pada dua eksekusi awal (\texttt{CI Pipeline \#1} di \textit{branch} \texttt{dev} dan \texttt{CI Pipeline \#2} di \textit{branch} \texttt{main}), \textit{quality gate} mendeteksi kendala belum tersedianya berkas \texttt{package-lock.json} saat \textit{command} \texttt{npm ci} dijalankan karena inisialisasi lokal sebelumnya menggunakan \textit{package manager} \texttt{pnpm}. Setelah dilakukan perbaikan pada \textit{feature branch} dan di-\textit{push} melalui \textit{commit} \texttt{2d8407f} (\texttt{fix(ci): fix ci pipeline}), eksekusi \texttt{CI Pipeline \#3} pada \textit{branch} \texttt{feature/frontend} berhasil mencapai status \textit{passed} (indikator hijau) dalam waktu 33 detik. Pada eksekusi \textit{feature branch} maupun \textit{Pull Request} ini, hanya \textit{workflow} \texttt{CI Pipeline} yang dijalankan tanpa memicu proses \textit{deployment}.
+
+\subsection{Penerapan Continuous Deployment dan Publikasi Image ke GHCR (Soal 4)}
+
+\par Tahap keempat mengimplementasikan \textit{Continuous Deployment} (CD) yang melakukan \textit{build} \textit{container image} untuk \textit{backend} serta \textit{frontend}, lalu melakukan \textit{push} ke GitHub Container Registry (\texttt{ghcr.io}) hanya ketika perubahan kode telah resmi di-\textit{merge} ke \textit{main branch} \texttt{main}. Agar \textit{runner} GitHub Actions memiliki izin untuk mempublikasikan \textit{package} ke \texttt{ghcr.io} menggunakan \texttt{GITHUB\_TOKEN}, konfigurasi perizinan pada menu \texttt{Settings -> Actions -> General} disesuaikan terlebih dahulu sebagaimana ditunjukkan pada Gambar \ref{fig:konfigurasi-workflow-permissions}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/konfigurasi-workflow-permissions.png}
+  \caption{Pengaturan Workflow Permissions Menjadi Read and Write Permissions pada Repository GitHub}
+  \label{fig:konfigurasi-workflow-permissions}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:konfigurasi-workflow-permissions}, opsi pada bagian \textit{Workflow permissions} diubah menjadi \textit{Read and write permissions} dan disimpan. Selain pengaturan izin token tersebut, konfigurasi sensitif seperti \texttt{APP\_KEY} dan \texttt{DB\_PASSWORD} disimpan secara terenkripsi pada fitur \textit{GitHub Secrets} melalui menu \texttt{Settings -> Secrets and variables -> Actions} dan sama sekali tidak ditulis di dalam kode sumber \textit{repository}.
+
+\par Konfigurasi lengkap \textit{workflow} \textit{Continuous Deployment} didefinisikan secara terpisah pada berkas \texttt{.github/workflows/deploy.yml} sebagaimana disajikan pada Kode \ref{lst:deploy-yml}.
+
+\lstinputlisting[language=yaml, caption={[Konfigurasi Workflow Continuous Deployment (\texttt{deploy.yml})]{Otomasi Build dan Push Image Backend serta Frontend ke GHCR Khusus untuk Branch \texttt{main}}}, label={lst:deploy-yml}]{resource/Code/deploy.yml}
+
+\par Berdasarkan Kode \ref{lst:deploy-yml}, arsitektur \textit{Continuous Deployment} dirancang untuk memenuhi seluruh kriteria spesifikasi ujian sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Pembatasan Trigger Khusus Branch \texttt{main}}: Baris 3--5 menetapkan \textit{trigger} \texttt{on: push: branches: ['main']}. Pemisahan ini menjamin bahwa aktivitas pada \textit{Pull Request}, \textit{branch} \texttt{dev}, maupun \textit{feature branch} hanya mengeksekusi \textit{job} pengujian dan \textit{build} pada \texttt{ci.yml} lalu berhenti, sedangkan \textit{job} \texttt{deploy} hanya berjalan saat perubahan kode masuk ke \textit{branch} \texttt{main}.
+  \item \textbf{Injeksi GitHub Secrets}: Pada baris 14--16, nilai \texttt{APP\_KEY} dan \texttt{DB\_PASSWORD} dari fitur \textit{GitHub Secrets} disuntikkan ke dalam \textit{environment variable} \textit{workflow}, kemudian ketersediaannya diverifikasi pada \textit{step} baris 21--33 tanpa mencetak nilai rahasia tersebut ke dalam \textit{workflow log} publik.
+  \item \textbf{Image Tagging Berbasis Nomor Commit SHA}: Baris 42--50 mengubah nama pemilik \textit{repository} menjadi huruf kecil (\texttt{REPO\_OWNER}) serta mengambil nilai \textit{commit} SHA penuh (\texttt{\$\{\{ github.sha \}\}}) dan potongan 7 karakter awalnya (\texttt{SHORT\_SHA}). Nama \textit{image} kemudian dibentuk untuk \textit{package} \texttt{uts-backend} dan \texttt{uts-frontend} pada domain \texttt{ghcr.io} dengan menyematkan \textit{tag} variabel \texttt{\$\{COMMIT\_TAG\}} tersebut, sehingga tidak bergantung pada \textit{tag} \texttt{latest}.
+  \item \textbf{Build dan Push Kedua Container Image}: Baris 52--78 mengeksekusi \textit{command} \texttt{docker build} menggunakan berkas \texttt{backend/Dockerfile} dan \texttt{frontend/Dockerfile}, lalu melakukan \textit{push} kedua \textit{image} beserta \textit{label} metadata OCI ke \textit{registry} \texttt{ghcr.io} melalui \textit{command} \texttt{docker push}.
+\end{enumerate}
+
+\par Bukti keberhasilan eksekusi \textit{workflow} \texttt{Continuous Deployment} saat \textit{Pull Request} dari \textit{branch} \texttt{dev} di-\textit{merge} ke \textit{branch} \texttt{main} ditunjukkan pada Gambar \ref{fig:cd-workflow-deploy-hijau}, sedangkan bukti ketersediaan kedua \textit{package image} pada halaman \textit{Packages} GitHub ditunjukkan pada Gambar \ref{fig:publikasi-packages-ghcr}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/cd-workflow-deploy-hijau.png}
+  \caption{Eksekusi Workflow Continuous Deployment yang Berhasil Mencapai Status Success pada Branch \texttt{main}}
+  \label{fig:cd-workflow-deploy-hijau}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:cd-workflow-deploy-hijau}, proses \textit{merge} \textit{Pull Request} ke \textit{branch} \texttt{main} pada \textit{commit} \texttt{8172957} memicu eksekusi \textit{workflow} \texttt{deploy.yml}. \textit{Job} \texttt{Deploy Docker Images to GHCR} berhasil diselesaikan dengan status \textbf{Success} dalam durasi total 1 menit 52 detik, yang menandakan bahwa proses autentikasi GHCR, \textit{multi-stage build} untuk kedua \textit{service}, serta \textit{push} seluruh \textit{image layer} berlangsung tanpa kendala.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/publikasi-packages-ghcr.png}
+  \caption{Halaman Packages GitHub yang Menampilkan Publikasi Image \texttt{uts-backend} dan \texttt{uts-frontend}}
+  \label{fig:publikasi-packages-ghcr}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:publikasi-packages-ghcr}, halaman daftar \textit{Packages} pada akun GitHub yang difilter untuk proyek \texttt{uts-pl-24-538699-SV-24524} memperlihatkan dua \textit{container package} yang telah dipublikasikan, yaitu \textbf{\texttt{uts-backend}} dan \textbf{\texttt{uts-frontend}}. Kedua \textit{package} tersebut terhubung langsung ke \textit{repository} proyek dan menyimpan versi \textit{image} ber-\textit{tag} nomor \textit{commit} sesuai hasil eksekusi \textit{pipeline} CD.
+
+\subsection{Perancangan Dockerfile Multi-Stage dan Optimasi Layer Cache (Soal 5)}
+
+\par Untuk mengemas aplikasi \textit{backend} dan \textit{frontend} ke dalam \textit{container image} yang ramping, aman, dan efisien saat proses \textit{build}, dirancang berkas \texttt{Dockerfile} beserta \texttt{.dockerignore} di masing-masing direktori \textit{service}. Konfigurasi lengkap \texttt{backend/Dockerfile} disajikan pada Kode \ref{lst:backend-dockerfile}, diikuti oleh berkas \texttt{backend/.dockerignore} pada Kode \ref{lst:backend-dockerignore}.
+
+\lstinputlisting[language=dockerfile, caption={[Konfigurasi Dockerfile Backend Laravel (\texttt{backend/Dockerfile})]{Arsitektur Multi-Stage Build Backend Menggunakan FrankenPHP 1 PHP 8.4 Alpine}}, label={lst:backend-dockerfile}]{resource/Code/backend-dockerfile}
+
+\par Berdasarkan Kode \ref{lst:backend-dockerfile}, konfigurasi \texttt{Dockerfile} untuk \textit{service backend} menerapkan arsitektur \textit{multi-stage build} dengan mengunci versi \textit{base image} secara spesifik pada rilis FrankenPHP 1 berbasis PHP 8.4 Alpine (\texttt{1-php8.4-alpine}) tanpa menggunakan \textit{tag} \texttt{latest}. Pada \textit{stage} pertama (\texttt{builder}, baris 5--29), biner Composer disalin dari \textit{image} resmi Composer versi 2, kemudian berkas \texttt{composer.json} dan \textit{lockfile} \texttt{composer.lock} disalin terlebih dahulu pada baris 13 untuk diinstal menggunakan opsi \texttt{--no-dev} sebelum seluruh kode sumber aplikasi disalin pada baris 25. Urutan instruksi ini mengoptimalkan mekanisme \textit{layer caching} karena perubahan pada kode PHP tidak akan memicu pengunduhan ulang \textit{package} Composer selama berkas \textit{lockfile} tidak berubah. Selanjutnya pada \textit{stage} kedua (\texttt{runner}, baris 37--71), sistem menginstal ekstensi PHP esensial (meliputi modul \texttt{pdo\_mysql}, \texttt{gd}, \texttt{intl}, \texttt{zip}, \texttt{bcmath}, \texttt{opcache}, dan \texttt{curl}), menyalin direktori aplikasi dari \textit{stage} \texttt{builder}, menetapkan kepemilikan direktori ke \textit{non-root user} \texttt{www-data}, serta mendeklarasikan instruksi \texttt{HEALTHCHECK} tanpa menyimpan \textit{secret key} atau \textit{password} apa pun di dalam berkas \texttt{Dockerfile}.
+
+\lstinputlisting[language={}, caption={[Konfigurasi Dockerignore Backend (\texttt{backend/.dockerignore})]{Daftar Direktori dan Berkas Sensitif yang Dikecualikan dari Build Context Backend}}, label={lst:backend-dockerignore}]{resource/Code/backend-dockerignore}
+
+\par Berdasarkan Kode \ref{lst:backend-dockerignore}, berkas \texttt{backend/.dockerignore} mengecualikan direktori lokal \texttt{vendor}, riwayat \texttt{.git}, seluruh berkas \textit{environment} \texttt{.env} dan \texttt{.env.*}, serta berkas \textit{log} dan \textit{cache} lokal pada \texttt{storage/} dan \texttt{bootstrap/cache/*.php}. Pengecualian ini menjaga ukuran \textit{build context} tetap minimal sekaligus mencegah masuknya berkas konfigurasi lokal ke dalam \textit{image layer}.
+
+\par Berikutnya, konfigurasi \texttt{Dockerfile} pada direktori \texttt{frontend} untuk \textit{service} berbasis Vue.js ditampilkan pada Kode \ref{lst:frontend-dockerfile}, diikuti berkas \texttt{.dockerignore} pada Kode \ref{lst:frontend-dockerignore}, serta konfigurasi \textit{web server} Nginx pada Kode \ref{lst:nginx-conf}.
+
+\lstinputlisting[language=dockerfile, caption={[Konfigurasi Dockerfile Frontend Vue.js (\texttt{frontend/Dockerfile})]{Multi-Stage Build Frontend dari Node.js 24 Alpine ke Nginx 1.27 Alpine}}, label={lst:frontend-dockerfile}]{resource/Code/frontend-dockerfile}
+
+\par Berdasarkan Kode \ref{lst:frontend-dockerfile}, \texttt{frontend/Dockerfile} memisahkan secara tegas \textit{build environment} Node.js dan \textit{runtime environment} Nginx. \textit{Stage} pertama (\texttt{FROM node:24-alpine AS builder}, baris 5--26) menyalin berkas \texttt{package.json} dan \texttt{pnpm-lock.yaml} terlebih dahulu guna memanfaatkan \textit{layer cache}, menginstal \textit{dependency} ke dalam \texttt{node\_modules}, menerima \textit{build argument} \texttt{VITE\_API\_URL=/api}, dan mengeksekusi \textit{production build} (\texttt{pnpm run build}) yang menghasilkan \textit{static assets} di direktori \texttt{/app/dist}. \textit{Stage} kedua (\texttt{FROM nginx:1.27-alpine AS runner}, baris 33--52) menggunakan \textit{base image} Nginx Alpine, menginstal \textit{package} \texttt{curl} untuk mendukung \texttt{healthcheck}, menyalin konfigurasi \texttt{nginx.conf}, serta hanya menyalin artefak \texttt{/app/dist} ke direktori \texttt{/usr/share/nginx/html} (baris 42). Dengan pola ini, biner Node.js, \textit{package manager}, kode sumber TypeScript, serta direktori \texttt{node\_modules} sama sekali tidak ikut masuk ke dalam \textit{final image}.
+
+\lstinputlisting[language={}, caption={[Konfigurasi Dockerignore Frontend (\texttt{frontend/.dockerignore})]{Pengecualian Direktori \texttt{node\_modules}, \texttt{dist}, dan Berkas Environment pada Frontend}}, label={lst:frontend-dockerignore}]{resource/Code/frontend-dockerignore}
+
+\par Berdasarkan Kode \ref{lst:frontend-dockerignore}, berkas \texttt{.dockerignore} pada direktori \texttt{frontend} berfungsi mengecualikan folder \textit{dependency} lokal \texttt{node\_modules}, direktori hasil \textit{build} \texttt{dist}, direktori \texttt{.git}, serta seluruh berkas \texttt{.env} agar tidak ikut terkirim ke dalam \textit{build context}.
+
+\lstinputlisting[language={}, caption={[Konfigurasi Web Server dan Reverse Proxy Nginx (\texttt{frontend/nginx.conf})]{Pengaturan SPA Routing Vue Router dan Reverse Proxy \texttt{/api/} ke Service Backend}}, label={lst:nginx-conf}]{resource/Code/nginx.conf}
+
+\par Berdasarkan Kode \ref{lst:nginx-conf}, berkas \texttt{frontend/nginx.conf} menjalankan dua fungsi arsitektural utama. Pertama, pada blok \texttt{location /} (baris 26--28), diterapkan direktif \texttt{try\_files \$uri \$uri/ /index.html;} agar seluruh \textit{route} seperti \texttt{/dashboard} atau \texttt{/penanggung-jawab} pada \textit{client-side routing} Vue Router selalu diarahkan ke berkas \texttt{index.html} tanpa memicu \textit{error} \texttt{404 Not Found}. Kedua, pada blok \texttt{location /api/} (baris 16--23), diterapkan mekanisme \textit{reverse proxy} melalui direktif \texttt{proxy\_pass http://backend:80/api/;} yang meneruskan setiap \textit{API request} dari \textit{browser} langsung menuju \textit{container service} \texttt{backend} menggunakan resolusi DNS internal pada \textit{network} Compose.
+
+\subsection{Orkestrasi Multi-Container dengan Podman Compose dan Persistensi Data (Soal 6)}
+
+\par Berkas orkestrasi \texttt{compose.yml} beserta berkas \textit{template} \texttt{.env.example} dirancang pada \textit{root repository} agar seluruh komponen sistem dapat dijalankan secara terintegrasi melalui satu \textit{command} tunggal. Berkas \texttt{.env} yang menyimpan kredensial aktual didaftarkan ke dalam berkas \texttt{.gitignore} agar tidak ikut ter-\textit{commit} ke \textit{repository}. Isi lengkap berkas \texttt{compose.yml} disajikan pada Kode \ref{lst:compose-yml}, sedangkan isi berkas \texttt{.env.example} ditampilkan pada Kode \ref{lst:env-example}.
+
+\lstinputlisting[language=yaml, caption={[Konfigurasi Orkestrasi Multi-Container (\texttt{compose.yml})]{Definisi Empat Service (\texttt{db}, \texttt{phpmyadmin}, \texttt{backend}, \texttt{frontend}), Bridge Network \texttt{kepl}, dan Named Volume}}, label={lst:compose-yml}]{resource/Code/compose.yml}
+
+\par Berdasarkan Kode \ref{lst:compose-yml}, orkestrasi sistem mendefinisikan empat \textit{service} yang saling terhubung di dalam satu \textit{bridge network} khusus bernama \texttt{kepl} (baris 91--93):
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Service Database (\texttt{db} / \texttt{uts-kepl-mysql})}: Menggunakan \textit{image} MySQL dengan penyimpanan persisten yang dipasang pada \textit{named volume} \texttt{kepl\_mysql\_data:/var/lib/mysql:Z} (baris 11) dan konfigurasi \texttt{healthcheck} berbasis \textit{command} \texttt{mysqladmin ping}. Penggunaan \textit{named volume} \texttt{kepl\_mysql\_data} menjamin bahwa seluruh data yang telah tersimpan tetap utuh meskipun \textit{container} dihentikan dan dihapus melalui \textit{command} \texttt{podman compose down} lalu dijalankan kembali dengan \texttt{podman compose up -d}.
+  \item \textbf{Service Database Management (\texttt{phpmyadmin} / \texttt{uts-kepl-phpmyadmin})}: Terhubung ke \textit{service database} melalui \textit{environment variable} \texttt{PMA\_HOST: db} dan \texttt{PMA\_PORT: 3306} pada \textit{network} internal \texttt{kepl}.
+  \item \textbf{Service Backend (\texttt{backend})}: \textit{Container} bernama \texttt{uts-kepl-backend} ini di-\textit{build} dari berkas \texttt{Dockerfile} pada direktori \texttt{backend} dan baru dijalankan setelah \textit{service} \texttt{db} mencapai status \texttt{healthy} (\texttt{condition: service\_healthy}, baris 60). Koneksi \textit{database} dikonfigurasi menggunakan nama \textit{service} internal \texttt{DB\_HOST: db} dan \texttt{DB\_PORT: 3306} (baris 52--53), bukan menggunakan alamat IP mesin \textit{host}. Kredensial seperti \texttt{APP\_KEY}, \texttt{DB\_DATABASE}, \texttt{DB\_USERNAME}, dan \texttt{DB\_PASSWORD} diinjeksi secara dinamis dari berkas \texttt{.env}.
+  \item \textbf{Service Frontend (\texttt{frontend})}: \textit{Container} \texttt{uts-kepl-frontend} ini di-\textit{build} dari berkas \texttt{Dockerfile} pada direktori \texttt{frontend} dengan \textit{build argument} \texttt{VITE\_API\_URL} bernilai \texttt{/api}, menunggu kesiapan \textit{service} \texttt{backend}, serta menerapkan \texttt{healthcheck} periodik melalui utilitas \texttt{curl}.
+\end{enumerate}
+
+\lstinputlisting[language=bash, caption={[Template Environment Variable (\texttt{.env.example})]{Contoh Konfigurasi Environment Variable dan Kredensial Database untuk Orkestrasi Compose}}, label={lst:env-example}]{resource/Code/env.example}
+
+\par Berdasarkan Kode \ref{lst:env-example}, berkas \texttt{.env.example} menyediakan \textit{template} \textit{environment variable} yang diperlukan oleh sistem, meliputi identitas aplikasi, pengaturan \textit{host database} (\texttt{DB\_HOST=db}), nama skema \textit{database} (\texttt{DB\_DATABASE=uts-kepl}), hingga pemetaan \textit{port} eksternal pada mesin \textit{host} untuk masing-masing \textit{service container}.
+
+\par Proses \textit{build} dan pengaktifan seluruh \textit{container} dijalankan melalui satu \textit{command} \texttt{podman compose up -d}, dengan \textit{output} terminal yang disajikan pada Kode \ref{lst:compose-up}. Setelah seluruh \textit{container} aktif, proses \textit{database migration} dan \textit{seeding} dieksekusi di dalam \textit{container} \texttt{uts-kepl-backend} melalui \textit{command} \texttt{php artisan migrate --seed} sebagaimana terekam pada Kode \ref{lst:migrate-log}.
+
+\lstinputlisting[language={}, caption={[Log Eksekusi Podman Compose Up (\texttt{compose-up.txt})]{Cuplikan Output Multi-Stage Build dan Pengaktifan Empat Service Container}}, label={lst:compose-up}]{resource/Code/compose-up.txt}
+
+\par Berdasarkan Kode \ref{lst:compose-up}, Podman Compose mengeksekusi tahapan \textit{multi-stage build} untuk \textit{service} \texttt{frontend} dan \texttt{backend} secara berurutan dengan memanfaatkan \textit{layer cache}, memberikan \textit{tag} pada kedua \textit{image} lokal, serta menjalankan keempat \textit{service container} (\texttt{uts-kepl-mysql}, \texttt{uts-kepl-phpmyadmin}, \texttt{uts-kepl-backend}, dan \texttt{uts-kepl-frontend}).
+
+\lstinputlisting[language={}, caption={[Log Eksekusi Database Migration dan Seeding (\texttt{migrate.txt})]{Output Eksekusi \texttt{php artisan migrate --seed} di dalam Container Backend}}, label={lst:migrate-log}]{resource/Code/migrate.txt}
+
+\par Berdasarkan Kode \ref{lst:migrate-log}, \textit{container} \texttt{uts-kepl-backend} berhasil menjalin koneksi ke \textit{service} \texttt{db} di dalam \textit{network} \texttt{kepl}, mengeksekusi 14 berkas \textit{migration} secara berurutan hingga berstatus \texttt{DONE}, lalu menjalankan enam kelas \textit{seeder} utama untuk mengisi data awal pengguna, penanggung jawab, akun keuangan, riwayat riil, transaksi, serta mutasi rekening.
+
+\par Pemeriksaan status seluruh \textit{container} yang berjalan menggunakan \textit{command} \texttt{podman ps} disajikan pada Kode \ref{lst:podman-ps}.
+
+\lstinputlisting[language={}, caption={[Output Status Container Aktif (\texttt{podman-ps.txt})]{Hasil Eksekusi Command \texttt{podman ps} yang Menunjukkan Seluruh Service Berstatus Healthy}}, label={lst:podman-ps}]{resource/Code/podman-ps.txt}
+
+\par Berdasarkan Kode \ref{lst:podman-ps}, keempat \textit{container} berjalan secara serempak dan stabil. Indikator status \texttt{(healthy)} pada \textit{container} \texttt{uts-kepl-mysql}, \texttt{uts-kepl-backend}, dan \texttt{uts-kepl-frontend} membuktikan bahwa eksekusi \texttt{healthcheck} berkala melalui utilitas \texttt{mysqladmin ping} serta \texttt{curl} berhasil memperoleh \textit{response} valid dari masing-masing \textit{service}.
+
+\par Untuk membuktikan bahwa operasi \textit{login}, tampil data, tambah data, ubah data, dan hapus data dari aplikasi Vue.js di \textit{browser} benar-benar berjalan di atas \textit{container} dan tersimpan di \textit{database} MySQL, dilakukan pengujian langsung melalui \textit{web browser} sebagaimana didokumentasikan pada Gambar \ref{fig:pengujian-dashboard-setelah-login}, Gambar \ref{fig:pengujian-tambah-data}, Gambar \ref{fig:pengujian-ubah-data}, dan Gambar \ref{fig:pengujian-hapus-data}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/pengujian-dashboard-setelah-login.png}
+  \caption{Tampilan View Dashboard Keuangan pada Container Frontend Setelah Berhasil Login}
+  \label{fig:pengujian-dashboard-setelah-login}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pengujian-dashboard-setelah-login}, setelah pengguna melakukan \textit{login} menggunakan akun bendahara pada \textit{container frontend}, aplikasi berhasil menyimpan token Sanctum dan menampilkan halaman \textbf{Dashboard Keuangan}. Halaman ini menyajikan ringkasan total kas sebesar \texttt{Rp 1.303.500}, rincian saldo per pos rekening (\texttt{Cash Bila}, \texttt{Cash}, dan \texttt{Rekening}), tabel rekonsiliasi saldo riil harian yang berstatus \texttt{Sinkron}, serta riwayat arus kas harian yang seluruh datanya diambil dari \textit{container} Laravel \texttt{uts-kepl-backend} dan \textit{database} MySQL \texttt{uts-kepl-mysql}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/pengujian-tambah-data.png}
+  \caption{Pengujian Operasi Create Data Penanggung Jawab Baru Melalui Antarmuka Vue.js}
+  \label{fig:pengujian-tambah-data}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pengujian-tambah-data}, pengujian penambahan data dilakukan pada menu \textbf{Penanggung Jawab} dengan menekan tombol \texttt{+ Tambah Penanggung Jawab} dan mengisi nama lengkap \texttt{Budi} pada komponen \textit{modal}. Saat tombol \texttt{Simpan} ditekan, komponen Vue mengirimkan \textit{request} \texttt{POST /api/penanggung-jawab} melalui Axios yang diteruskan oleh \textit{reverse proxy} Nginx ke \textit{container backend} hingga tersimpan di \textit{database} MySQL.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/pengujian-ubah-data.png}
+  \caption{Pengujian Operasi Update Data Penanggung Jawab Melalui Antarmuka Vue.js}
+  \label{fig:pengujian-ubah-data}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pengujian-ubah-data}, pengujian pembaruan data dilakukan dengan menekan ikon edit pada entitas \texttt{Budi} yang baru saja ditambahkan, lalu mengubah nilainya menjadi \texttt{Budis} pada \textit{modal} \textbf{Ubah Penanggung Jawab}. Penekanan tombol \texttt{Simpan} memicu \textit{request} \texttt{PUT /api/penanggung-jawab/\{id\}} ke \textit{container} Laravel dan memperbarui baris data di MySQL secara langsung.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.8\textwidth]{resource/SS/pengujian-hapus-data.png}
+  \caption{Pengujian Operasi Delete Data Penanggung Jawab Beserta Dialog Konfirmasi}
+  \label{fig:pengujian-hapus-data}
+\end{figure}
+
+\par Berdasarkan Gambar \ref{fig:pengujian-hapus-data}, pada tabel tampak bahwa entitas nomor 4 telah berubah menjadi \texttt{Budis} sesuai hasil operasi \textit{update} sebelumnya. Selanjutnya, ketika ikon hapus ditekan pada baris \texttt{Budis}, aplikasi menampilkan dialog konfirmasi penghapusan dan mengeksekusi \textit{request} \texttt{DELETE /api/penanggung-jawab/\{id\}} ke \textit{container backend} sehingga data tersebut terhapus dari tabel tampilan. Pengujian siklus hidup \textit{container} dengan menjalankan \texttt{podman compose down} diikuti \texttt{podman compose up -d} juga mengonfirmasi bahwa seluruh perubahan data di MySQL tetap bertahan di dalam \textit{named volume} \texttt{kepl\_mysql\_data}.
+
+\subsection{Penerapan Application Server FrankenPHP pada Backend (Soal 7)}
+
+\par Sesuai ketentuan Soal 7, \textit{service backend} Laravel dijalankan menggunakan \textbf{FrankenPHP} sebagai \textit{application server}, menggantikan penggunaan \textit{development server} \texttt{php artisan serve} maupun kombinasi dua proses PHP-FPM dan Nginx. Sebagaimana tampak pada Kode \ref{lst:backend-dockerfile}, \textit{base image} \texttt{dunglas/frankenphp:1-php8.4-alpine} dikunci secara eksplisit tanpa menggunakan \textit{tag} \texttt{latest} dan dijalankan melalui instruksi \texttt{CMD ["frankenphp", "php-server", "--root", "public/"]}.
+
+\par Untuk membuktikan secara empiris bahwa \textit{API request} benar-benar dilayani oleh FrankenPHP di dalam orkestrasi \texttt{compose.yml}, dilakukan pengambilan \textit{runtime logs} dari \textit{container} \texttt{uts-kepl-backend} melalui \textit{command} \texttt{podman logs uts-kepl-backend} sebagaimana disajikan pada Kode \ref{lst:container-logs}.
+
+\lstinputlisting[language={}, caption={[Runtime Logs Container Backend FrankenPHP (\texttt{container-logs.txt})]{Bukti Log Container \texttt{uts-kepl-backend} yang Menunjukkan FrankenPHP dan Caddy Melayani Aplikasi}}, label={lst:container-logs}]{resource/Code/container-logs.txt}
+
+\par Berdasarkan Kode \ref{lst:container-logs}, rekaman \textit{log} berformat JSON dari \textit{container} \texttt{uts-kepl-backend} membuktikan secara nyata bahwa proses \textit{server} yang berjalan di dalam \textit{container} adalah FrankenPHP di atas \textit{web server} Caddy. Pada baris 6, \textit{logger} \texttt{frankenphp} menampilkan informasi bahwa FrankenPHP telah aktif menggunakan versi PHP \texttt{8.4.26} dengan dukungan 24 \textit{threads}. Selanjutnya pada baris 9 dan 10, komponen \texttt{http.log} mengonfirmasi bahwa \textit{web server} telah berjalan pada protokol HTTP dan menampilkan pesan \texttt{"msg":"Caddy serving PHP app on :80"}. Bukti \textit{log} ini mengonfirmasi bahwa seluruh \textit{HTTP request} yang masuk ke \textit{port} 80 pada \textit{container backend} ditangani secara langsung oleh \textit{application server} FrankenPHP.
+
+\subsection{Analisis Aliran Data End-to-End serta Kendala dan Solusi Teknis (Soal 8)}
+
+\subsubsection{Penjelasan Aliran Data End-to-End dari Vue.js ke Laravel hingga Database}
+
+\par Aliran data secara \textit{end-to-end} di dalam ekosistem \textit{multi-container} yang telah dibangun berlangsung melalui tahapan berurutan sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Inisiasi Request dari Komponen View Vue.js}: Saat pengguna berinteraksi pada halaman aplikasi di \textit{browser}, seperti menekan tombol \textit{login} atau menyimpan data baru, komponen \textit{view} pada folder \texttt{src/views/} akan memanggil fungsi \textit{service} asinkron di dalam direktori \texttt{src/services/}.
+  \item \textbf{Penyematan Token oleh Request Interceptor Axios}: Modul \textit{service} meneruskan pemanggilan ke instans \textit{HTTP client} Axios terpusat (\texttt{src/services/api.ts}). Sebelum paket HTTP keluar dari \textit{browser}, \textit{request interceptor} mengambil token Sanctum dari \texttt{localStorage}, menyematkan nilai \texttt{Bearer <token>} pada \textit{header} \texttt{Authorization}, lalu mengirimkan \textit{request} tersebut ke \textit{path} relatif \texttt{/api/...} sesuai konfigurasi \texttt{VITE\_API\_URL=/api}.
+  \item \textbf{Penerimaan dan Reverse Proxy pada Container Nginx}: \textit{HTTP request} diterima oleh \textit{container} \texttt{uts-kepl-frontend} yang menjalankan Nginx 1.27 Alpine. Karena URL \textit{request} diawali dengan \textit{prefix} \texttt{/api/}, konfigurasi pada berkas \texttt{nginx.conf} meneruskan paket data tersebut menggunakan mekanisme \textit{reverse proxy} menuju alamat internal \textit{service} \texttt{backend} pada \textit{port} 80 melalui \textit{bridge network} \texttt{kepl}.
+  \item \textbf{Pemrosesan Request oleh FrankenPHP dan Middleware Laravel}: DNS internal pada \textit{network} \texttt{kepl} meresolusi \textit{hostname} \texttt{backend} ke alamat IP \textit{container} \texttt{uts-kepl-backend}. \textit{Application server} FrankenPHP yang mendengarkan pada \textit{port} 80 menerima \textit{request} tersebut dan meneruskannya ke \textit{entry point} \texttt{public/index.php} milik Laravel 12. Kernel HTTP Laravel mengarahkan \textit{request} ke berkas \texttt{routes/api.php}, memverifikasi validitas \textit{Bearer token} melalui \textit{middleware} \texttt{auth:sanctum}, serta memeriksa otorisasi \textit{role} melalui \textit{middleware} \texttt{role:bendahara}.
+  \item \textbf{Validasi Input dan Eksekusi Eloquent ORM ke MySQL}: Setelah melewati lapisan \textit{middleware}, data \textit{request} divalidasi oleh kelas \textit{Form Request} (mengembalikan \textit{response} JSON \texttt{422} jika tidak valid) dan diproses oleh metode \textit{Controller}. \textit{Controller} memanggil \textit{model} Eloquent ORM yang membuka koneksi PDO ke \textit{container database} \texttt{uts-kepl-mysql} menggunakan \textit{hostname} \texttt{db} dan \textit{port} internal \texttt{3306}.
+  \item \textbf{Persistensi pada Named Volume dan Pengembalian Response JSON}: Mesin \textit{database} MySQL mengeksekusi \textit{query} SQL dan menyimpan perubahan data secara fisik ke dalam \textit{named volume} \texttt{kepl\_mysql\_data}. Hasil \textit{query} dikembalikan ke Eloquent ORM, diformat oleh \textit{Controller} menjadi \textit{payload} JSON terstandarisasi dengan \textit{HTTP status code} yang sesuai (\texttt{200 OK} atau \texttt{201 Created}), lalu dikirimkan kembali melewati FrankenPHP dan Nginx menuju Axios di \textit{browser} untuk memperbarui \textit{state} tampilan secara reaktif.
+\end{enumerate}
+
+\subsubsection{Kendala yang Ditemui dan Cara Mengatasinya}
+
+\par Selama proses pengembangan, \textit{containerization}, dan konfigurasi otomasi CI/CD, ditemukan empat kendala teknis utama beserta langkah penyelesaiannya sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Resolusi Internal Container Port vs Host Port pada Orkestrasi Compose}:\\
+        \textit{Kendala}: Pada mesin lokal, \textit{port} bawaan MySQL yaitu \texttt{3306} telah digunakan oleh \textit{service} lain sehingga pemetaan \textit{host port} pada \textit{service} \texttt{db} dialihkan ke \texttt{3307:3306}. Pada konfigurasi awal, \textit{environment variable} \texttt{DB\_PORT} dan \texttt{PMA\_PORT} sempat diisi dengan nilai \texttt{3307}, yang mengakibatkan \textit{service backend} maupun phpMyAdmin mengalami \textit{connection refused} saat menghubungi \textit{database}.\\
+        \textit{Cara Mengatasi}: Dilakukan pemisahan antara \textit{host port} eksternal dan \textit{container port} pada \textit{network} internal. Di dalam \textit{bridge network} \texttt{kepl}, \textit{container} MySQL tetap mendengarkan pada \textit{port} internal \texttt{3306}. Oleh karena itu, nilai \texttt{DB\_PORT} pada \textit{service} \texttt{backend} serta \texttt{PMA\_PORT} pada \textit{service} \texttt{phpmyadmin} dikembalikan ke \texttt{3306} dengan \texttt{DB\_HOST: db}, sedangkan pemetaan \texttt{3307:3306} hanya digunakan pada bagian \texttt{ports} untuk akses dari mesin \textit{host}.
+  \item \textbf{Ketiadaan Binary \texttt{curl} Bawaan pada Base Image \texttt{nginx:1.27-alpine}}:\\
+        \textit{Kendala}: Ketika konfigurasi \texttt{healthcheck} untuk \textit{container} \texttt{uts-kepl-frontend} ditambahkan pada berkas \texttt{compose.yml} menggunakan \textit{command} \texttt{curl -f http://localhost/}, status \textit{container} tersebut sempat menjadi \texttt{unhealthy} karena \textit{base image} minimalis Nginx Alpine belum menyertakan \textit{package} \texttt{curl} secara bawaan.\\
+        \textit{Cara Mengatasi}: Pada \textit{stage} \texttt{runner} di dalam berkas \texttt{frontend/Dockerfile}, ditambahkan instruksi instalasi \textit{package} \texttt{RUN apk add --no-cache curl} sebelum menyalin berkas konfigurasi Nginx. Setelah \textit{image} di-\textit{build} ulang, mekanisme \texttt{healthcheck} pada \textit{container frontend} berhasil berjalan normal dan mencapai status \texttt{healthy}.
+  \item \textbf{Kompatibilitas Lockfile antara \texttt{pnpm} Lokal dan \texttt{npm ci} pada GitHub Actions}:\\
+        \textit{Kendala}: Proyek \textit{frontend} diinisialisasi secara lokal menggunakan \textit{package manager} \texttt{pnpm} yang menghasilkan \textit{lockfile} \texttt{pnpm-lock.yaml}, sedangkan spesifikasi Soal 3 mewajibkan \textit{job} \texttt{frontend-build} pada GitHub Actions mengeksekusi \textit{command} \texttt{npm ci} yang mensyaratkan keberadaan berkas \texttt{package-lock.json}. Hal ini sempat menyebabkan status \textit{failed} pada eksekusi awal \textit{pipeline} CI.\\
+        \textit{Cara Mengatasi}: Pada berkas \textit{workflow} \texttt{ci.yml}, ditambahkan \textit{step} pemeriksaan awal sebelum proses instalasi \textit{dependency} dijalankan. Apabila berkas \textit{lockfile} standar npm belum tersedia di dalam direktori \texttt{frontend}, \textit{runner} akan men-generate berkas tersebut terlebih dahulu menggunakan \textit{command} \texttt{npm install} dengan \textit{flag} khusus pembuatan \textit{lockfile}, sehingga \textit{step} \texttt{npm ci} dan \texttt{npm run build} berikutnya dapat dieksekusi hingga mencapai status \textit{passed}.
+  \item \textbf{Konfigurasi Workflow Permissions dan Lowercase Image Name pada GHCR}:\\
+        \textit{Kendala}: Ketika \textit{workflow} \texttt{deploy.yml} dikonfigurasi untuk menjalankan proses \textit{push image} menuju \texttt{ghcr.io}, pihak \textit{registry} menolak \textit{request} \texttt{docker push} apabila \texttt{GITHUB\_TOKEN} hanya memiliki akses \textit{read-only} atau apabila nama pemilik \textit{repository} seperti \texttt{FauzanTrisuladana} masih memuat karakter huruf kapital.\\
+        \textit{Cara Mengatasi}: Pengaturan \textit{Workflow permissions} pada \textit{repository} GitHub diubah menjadi \textit{Read and write permissions}, ditambahkan deklarasi \texttt{permissions: packages: write} pada berkas \texttt{deploy.yml}, serta diterapkan normalisasi \textit{lowercase} menggunakan utilitas \texttt{tr '[:upper:]' '[:lower:]'} pada variabel pemilik \textit{repository} sebelum melakukan \textit{build} dan \textit{push image} ke GHCR.
+\end{enumerate}
 
 \section{Kesimpulan}
+
+\par Berdasarkan seluruh tahapan perancangan arsitektur, implementasi kode, konfigurasi otomasi CI/CD, \textit{multi-stage containerization}, hingga orkestrasi \textit{multi-container} yang telah dilaksanakan pada Ujian Tengah Semester (UTS) ini, dapat ditarik kesimpulan sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Integrasi Arsitektur Full-Stack RESTful API Laravel 12 dan SPA Vue.js 3}:\\
+        Sistem Informasi Akuntansi Pemuda berhasil diimplementasikan secara menyeluruh dengan memisahkan \textit{service backend} Laravel 12 dan \textit{frontend} Vue.js 3. Pengamanan seluruh \textit{endpoint} menggunakan \textit{Bearer token} Laravel Sanctum, standarisasi \textit{HTTP status code} (\texttt{200}, \texttt{201}, \texttt{401}, \texttt{422}), konfigurasi \textit{HTTP client} Axios berbasis \textit{environment variable} \texttt{VITE\_API\_URL}, serta pengujian otomatis melalui \textit{feature test} memastikan komunikasi data antara \textit{client} dan \textit{server} berlangsung secara aman dan konsisten.
+  \item \textbf{Tata Kelola Repository Terproteksi dan Otomasi Quality Gate CI/CD}:\\
+        Penerapan \textit{branch protection ruleset} pada \textit{branch} \texttt{main} dan \texttt{dev} berhasil mencegah \textit{direct push} dan menegakkan kewajiban verifikasi melalui \textit{Pull Request}. Pemisahan berkas \textit{workflow} menjadi \texttt{ci.yml} (untuk pengujian \texttt{php artisan test} dan \textit{build} \texttt{npm run build} di seluruh \textit{branch}) serta \texttt{deploy.yml} (khusus untuk \textit{event} \texttt{push} pada \textit{branch} \texttt{main}) menjamin bahwa hanya kode yang telah lulus \textit{quality gate} yang di-\textit{build} menjadi \textit{container image} dan di-\textit{push} ke GitHub Container Registry (\texttt{ghcr.io}) menggunakan \textit{tag} nomor \textit{commit} SHA.
+  \item \textbf{Efisiensi Multi-Stage Build dan Performa Application Server FrankenPHP}:\\
+        Penyusunan berkas \texttt{Dockerfile} pada sisi \textit{backend} yang menggunakan \textit{base image} versi spesifik FrankenPHP 1 PHP 8.4 Alpine serta pada sisi \textit{frontend} yang memadukan \textit{stage} \texttt{builder} Node.js 24 Alpine dengan \textit{stage} \texttt{runner} Nginx 1.27 Alpine berhasil mengoptimalkan pemanfaatan \textit{layer cache}, mengeliminasi direktori \texttt{node\_modules} dari \textit{final image}, dan menerapkan isolasi \textit{non-root user} (\texttt{www-data}). Rekaman \textit{runtime logs} dari \textit{container backend} membuktikan bahwa aplikasi dilayani secara langsung oleh FrankenPHP dan Caddy pada \textit{port} 80.
+  \item \textbf{Keandalan Orkestrasi Podman Compose dan Kesiapan Live Deployment}:\\
+        Orkestrasi melalui berkas \texttt{compose.yml} berhasil menjalankan \textit{service} MySQL, phpMyAdmin, \textit{backend} Laravel, dan \textit{frontend} Vue.js dalam satu \textit{bridge network} \texttt{kepl} dengan dukungan pemantauan \texttt{healthcheck} otomatis dan persistensi data pada \textit{named volume} \texttt{kepl\_mysql\_data}. Selain berjalan penuh pada lingkungan \textit{container} lokal, seluruh sistem juga telah berhasil di-\textit{deploy} dan dapat diakses secara publik melalui \textit{production environment} \url{https://kepl.trisuladana.com}.
+\end{enumerate}
 
 \end{document}
