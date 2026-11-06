@@ -1,0 +1,21 @@
+$ podman compose start db
+Starting uts-kepl-mysql
+uts-kepl-mysql
+
+$ curl -i http://localhost:8007/health
+HTTP/1.1 200 OK
+Cache-Control: no-cache, private
+Content-Type: application/json
+Date: Fri, 06 Nov 2026 15:28:13 GMT
+Server: FrankenPHP Caddy
+X-Powered-By: PHP/8.4.27
+Content-Length: 260
+
+{"status":"healthy","timestamp":"2026-11-06T15:28:13+00:00","failed_components":[],"checks":{"database":{"status":"healthy","message":"Koneksi basis data berhasil terhubung"},"cache":{"status":"healthy","message":"Operasi baca/tulis cache berfungsi normal"}}}
+
+$ podman ps
+CONTAINER ID  IMAGE                                                COMMAND               CREATED         STATUS                   PORTS                    NAMES
+e59942053752  docker.io/library/mysql:latest                       mysqld                24 minutes ago  Up 58 seconds (healthy)  0.0.0.0:3307->3306/tcp   uts-kepl-mysql
+264020bc98ce  docker.io/library/phpmyadmin:latest                  apache2-foregroun...  24 minutes ago  Up 24 minutes            0.0.0.0:8082->80/tcp     uts-kepl-phpmyadmin
+8257b927ae86  localhost/uts-pl-24-538699-sv-24524_backend:latest   frankenphp php-se...  24 minutes ago  Up 24 minutes (healthy)  0.0.0.0:8007->80/tcp     uts-kepl-backend
+f476559f4b53  localhost/uts-pl-24-538699-sv-24524_frontend:latest  nginx -g daemon o...  24 minutes ago  Up 24 minutes (healthy)  0.0.0.0:3001->80/tcp     uts-kepl-frontend

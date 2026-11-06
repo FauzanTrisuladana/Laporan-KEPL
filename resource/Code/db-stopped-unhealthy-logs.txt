@@ -1,0 +1,7 @@
+$ podman compose logs backend | tail -n 15
+[backend] | [2026-11-06 15:26:08] local.ERROR: Pemeriksaan kesehatan sistem gagal (unhealthy) {"who":{"type":"system_healthcheck","client_ip":"::1"},"action":"GET /health","reason":"Komponen bermasalah: database","failed_components":["database"]}
+[backend] | [2026-11-06 15:26:14] local.ERROR: Pemeriksaan kesehatan sistem gagal (unhealthy) {"who":{"type":"system_healthcheck","client_ip":"::1"},"action":"GET /health","reason":"Komponen bermasalah: database","failed_components":["database"]}
+[backend] | [2026-11-06 15:26:19] local.ERROR: Pemeriksaan kesehatan sistem gagal (unhealthy) {"who":{"type":"system_healthcheck","client_ip":"::1"},"action":"GET /health","reason":"Komponen bermasalah: database","failed_components":["database"]}
+[backend] | [2026-11-06 15:26:25] local.ERROR: Pemeriksaan kesehatan sistem gagal (unhealthy) {"who":{"type":"system_healthcheck","client_ip":"::1"},"action":"GET /health","reason":"Komponen bermasalah: database","failed_components":["database"]}
+[backend] | [2026-11-06 15:26:29] local.ERROR: Pemeriksaan kesehatan sistem gagal (unhealthy) {"who":{"type":"system_healthcheck","client_ip":"10.89.0.4"},"action":"GET /health","reason":"Komponen bermasalah: database","failed_components":["database"]}
+[backend] | [2026-11-06 15:26:31] local.ERROR: Pemeriksaan kesehatan sistem gagal (unhealthy) {"who":{"type":"system_healthcheck","client_ip":"::1"},"action":"GET /health","reason":"Komponen bermasalah: database","failed_components":["database"]}

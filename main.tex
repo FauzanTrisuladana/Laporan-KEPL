@@ -12,14 +12,17 @@
 \usepackage{geometry}           % untuk margin
 \usepackage{setspace}           % untuk spasi baris
 \usepackage{fancyhdr}           % untuk header/footer
-\usepackage{hyperref}           % untuk link dan bookmark
-\usepackage{listings}           % untuk code Python
-\usepackage{xcolor}             % untuk warna
 \usepackage{float}              % untuk posisi gambar
+\usepackage{hyperref}           % untuk link dan bookmark
+\usepackage{listings}           % untuk code formatting
+\usepackage{xcolor}             % untuk warna
 \usepackage{tocloft}            % Untuk membuat daftar isi menampilkan "Bab 1. Pendahuluan" instead of "1. Pendahuluan",
 \usepackage{lipsum}             % untuk lorem ipsum
 \usepackage{indentfirst}        % untuk indent paragraf pertama
 \usepackage{enumitem}           % untuk kustomisasi penomoran list (A., B., dst)
+\usepackage{booktabs}           % untuk tabel profesional
+\usepackage{tabularx}           % untuk tabel auto-wrap dengan lebar presisi
+\usepackage{amsmath}            % untuk rumus matematika dan \text{}
 
 % Pengaturan layout
 \geometry{left=3cm, right=2cm, top=2cm, bottom=2cm}
@@ -40,8 +43,7 @@
 \titleformat{\chapter}[hang]
   {\normalfont\huge\bfseries\centering}{\chaptertitlename\ \thechapter.}{1em}{}
 
-% Format code Python
-% --- VS Code-like code style (dark) ---
+% Format code (VS Code-like dark theme)
 \definecolor{vscodeBg}{HTML}{1E1E1E}
 \definecolor{vscodeFg}{HTML}{D4D4D4}
 \definecolor{vscodeKeyword}{HTML}{569CD6}
@@ -50,9 +52,43 @@
 \definecolor{vscodeNumber}{HTML}{858585}
 \definecolor{vscodeRule}{HTML}{3C3C3C}
 
+\lstdefinelanguage{dockerfile}{
+  keywords={FROM, RUN, CMD, LABEL, MAINTAINER, EXPOSE, ENV, ADD, COPY, ENTRYPOINT, VOLUME, USER, WORKDIR, ARG, ONBUILD, STOPSIGNAL, HEALTHCHECK, SHELL, AS},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinelanguage{yaml}{
+  keywords={name, on, push, pull_request, branches, env, jobs, runs-on, permissions, contents, packages, steps, uses, with, run, id, tags, labels, services, image, container_name, restart, environment, volumes, ports, networks, healthcheck, test, interval, timeout, retries, start_period, depends_on, condition, build, context, dockerfile, args, defaults, working-directory, logging, driver, options},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  sensitive=false,
+  comment=[l]{\#},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstdefinelanguage{javascript}{
+  keywords={import, from, const, let, var, export, default, return, if, else, function, async, await, true, false, null, undefined},
+  keywordstyle=\color{vscodeKeyword}\bfseries,
+  sensitive=true,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{vscodeComment},
+  stringstyle=\color{vscodeString},
+  morestring=[b]',
+  morestring=[b]",
+  morestring=[b]`
+}
+
 \lstdefinestyle{vscode-dark}{
-  language=Python,
-  basicstyle=\ttfamily\small\color{vscodeFg},
+  basicstyle=\ttfamily\footnotesize\color{vscodeFg},
   backgroundcolor=\color{vscodeBg},
   keywordstyle=\color{vscodeKeyword}\bfseries,
   commentstyle=\color{vscodeComment},
@@ -66,10 +102,9 @@
   columns=fullflexible,
   keepspaces=true,
   tabsize=2,
-  xleftmargin=2cm,
-  xrightmargin=1cm,
-  captionpos=b,
-  morekeywords={np, pd, plt, sns, array, DataFrame, Series, read_csv, read_excel, head, tail, info, describe, plot, scatter, bar, hist, fit, predict, transform, merge, concat, groupby, drop, fillna, dropna, iloc, loc}
+  xleftmargin=1.5cm,
+  xrightmargin=0.5cm,
+  captionpos=b
 }
 
 \lstset{style=vscode-dark}
@@ -85,8 +120,8 @@
 }
 
 % Info dokumen
-\newcommand{\Pertemuan}{1}
-\newcommand{\Materi}{Git, Github, dan Github Actions}
+\newcommand{\Pertemuan}{6}
+\newcommand{\Materi}{Implementasi Structured Logging, Endpoint Healthcheck, dan Pembatasan Ukuran Log Container}
 \title{Laporan \\ Konstruksi dan Evolusi Perangkat Lunak\\
 Tugas \Pertemuan\\
 \Materi}
@@ -99,21 +134,18 @@ Tugas \Pertemuan\\
 
 \begin{document}
 
-% Jika ingin daftar pustaka muncul meskipun belum ada entri di ref.bib,
-% tambahkan entri BibTeX ke file ref.bib terlebih dulu.
-
 % Title Page
 \begin{titlingpage} 
   \begin{center}
 
-    \vspace{4cm}
+    \vspace{3.5cm}
     \begin{Large} 
       \textbf{\thetitle} \\
     \end{Large}
-    \vspace{2cm}
+    \vspace{1.8cm}
     
     \includegraphics[height=8cm]{resource/lambang ugm.png}\\ 
-    \vspace{2cm}
+    \vspace{1.8cm}
     
     \textbf{Disusun oleh:}\\[0.8em]
     \begin{minipage}{0.8\textwidth}
@@ -128,7 +160,7 @@ Tugas \Pertemuan\\
       \end{large}
     \end{minipage}
     
-    \vspace{2cm}
+    \vspace{1.8cm}
     \begin{Large}
       \textbf{Program Studi D-IV Teknologi Rekayasa Perangkat Lunak} \\
       \textbf{Departemen Teknik Elektro dan Informatika} \\
@@ -195,31 +227,173 @@ Tugas \Pertemuan\\
 % Daftar Listing
 \lstlistoflistings
 
-% --- Halaman Laporan Pertemuan (seperti contoh gambar) ---
-% Tidak pakai \chapter agar bisa menyatu dengan halaman sebelumnya.
+% --- Halaman Laporan Pertemuan ---
 \newpage
 \begin{center}
   \textbf{\LARGE Tugas \Pertemuan\\
   {[{\Materi}]}}
 \end{center}
 
-%contoh gambar dan kode
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.5\textwidth]{resource/contoh-gambar.png}
-%     \caption{Contoh Gambar}
-%     \label{fig:contoh-gambar}
-% \end{figure}
-
-% \begin{lstlisting}[language=php, caption={Contoh Kode Python}, label={lst:contoh-kode}]
-% def hello_world():
-%     print("Hello, World!")
-% \end{lstlisting}
-
 \section{Hasil dan Pembahasan}
 
-\par Sesuai dengan tujuan praktikum, berikut adalah hasil yang diperoleh dan pembahasan terkait materi yang telah dipelajari.
+\subsection{Identitas Repository, Feature Branch, dan Rangkaian Command Operasional}
+
+\par Praktikum Tugas 6 melanjutkan pengembangan pada \textit{repository} Ujian Tengah Semester (UTS) yaitu \textbf{Sistem Informasi Akuntansi Pemuda (Nogotirto V)} yang telah diorkestrasi menggunakan Compose. Fokus utama pada pengembangan tahap ini adalah peningkatan aspek \textit{observability} dan keandalan \textit{container} yang mencakup pengalihan \textit{log output} Laravel menuju \texttt{stdout}, penerapan \textit{structured log} berkonteks pada alur-alur kritikal tanpa membocorkan kredensial maupun data pribadi, penyediaan \textit{endpoint} \texttt{/health} untuk memverifikasi konektivitas \textit{database} serta \textit{cache} secara nyata, pemasangan mekanisme \texttt{healthcheck} dua arah pada \texttt{compose.yml}, hingga pembatasan ukuran \textit{container log} menggunakan parameter \texttt{max-size} dan \texttt{max-file}.
+
+\par Seluruh perubahan \textit{source code} dan konfigurasi \texttt{compose.yml} dikerjakan pada \textit{feature branch} baru bernama \texttt{feature/logging-healthcheck} dan telah di-\textit{commit} serta di-\textit{push} ke \textit{remote repository} GitHub dengan rincian metadata sebagai berikut:
+\begin{itemize}[leftmargin=*]
+  \item \textbf{URL Public Repository GitHub (Main)}:\\
+        {\footnotesize\url{https://github.com/FauzanTrisuladana/uts-pl-24-538699-SV-24524}}
+  \item \textbf{Nama Feature Branch Tugas 6}:\\
+        Cabang pengembangan \texttt{feature/logging-healthcheck} yang telah di-\textit{push} ke \textit{remote} \texttt{origin}.
+  \item \textbf{URL Live Deployment (Production Environment)}:\\
+        {\footnotesize\url{https://kepl.trisuladana.com}}
+  \item \textbf{Kredensial Login Pengujian untuk Dosen Pengampu}:
+        \begin{itemize}[leftmargin=*]
+          \item \textbf{Email}: \texttt{fauzantrisuladana@gmail.com}
+          \item \textbf{Password}: \texttt{password}
+          \item \textbf{Role}: \texttt{bendahara} (Akses penuh seluruh fitur CRUD)
+        \end{itemize}
+  \item \textbf{Direktori Bukti Rekaman Command Output}:\\
+        Folder \texttt{documentation/document/} di dalam \textit{repository} menyimpan seluruh rekaman \textit{command output} hasil pencatatan menggunakan utilitas \texttt{tee}.
+  \item \textbf{Penyesuaian Tooling Eksekusi}:\\
+        Orkestrasi \textit{multi-container} dieksekusi menggunakan \textbf{Podman Compose} (\texttt{podman compose} dan \texttt{podman ps}) melalui \textit{configuration file} bernama \texttt{compose.yml} yang mengikuti standar \textit{Compose Specification}.
+\end{itemize}
+
+\par Rangkaian \textit{command} terminal yang dieksekusi untuk melakukan \textit{rebuild container}, menguji \textit{endpoint} \texttt{/health}, mengambil \textit{structured log} dari \texttt{stdout}, mensimulasikan penghentian dan pemulihan \textit{service} \texttt{db}, serta memverifikasi konfigurasi \textit{logging} dirangkum pada Kode \ref{lst:perintah-p10}.
+
+\lstinputlisting[language=bash, caption={[Rangkaian Command Pengujian Observability (\texttt{perintah.sh})]{Daftar Command Eksekusi Podman Compose, Pemeriksaan Endpoint /health, dan Simulasi Kegagalan Database}}, label={lst:perintah-p10}]{resource/Code/perintah-p10.sh}
+\par Berdasarkan Kode \ref{lst:perintah-p10}, seluruh tahapan verifikasi dijalankan secara berurutan dan direkam secara langsung ke dalam direktori \texttt{documentation/document/} menggunakan \textit{pipe} \texttt{2>\&1 | tee}. Baris 1--5 menjalankan \texttt{podman compose up -d --build} dan \texttt{podman ps} untuk memastikan seluruh \textit{container} aktif dengan \textit{health status} bernilai \texttt{(healthy)}. Baris 7--11 menguji \textit{endpoint} \texttt{/health} pada \textit{port} \texttt{8007} menggunakan \texttt{curl -i} dan menarik \textit{log stream} melalui \texttt{podman compose logs backend}. Selanjutnya, baris 13--23 mensimulasikan skenario kegagalan \textit{database} dengan mengeksekusi \texttt{podman compose stop db}, lalu merekam \textit{HTTP response} \texttt{503} dari \texttt{/health}, perubahan kolom \texttt{STATUS} pada \texttt{podman ps} menjadi \texttt{(unhealthy)}, serta catatan \textit{error log} pada \textit{container} \texttt{backend}. Pada baris 25--35, \textit{service} \texttt{db} dinyalakan kembali menggunakan \texttt{podman compose start db} untuk membuktikan \textit{self-healing readiness} ke status \texttt{(healthy)}, kemudian ditutup pada baris 37--38 dengan inspeksi konfigurasi \texttt{LogConfig} melalui \texttt{podman inspect}.
+
+\par Daftar riwayat \textit{commit} hasil pengerjaan pada \textit{feature branch} ini ditampilkan pada Kode \ref{lst:git-log-p10}.
+
+\lstinputlisting[caption={[Riwayat Commit pada Branch \texttt{feature/logging-healthcheck}]{Catatan Commit Implementasi Structured Logging, Healthcheck, dan Dokumentasi Output}}, label={lst:git-log-p10}]{resource/Code/git-log-p10.txt}
+\par Berdasarkan Kode \ref{lst:git-log-p10}, seluruh perubahan diorganisasikan secara modular ke dalam empat \textit{commit} berformat \textit{Conventional Commits}. \textit{Commit} \texttt{ce4cecd} memuat perubahan konfigurasi \textit{channel} \texttt{stdout}, penambahan \textit{structured log} berkonteks pada \textit{controller} serta \textit{exception handler}, dan pembuatan \texttt{HealthController}. \textit{Commit} \texttt{8306e53} memperbarui \textit{file} \texttt{compose.yml}, \texttt{backend/Dockerfile}, dan \texttt{frontend/nginx.conf} untuk mendukung \texttt{healthcheck} serta pembatasan ukuran \textit{log}. \textit{Commit} \texttt{ea119c5} menambahkan \textit{feature test} \texttt{HealthAndLoggingTest.php}, sedangkan \textit{commit} \texttt{0520aa7} menyimpan seluruh \textit{file} bukti \textit{terminal output} di dalam direktori \texttt{documentation/document/}.
+
+\subsection{Konfigurasi Log Laravel Menuju Standard Output (stdout)}
+
+\par Secara bawaan, \textit{framework} Laravel mengarahkan pencatatan \textit{log} ke \textit{file} lokal di dalam \textit{container} pada \textit{path} \texttt{storage/logs/laravel.log}. Dalam arsitektur berbasis \textit{container}, penyimpanan \textit{log} ke dalam \textit{file} di dalam \textit{ephemeral container filesystem} menyulitkan proses \textit{log aggregation} dan berisiko memenuhi \textit{internal storage container}. Sesuai prinsip \textit{Twelve-Factor App}, aplikasi di dalam \textit{container} harus menulis seluruh peristiwa operasional sebagai \textit{unbuffered event stream} langsung menuju \texttt{stdout} agar dapat ditangkap dan dikelola oleh \textit{container runtime}. Konfigurasi pada \textit{file} \texttt{backend/config/logging.php} yang mengubah \textit{log stream} menuju \texttt{stdout} disajikan pada Kode \ref{lst:logging-stdout}.
+
+\lstinputlisting[language=PHP, caption={[Konfigurasi Channel \texttt{stdout} pada \texttt{config/logging.php}]{Pengaturan Default Log Channel Laravel Menuju \texttt{php://stdout} Menggunakan Monolog \texttt{StreamHandler}}}, label={lst:logging-stdout}]{resource/Code/logging-stdout.php}
+\par Berdasarkan Kode \ref{lst:logging-stdout}, nilai \texttt{default} pada konfigurasi \textit{logging} (baris 8) diubah dari \texttt{stack} berbasis \textit{file} menjadi \texttt{env('LOG\_CHANNEL', 'stdout')}. Demikian pula pada definisi \textit{channel} \texttt{stack} (baris 11--15), daftar \textit{sub-channel} bawaannya diarahkan ke \texttt{stdout}. Pada baris 17--26, \textit{channel} \texttt{stdout} dikonfigurasi memakai \textit{driver} \texttt{monolog} dan \textit{handler class} \texttt{StreamHandler} dari pustaka Monolog yang menulis langsung menuju \textit{stream} \texttt{php://stdout} serta memakai prosesor \texttt{PsrLogMessageProcessor} guna memformat \textit{structured context}. Di samping pengaturan pada \textit{file} \texttt{logging.php} di folder \texttt{config}, \textit{environment variable} \texttt{LOG\_CHANNEL=stdout} dan \texttt{LOG\_STACK=stdout} juga ditetapkan secara eksplisit pada \textit{file} \texttt{compose.yml} serta \texttt{.env.example}.
+
+\subsection{Implementasi Structured Logging dan Alasan Pemilihan Alur}
+
+\subsubsection{Implementasi Kode Structured Logging Tanpa Data Sensitif}
+
+\par Pencatatan \textit{log} yang efektif memerlukan struktur \textit{context} yang konsisten agar setiap peristiwa dapat ditelusuri secara cepat saat proses \textit{debugging} maupun \textit{security audit}. Pada sistem ini, setiap entri \textit{structured log} dienkapsulasi dengan tiga atribut \textit{context} wajib, yaitu \texttt{who} (identitas pengguna berupa \texttt{user\_id} dan \texttt{role}, atau tipe \texttt{guest}/\texttt{system\_healthcheck} beserta \texttt{client\_ip}), \texttt{action} (\textit{HTTP method} dan URI \textit{endpoint} yang diakses), serta \texttt{reason} (penjelasan penyebab terjadinya peristiwa). Implementasi potongan kode \textit{structured log} pada empat alur utama ditunjukkan pada Kode \ref{lst:structured-logging-snippets}.
+
+\lstinputlisting[language=PHP, caption={[Potongan Implementasi Structured Logging Berkonteks]{Penerapan \texttt{Log::info}, \texttt{Log::warning}, dan \texttt{Log::error} dengan Konteks \texttt{who}, \texttt{action}, dan \texttt{reason}}}, label={lst:structured-logging-snippets}]{resource/Code/structured-logging-snippets.php}
+\par Berdasarkan Kode \ref{lst:structured-logging-snippets}, pencatatan \textit{structured log} diimplementasikan menggunakan tiga \textit{log level} yang berbeda sesuai karakteristik peristiwa:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Alur Mutasi Data Entitas dan Autentikasi Berhasil (\texttt{Log::info})}:\\
+        Pada baris 2--10, operasi \texttt{store}, \texttt{update}, dan \texttt{destroy} pada setiap \textit{controller} entitas utama (\texttt{PenanggungJawabController}, \texttt{AkunController}, serta \texttt{TransaksiController}) maupun aksi autentikasi pada \texttt{AuthController} mencatat peristiwa sukses menggunakan \textit{level} \texttt{info}. \textit{Context} \texttt{who} hanya menyertakan \texttt{user\_id} dan \texttt{role}, sedangkan \texttt{reason} hanya memuat \textit{identifier} entitas (seperti \texttt{ID: 11}) tanpa menyertakan rincian data pribadi pengguna.
+  \item \textbf{Alur Kegagalan Autentikasi Login (\texttt{Log::warning})}:\\
+        Pada baris 12--22 di dalam \texttt{AuthController}, apabila kombinasi kredensial tidak valid, sistem mencatat peringatan dengan \textit{level} \texttt{warning}. Untuk mematuhi aturan keamanan informasi, nilai \texttt{email} mentah, \texttt{password}, maupun \texttt{token} sama sekali tidak dicatat ke dalam \textit{log}; \textit{context} \texttt{who} hanya merekam \texttt{type: guest} dan alamat \texttt{client\_ip}.
+  \item \textbf{Alur Kegagalan Validasi Input (\texttt{Log::warning})}:\\
+        Pada baris 24--30 di dalam \textit{file} \texttt{exceptions.php} pada direktori \texttt{backend/bootstrap}, penanganan \texttt{ValidationException} secara terpusat mencatat setiap kegagalan validasi dengan \textit{level} \texttt{warning}. Atribut \texttt{invalid\_fields} hanya mengekstrak nama \textit{field key} yang gagal melalui \texttt{array\_keys(\$errors)} sehingga nilai \textit{input} pengguna (yang berpotensi memuat \textit{password} atau data sensitif) tidak pernah tertulis ke dalam \textit{log}.
+  \item \textbf{Alur Kegagalan Koneksi dan Query Database (\texttt{Log::error})}:\\
+        Pada baris 32--39 di dalam \textit{file} \texttt{exceptions.php} pada direktori \texttt{backend/bootstrap}, penanganan \texttt{QueryException} dan \texttt{PDOException} mencatat kegagalan komunikasi \textit{database} menggunakan \textit{level} \texttt{error} lengkap dengan pesan teknis \textit{exception} pada atribut \texttt{reason} dan nama \textit{exception class} pada \texttt{exception}.
+\end{enumerate}
+
+\par Bukti nyata bahwa seluruh \textit{structured log} tersebut keluar melalui \texttt{stdout} dan dapat dibaca langsung menggunakan \textit{command} \texttt{podman compose logs backend} ditampilkan pada Kode \ref{lst:structured-logs-stdout}.
+
+\lstinputlisting[caption={[Potongan Output Structured Log dari \texttt{podman compose logs backend}]{Bukti Keluaran Log Laravel pada \texttt{stdout} Container Lengkap dengan Konteks JSON}}, label={lst:structured-logs-stdout}]{resource/Code/structured-logs-stdout.txt}
+\par Berdasarkan Kode \ref{lst:structured-logs-stdout}, baris 1--2 menampilkan \textit{startup log} dari FrankenPHP dan Caddy pada \textit{port} \texttt{80}, diikuti oleh \textit{stream structured log} Laravel pada baris 3--6 yang langsung tercetak ke \texttt{stdout} \textit{container} \texttt{backend}. Baris 3 dan 4 membuktikan pencatatan berlevel \texttt{local.INFO} ketika pengguna dengan \texttt{user\_id: 34} (\texttt{role: bendahara}) berhasil melakukan autentikasi \textit{login} ke \textit{endpoint} \texttt{/api/auth/login} dan menyimpan data baru pada \textit{endpoint} \texttt{/api/penanggung-jawab}. Selanjutnya, baris 5 memperlihatkan catatan \textit{level} \texttt{WARNING} saat validasi \textit{field} \texttt{nama} gagal (tercatat di dalam atribut \texttt{invalid\_fields}), sedangkan baris 6 merekam peringatan atas percobaan \textit{login} yang gagal dari alamat \texttt{client\_ip: 10.89.0.4}. Seluruh rekaman tersebut terbukti bebas dari atribut \texttt{password}, \texttt{token}, maupun data pribadi.
+
+\subsubsection{Alasan Singkat Pemilihan Tiap Alur yang Diberi Log}
+
+\par Pemilihan alur-alur yang dipasangi \textit{structured log} didasarkan pada tingkat kekritisan operasional, kebutuhan \textit{audit trail}, serta kecepatan deteksi gangguan pada aplikasi manajemen keuangan:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Alur Mutasi Data Keuangan dan Penanggung Jawab (\texttt{INFO})}:\\
+        Dipilih karena aplikasi ini mengelola pembukuan kas organisasi, sehingga setiap operasi penambahan, pembaruan, maupun penghapusan data pada entitas \texttt{Transaksi}, \texttt{Akun}, serta \texttt{PenanggungJawab} berdampak langsung pada posisi saldo keuangan. Pencatatan \textit{context} \texttt{who} (\texttt{user\_id} dan \texttt{role}) serta \texttt{action} memastikan adanya akuntabilitas dan kemampuan telusur apabila ditemukan selisih pembukuan.
+  \item \textbf{Alur Autentikasi Masuk/Keluar dan Percobaan Login Gagal (\texttt{INFO} \& \texttt{WARNING})}:\\
+        Dipilih karena \textit{endpoint} autentikasi merupakan gerbang keamanan utama menuju fitur manajemen keuangan. Pencatatan keberhasilan \textit{login} dengan \textit{level} \texttt{INFO} memetakan \textit{session} aktif pengguna, sedangkan pencatatan kegagalan \textit{login} dengan \textit{level} \texttt{WARNING} beserta \texttt{client\_ip} sangat penting untuk mendeteksi dini anomali keamanan seperti percobaan \textit{credential stuffing} atau serangan \textit{brute-force} tanpa membocorkan kredensial yang diuji.
+  \item \textbf{Alur Kegagalan Validasi Input pada Endpoint API (\texttt{WARNING})}:\\
+        Dipilih karena kegagalan validasi dengan \textit{HTTP status code} \texttt{422} yang berulang pada suatu \textit{endpoint} menandakan adanya ketidaksinkronan kontrak data antara \textit{form} di sisi \textit{frontend} Vue.js dan aturan validasi di sisi \textit{backend} Laravel, atau adanya kesalahan pengisian yang sering dialami pengguna. Dengan mencatat daftar nama \textit{field} yang gagal pada \texttt{invalid\_fields}, pengembang dapat segera mengidentifikasi bagian \textit{form} yang bermasalah tanpa melanggar privasi data \textit{input}.
+  \item \textbf{Alur Kegagalan Koneksi Database dan Endpoint Healthcheck (\texttt{ERROR})}:\\
+        Dipilih karena sistem manajemen akuntansi bergantung sepenuhnya pada ketersediaan \textit{relational database} MySQL dan \textit{cache storage}. Ketika koneksi \textit{database} terputus atau \textit{query} gagal dieksekusi, sistem tidak dapat melayani transaksi pengguna. Pencatatan otomatis pada \textit{level} \texttt{ERROR} yang merinci komponen yang gagal (\texttt{failed\_components}) maupun \textit{PDO error code} (\texttt{SQLSTATE}) memungkinkan proses \textit{root cause analysis} dilakukan secara instan melalui \texttt{podman compose logs}.
+\end{enumerate}
+
+\subsection{Implementasi Endpoint \texttt{/health} untuk Pemeriksaan Database dan Cache}
+
+\par Untuk memastikan pemantauan \textit{health status} pada \textit{service} tidak sekadar mengembalikan teks statis, dibuat \textit{controller} khusus bernama \texttt{HealthController} yang mengeksekusi \textit{active probing} terhadap dua dependensi infrastruktur utama aplikasi, yaitu koneksi \textit{database} MySQL dan mekanisme baca-tulis \textit{cache}. \textit{Source code} pada \textit{file} \texttt{HealthController.php} di dalam direktori \texttt{backend/app/Http/Controllers} ditampilkan pada Kode \ref{lst:health-controller}.
+
+\lstinputlisting[language=PHP, caption={[Implementasi \texttt{HealthController.php} dan Route \texttt{/health}]{Pemeriksaan Aktif Koneksi Database dan Operasi Baca/Tulis Cache dengan Respons HTTP 200 atau 503}}, label={lst:health-controller}]{resource/Code/health-controller.php}
+\par Berdasarkan Kode \ref{lst:health-controller}, \textit{method} \texttt{check} melaksanakan dua pengujian berurutan di dalam blok \texttt{try-catch} terpisah agar kegagalan pada satu komponen tetap terisolasi dan terlaporkan secara spesifik:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Pemeriksaan Konektivitas Database (Baris 18--31)}:\\
+        Sistem memanggil \texttt{DB::connection()->getPdo()} guna membuka koneksi ke \textit{server} MySQL yang diikuti eksekusi \textit{query} ringan \texttt{SELECT 1} melalui \texttt{DB::select()}. Apabila koneksi berhasil, komponen \texttt{database} ditandai berstatus \texttt{healthy}. Sebaliknya, apabila terjadi \textit{exception} (misalnya \textit{container} \texttt{db} mati), \textit{string} \texttt{'database'} dimasukkan ke dalam \textit{array} \texttt{\$failedComponents} dan pesan kegagalan koneksi dicatat pada bagian \texttt{checks.database}.
+  \item \textbf{Pemeriksaan Operasi Baca dan Tulis Cache (Baris 34--58)}:\\
+        Sistem membuat \textit{probe key} acak sementara beserta nilai unik dari fungsi \texttt{microtime}, menyimpannya ke dalam \textit{cache} selama 10 detik melalui \textit{method} \texttt{put} pada \textit{facade} \texttt{Cache}, membaca kembali nilainya melalui \textit{method} \texttt{get}, lalu menghapusnya dengan \textit{method} \texttt{forget}. Komponen \texttt{cache} hanya dinyatakan \texttt{healthy} apabila nilai yang dibaca kembali sama persis dengan nilai yang ditulis.
+  \item \textbf{Penentuan Status Code dan Pencatatan Log Error (Baris 60--78)}:\\
+        Variabel \texttt{\$isHealthy} bernilai \texttt{true} hanya apabila \textit{array} \texttt{\$failedComponents} kosong. Apabila seluruh komponen berstatus \texttt{healthy}, \textit{endpoint} mengembalikan \textit{HTTP status code} \texttt{200 OK}; namun jika terdapat minimal satu komponen yang bermasalah, \textit{endpoint} mencatat \textit{structured log} berlevel \texttt{ERROR} (baris 64--69) dan mengembalikan \textit{HTTP status code} \texttt{503 Service Unavailable} beserta daftar komponen yang gagal pada atribut \texttt{failed\_components}.
+  \item \textbf{Pelepasan Middleware Session pada Route \texttt{/health} (Baris 82)}:\\
+        Pada \textit{file} \texttt{web.php} di dalam direktori \texttt{backend/routes}, \textit{route} \texttt{GET /health} didaftarkan dengan memanggil \textit{method} \texttt{withoutMiddleware('web')}. Langkah ini krusial karena grup \textit{middleware} \texttt{web} secara bawaan mengeksekusi \texttt{StartSession} yang bergantung pada pengaturan \texttt{SESSION\_DRIVER} berbasis \texttt{database}. Dengan melepaskan \textit{middleware} tersebut, \textit{endpoint} \texttt{/health} berjalan secara \textit{stateless} dan tetap dapat mengembalikan \textit{JSON response} berstatus \texttt{503} secara akurat saat \textit{container} \texttt{db} dihentikan.
+\end{enumerate}
+
+\subsection{Konfigurasi Healthcheck dan Pembatasan Ukuran Log pada \texttt{compose.yml}}
+
+\par Agar \textit{container runtime} dapat memantau \textit{health status} aplikasi secara berkala sekaligus menjaga agar \textit{log file} tidak menghabiskan ruang penyimpanan \textit{host}, \textit{file} \texttt{compose.yml} dilengkapi dengan blok \texttt{healthcheck} serta pengaturan \textit{log rotation} pada bagian \texttt{logging} di setiap \textit{service}. Konfigurasi tersebut ditampilkan pada Kode \ref{lst:compose-p10}.
+
+\lstinputlisting[language=yaml, caption={[Konfigurasi \texttt{healthcheck} dan \texttt{logging} pada \texttt{compose.yml}]{Pemasangan Parameter \texttt{interval}, \texttt{timeout}, \texttt{retries}, \texttt{start\_period} serta Pembatasan Log \texttt{max-size} dan \texttt{max-file}}}, label={lst:compose-p10}]{resource/Code/compose-p10.yml}
+\par Berdasarkan Kode \ref{lst:compose-p10}, pada \textit{service} \texttt{backend} (baris 35--40) dipasang konfigurasi \texttt{healthcheck} yang mengeksekusi \textit{command} \texttt{["CMD", "curl", "-f", "http://localhost/health"]} di dalam \textit{container}. \textit{Flag} \texttt{-f} (\texttt{--fail}) pada \texttt{curl} memastikan bahwa ketika \textit{endpoint} \texttt{/health} mengembalikan \textit{HTTP status code} \texttt{503}, \textit{command} \texttt{curl} keluar dengan \textit{non-zero exit code} (\texttt{22}) sehingga Podman mencatat hasil \textit{probe} tersebut sebagai kegagalan. Keempat parameter waktu dikonfigurasi secara lengkap, yaitu \texttt{interval: 5s} (pemeriksaan dilakukan setiap 5 detik), \texttt{timeout: 5s} (batas waktu tunggu \textit{response} maksimal 5 detik), \texttt{retries: 3} (status berubah menjadi \texttt{unhealthy} setelah 3 kali gagal berturut-turut), serta \texttt{start\_period: 10s} (masa tenggang inisialisasi awal \textit{container}). Selain itu, pada seluruh \textit{service} (\texttt{db}, \texttt{phpmyadmin}, \texttt{backend}, dan \texttt{frontend}) diterapkan blok \texttt{logging} menggunakan \textit{driver} \texttt{json-file} dengan opsi \texttt{max-size: "10m"} dan \texttt{max-file: "3"} untuk membatasi ukuran maksimal tiap \textit{log file} sebesar 10 MB dengan penyimpanan maksimal 3 \textit{file} hasil \textit{log rotation}.
+
+\par Hasil verifikasi terhadap konfigurasi batas ukuran \textit{log} pada \textit{container} serta eksekusi \textit{feature test} melalui \texttt{php artisan test} ditunjukkan pada Kode \ref{lst:logging-config}.
+
+\lstinputlisting[caption={[Verifikasi \texttt{LogConfig} Container dan Eksekusi Feature Test]{Hasil Pemeriksaan \texttt{podman inspect} (\texttt{Size: 10MB}) dan Kelulusan 47 Feature Test pada \texttt{backend}}}, label={lst:logging-config}]{resource/Code/logging-config.txt}
+\par Berdasarkan Kode \ref{lst:logging-config}, baris 1--2 menampilkan hasil inspeksi metadata \texttt{HostConfig.LogConfig} pada \textit{container} \texttt{uts-kepl-backend} yang mengonfirmasi penggunaan tipe \textit{driver} \texttt{json-file} dengan batas ukuran \texttt{"Size":"10MB"}. Selanjutnya pada baris 4--19, eksekusi \textit{test suite} menggunakan \textit{command} \texttt{php artisan test} di dalam \textit{container} \texttt{uts-kepl-backend} membuktikan bahwa seluruh 47 \textit{feature test} (241 \textit{assertions}) berstatus \texttt{PASS}, termasuk tiga skenario pada kelas \texttt{HealthAndLoggingTest} untuk memvalidasi kode status \texttt{200} maupun \texttt{503} dari \textit{endpoint} \texttt{/health} sekaligus memastikan tidak adanya kebocoran \textit{password} atau \textit{token} di dalam \textit{structured log}.
+
+\subsection{Pengujian Healthcheck Dua Arah pada Container}
+
+\subsubsection{Kondisi Awal Saat Seluruh Service Berstatus Healthy}
+
+\par Setelah seluruh \textit{container} dijalankan melalui \textit{command} \texttt{podman compose up -d --build}, dilakukan pemeriksaan status menggunakan \texttt{podman ps} sebagaimana disajikan pada Kode \ref{lst:podman-ps-healthy}.
+
+\lstinputlisting[caption={[Output \texttt{podman ps} Saat Seluruh Container Berstatus \texttt{healthy}]{Kolom \texttt{STATUS} Menunjukkan Nilai \texttt{(healthy)} pada Container \texttt{mysql}, \texttt{backend}, dan \texttt{frontend}}}, label={lst:podman-ps-healthy}]{resource/Code/podman-ps-healthy.txt}
+\par Berdasarkan Kode \ref{lst:podman-ps-healthy}, ketiga \textit{container} utama yang dilengkapi mekanisme \texttt{healthcheck}, yaitu \texttt{uts-kepl-mysql} (baris 3), \texttt{uts-kepl-backend} (baris 5), dan \texttt{uts-kepl-frontend} (baris 6), menampilkan status \texttt{Up ... (healthy)} pada kolom \texttt{STATUS}. Hal ini membuktikan bahwa \textit{probe} \texttt{curl -f http://localhost/health} di dalam \textit{container} \texttt{backend} berhasil menerima \textit{response} sukses secara konsisten.
+
+\par Rincian \textit{HTTP header} dan isi \textit{JSON response} dari \textit{endpoint} \texttt{/health} pada kondisi \texttt{healthy} ditampilkan pada Kode \ref{lst:health-200-healthy}.
+
+\lstinputlisting[caption={[Balasan Endpoint \texttt{/health} Saat Kondisi \texttt{healthy} (\texttt{200 OK})]{Respons JSON Menunjukkan Status \texttt{healthy} pada Pemeriksaan \texttt{database} dan \texttt{cache}}}, label={lst:health-200-healthy}]{resource/Code/health-200-healthy.txt}
+\par Berdasarkan Kode \ref{lst:health-200-healthy}, \textit{request} \texttt{curl -i http://localhost:8007/health} menerima \textit{status code} \texttt{HTTP/1.1 200 OK} dari \textit{server} \texttt{FrankenPHP Caddy}. Isi \textit{JSON body} memuat \texttt{"status": "healthy"}, \textit{array} \texttt{"failed\_components": []} yang kosong, serta status \texttt{healthy} baik pada komponen \texttt{database} maupun \texttt{cache}.
+
+\subsubsection{Simulasi Mematikan Service Database dan Bukti Transisi ke Unhealthy}
+
+\par Untuk menguji kerja \texttt{healthcheck} secara dua arah, \textit{service} \texttt{db} dimatikan secara sengaja menggunakan \textit{command} \texttt{podman compose stop db}. Setelah menunggu melewati ambang batas \texttt{interval} (5 detik) dikalikan \texttt{retries} (3 kali percobaan), dilakukan pemeriksaan kembali menggunakan \texttt{podman ps} sebagaimana ditunjukkan pada Kode \ref{lst:db-stopped-unhealthy-ps}.
+
+\lstinputlisting[caption={[Output \texttt{podman ps} Setelah Service \texttt{db} Dimatikan]{Kolom \texttt{STATUS} pada Container \texttt{uts-kepl-backend} Berubah Menjadi \texttt{(unhealthy)}}}, label={lst:db-stopped-unhealthy-ps}]{resource/Code/db-stopped-unhealthy-ps.txt}
+\par Berdasarkan Kode \ref{lst:db-stopped-unhealthy-ps}, baris 1--3 menunjukkan proses penghentian \textit{container} \texttt{uts-kepl-mysql} secara sengaja. Pada daftar \texttt{podman ps} di baris 5--9, \textit{container} \texttt{uts-kepl-mysql} sudah tidak lagi berjalan, dan kolom \texttt{STATUS} pada \textit{container} \texttt{uts-kepl-backend} (baris 8) terbukti berubah dari \texttt{(healthy)} menjadi \texttt{Up 22 minutes (unhealthy)}.
+
+\par Hasil pemanggilan \textit{endpoint} \texttt{/health} ketika \textit{service} \texttt{db} sedang mati disajikan pada Kode \ref{lst:health-503-unhealthy}.
+
+\lstinputlisting[caption={[Balasan Endpoint \texttt{/health} Saat Service \texttt{db} Mati (\texttt{503 Service Unavailable})]{Respons JSON Menyebutkan Komponen \texttt{database} Bermasalah pada \texttt{failed\_components}}}, label={lst:health-503-unhealthy}]{resource/Code/health-503-unhealthy.txt}
+\par Berdasarkan Kode \ref{lst:health-503-unhealthy}, pemanggilan \textit{endpoint} \texttt{/health} menghasilkan \textit{status code} \texttt{503 Service Unavailable} (baris 2). Di dalam \textit{JSON payload} (baris 9--24), atribut \texttt{status} berubah menjadi \texttt{"unhealthy"} dan atribut \texttt{failed\_components} secara eksplisit menyebutkan \texttt{["database"]} sebagai bagian yang bermasalah. Pada objek \texttt{checks}, komponen \texttt{database} berstatus \texttt{"unhealthy"} disertai alasan teknis \texttt{SQLSTATE[HY000] [2002] php\_network\_getaddresses: getaddrinfo for db failed}, sementara komponen \texttt{cache} tetap dilaporkan \texttt{"healthy"} karena menggunakan \textit{file storage} yang tidak bergantung pada MySQL.
+
+\par Selain perubahan status pada \texttt{podman ps} dan \textit{HTTP response} \texttt{503}, \textit{log stream} pada \textit{container} \texttt{backend} juga diperiksa untuk memastikan penyebab kegagalan tercatat dengan jelas, sebagaimana ditampilkan pada Kode \ref{lst:db-stopped-unhealthy-logs}.
+
+\lstinputlisting[caption={[Rekaman Log Container \texttt{backend} Saat Service \texttt{db} Mati]{Structured Log Berlevel \texttt{ERROR} Mencatat Kegagalan Healthcheck pada Komponen \texttt{database}}}, label={lst:db-stopped-unhealthy-logs}]{resource/Code/db-stopped-unhealthy-logs.txt}
+\par Berdasarkan Kode \ref{lst:db-stopped-unhealthy-logs}, setiap eksekusi \textit{probe} berkala dari mekanisme \texttt{healthcheck} dengan alamat \texttt{::1} maupun pengujian manual dari \textit{host} (\texttt{10.89.0.4}) menghasilkan catatan \textit{structured log} berlevel \texttt{local.ERROR} pada \texttt{stdout}. Setiap baris \textit{log} memuat atribut \textit{context} \texttt{who}, aksi \texttt{GET /health} pada \texttt{action}, pesan penyebab pada \texttt{reason}, serta daftar komponen \texttt{database} pada \texttt{failed\_components}.
+
+\subsubsection{Pemulihan Service Database dan Kembalinya Status Healthy}
+
+\par Tahap pengujian terakhir adalah menyalakan kembali \textit{service} \texttt{db} menggunakan \textit{command} \texttt{podman compose start db} untuk membuktikan bahwa \textit{endpoint} \texttt{/health} dan \textit{health status} \textit{container} \texttt{backend} dapat pulih kembali ke kondisi \texttt{healthy} secara otomatis tanpa perlu melakukan \textit{restart} pada \textit{container} \texttt{backend}. Bukti pemulihan tersebut ditampilkan pada Kode \ref{lst:db-restarted-recovery}.
+
+\lstinputlisting[caption={[Bukti Pemulihan Service Setelah \texttt{podman compose start db}]{Kembalinya Respons \texttt{HTTP/1.1 200 OK} pada \texttt{/health} dan Status \texttt{(healthy)} pada \texttt{podman ps}}}, label={lst:db-restarted-recovery}]{resource/Code/db-restarted-recovery.txt}
+\par Berdasarkan Kode \ref{lst:db-restarted-recovery}, setelah \textit{container} \texttt{uts-kepl-mysql} dinyalakan kembali pada baris 1--3, pengujian \texttt{curl -i http://localhost:8007/health} pada baris 5--14 kembali mengembalikan \textit{status code} \texttt{HTTP/1.1 200 OK} dengan \texttt{"status":"healthy"} dan \texttt{"failed\_components":[]}. Selanjutnya, hasil pemeriksaan \texttt{podman ps} pada baris 16--21 membuktikan bahwa kolom \texttt{STATUS} pada \textit{container} \texttt{uts-kepl-mysql} maupun \texttt{uts-kepl-backend} telah kembali menjadi \texttt{(healthy)}. Dengan demikian, mekanisme \texttt{healthcheck} terbukti bekerja secara dua arah, baik ketika mendeteksi kegagalan dari status \texttt{healthy} ke \texttt{unhealthy} maupun saat mendeteksi pemulihan \textit{service} kembali menjadi \texttt{healthy}.
 
 \section{Kesimpulan}
+
+\par Berdasarkan seluruh tahapan implementasi dan pengujian \textit{observability} serta mekanisme \textit{healthcheck} yang telah dilaksanakan pada praktikum Tugas 6 ini, diperoleh kesimpulan sebagai berikut:
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Pengalihan Stream Log Laravel Menuju \texttt{stdout}}:\\
+        Konfigurasi \textit{default channel} pada \textit{file} \texttt{config/logging.php} di sisi \textit{backend} telah berhasil diarahkan ke \texttt{php://stdout} melalui \texttt{StreamHandler} Monolog. Melalui pengaturan tersebut, seluruh aktivitas aplikasi dapat dipantau secara langsung melalui \textit{command} \texttt{podman compose logs} tanpa menumpuk \textit{log file} di dalam \textit{internal filesystem container}.
+  \item \textbf{Penerapan Structured Logging Berkonteks dan Aman}:\\
+        Pencatatan \textit{structured log} dengan \textit{log level} yang tepat (\texttt{info} untuk mutasi data dan autentikasi berhasil, \texttt{warning} untuk kegagalan validasi \textit{input} dan kegagalan \textit{login}, serta \texttt{error} untuk kegagalan koneksi \textit{database} dan \texttt{healthcheck}) berhasil menyertakan \textit{context} lengkap (\texttt{who}, \texttt{action}, dan \texttt{reason}) sekaligus menjamin tidak adanya pencatatan \textit{password}, \textit{token}, maupun data pribadi pengguna.
+  \item \textbf{Verifikasi Nyata pada Endpoint \texttt{/health} dan Mekanisme Healthcheck Dua Arah}:\\
+        Implementasi \texttt{HealthController} pada \textit{endpoint} \texttt{/health} berhasil menguji koneksi \textit{database} (\texttt{SELECT 1}) serta operasi baca-tulis \textit{cache} secara aktual. Pengaturan \texttt{healthcheck} pada \texttt{compose.yml} lengkap dengan parameter \texttt{interval}, \texttt{timeout}, \texttt{retries}, dan \texttt{start\_period} terbukti mampu mengubah \textit{health status} \textit{container} \texttt{uts-kepl-backend} menjadi \texttt{unhealthy} (HTTP \texttt{503} dengan informasi komponen \texttt{database} yang gagal) saat \textit{service} \texttt{db} dimatikan, serta memulihkan statusnya kembali menjadi \texttt{healthy} (HTTP \texttt{200}) segera setelah \textit{service} \texttt{db} dinyalakan kembali.
+  \item \textbf{Pengendalian Ruang Penyimpanan Melalui Pembatasan Ukuran Log}:\\
+        Pemasangan konfigurasi \texttt{logging} dengan \textit{driver} \texttt{json-file} serta opsi \texttt{max-size: "10m"} dan \texttt{max-file: "3"} pada \texttt{compose.yml} berhasil menerapkan batasan ukuran dan \textit{log rotation} secara otomatis pada seluruh \textit{container} sebagaimana terverifikasi melalui \texttt{podman inspect}.
+\end{enumerate}
 
 \end{document}

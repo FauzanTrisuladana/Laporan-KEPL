@@ -1,0 +1,6 @@
+$ podman ps
+CONTAINER ID  IMAGE                                                COMMAND               CREATED         STATUS                   PORTS                    NAMES
+e59942053752  docker.io/library/mysql:latest                       mysqld                33 seconds ago  Up 32 seconds (healthy)  0.0.0.0:3307->3306/tcp   uts-kepl-mysql
+264020bc98ce  docker.io/library/phpmyadmin:latest                  apache2-foregroun...  33 seconds ago  Up 31 seconds            0.0.0.0:8082->80/tcp     uts-kepl-phpmyadmin
+8257b927ae86  localhost/uts-pl-24-538699-sv-24524_backend:latest   frankenphp php-se...  32 seconds ago  Up 26 seconds (healthy)  0.0.0.0:8007->80/tcp     uts-kepl-backend
+f476559f4b53  localhost/uts-pl-24-538699-sv-24524_frontend:latest  nginx -g daemon o...  32 seconds ago  Up 26 seconds (healthy)  0.0.0.0:3001->80/tcp     uts-kepl-frontend

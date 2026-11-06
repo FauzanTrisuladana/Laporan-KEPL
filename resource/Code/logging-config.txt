@@ -1,0 +1,19 @@
+$ podman inspect uts-kepl-backend --format '{{json .HostConfig.LogConfig}}'
+{"Type":"json-file","Config":null,"Path":"/home/fratsia/.local/share/containers/storage/overlay-containers/8257b927ae86ae1169af4cc1e51a5119c2eb1a50b427997991423b0c6c7e3978/userdata/ctr.log","Tag":"","Size":"10MB"}
+
+$ podman exec uts-kepl-backend php artisan test
+   PASS  Tests\Unit\ExampleTest
+   PASS  Tests\Feature\AkunTest
+   PASS  Tests\Feature\AuthTest
+   PASS  Tests\Feature\DashboardTest
+   PASS  Tests\Feature\ExampleTest
+   PASS  Tests\Feature\HealthAndLoggingTest
+  [OK] health endpoint returns 200 when database and cache are healthy
+  [OK] health endpoint returns 503 and logs error when database fails
+  [OK] structured logs are recorded for info warning and error flows without sensitive data
+   PASS  Tests\Feature\PenanggungJawabTest
+   PASS  Tests\Feature\PublikTest
+   PASS  Tests\Feature\TransaksiTest
+
+  Tests:    47 passed (241 assertions)
+  Duration: 2.34s

@@ -1,0 +1,6 @@
+[backend] | {"level":"info","ts":1793977478.610706,"logger":"frankenphp","msg":"FrankenPHP started","php_version":"8.4.27","total_threads":24}
+[backend] | {"level":"info","ts":1793977478.61187,"msg":"Caddy serving PHP app on :80"}
+[backend] | [2026-11-06 15:18:48] local.INFO: Pengguna berhasil login {"who":{"user_id":34,"role":"bendahara"},"action":"POST /api/auth/login","reason":"Kredensial valid dan token sesi berhasil diterbitkan"}
+[backend] | [2026-11-06 15:21:07] local.INFO: Berhasil menyimpan data penanggung jawab {"who":{"user_id":34,"role":"bendahara"},"action":"POST /api/penanggung-jawab","reason":"Penambahan entitas penanggung jawab baru (ID: 11)"}
+[backend] | [2026-11-06 15:21:07] local.WARNING: Validasi data gagal {"who":{"user_id":34,"role":"bendahara"},"action":"POST /api/penanggung-jawab","reason":"Field input tidak memenuhi aturan: nama","invalid_fields":["nama"]}
+[backend] | [2026-11-06 15:21:08] local.WARNING: Percobaan login gagal: kredensial tidak valid {"who":{"type":"guest","client_ip":"10.89.0.4"},"action":"POST /api/auth/login","reason":"Email tidak ditemukan atau password tidak cocok"}

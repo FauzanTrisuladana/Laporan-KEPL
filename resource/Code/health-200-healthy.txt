@@ -1,0 +1,24 @@
+$ curl -i http://localhost:8007/health
+HTTP/1.1 200 OK
+Cache-Control: no-cache, private
+Content-Type: application/json
+Date: Fri, 06 Nov 2026 15:12:26 GMT
+Server: FrankenPHP Caddy
+X-Powered-By: PHP/8.4.27
+Content-Length: 260
+
+{
+  "status": "healthy",
+  "timestamp": "2026-11-06T15:12:26+00:00",
+  "failed_components": [],
+  "checks": {
+    "database": {
+      "status": "healthy",
+      "message": "Koneksi basis data berhasil terhubung"
+    },
+    "cache": {
+      "status": "healthy",
+      "message": "Operasi baca/tulis cache berfungsi normal"
+    }
+  }
+}

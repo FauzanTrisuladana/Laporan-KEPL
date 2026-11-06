@@ -1,0 +1,26 @@
+$ curl -i http://localhost:8007/health
+HTTP/1.1 503 Service Unavailable
+Cache-Control: no-cache, private
+Content-Type: application/json
+Date: Fri, 06 Nov 2026 15:26:29 GMT
+Server: FrankenPHP Caddy
+X-Powered-By: PHP/8.4.27
+Content-Length: 370
+
+{
+  "status": "unhealthy",
+  "timestamp": "2026-11-06T15:26:29+00:00",
+  "failed_components": [
+    "database"
+  ],
+  "checks": {
+    "database": {
+      "status": "unhealthy",
+      "message": "Gagal terhubung ke basis data: SQLSTATE[HY000] [2002] php_network_getaddresses: getaddrinfo for db failed: Name has no usable address"
+    },
+    "cache": {
+      "status": "healthy",
+      "message": "Operasi baca/tulis cache berfungsi normal"
+    }
+  }
+}

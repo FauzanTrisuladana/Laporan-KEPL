@@ -1,0 +1,9 @@
+$ podman compose stop db
+Stopping uts-kepl-mysql
+uts-kepl-mysql
+
+$ podman ps
+CONTAINER ID  IMAGE                                                COMMAND               CREATED         STATUS                     PORTS                    NAMES
+264020bc98ce  docker.io/library/phpmyadmin:latest                  apache2-foregroun...  22 minutes ago  Up 22 minutes              0.0.0.0:8082->80/tcp     uts-kepl-phpmyadmin
+8257b927ae86  localhost/uts-pl-24-538699-sv-24524_backend:latest   frankenphp php-se...  22 minutes ago  Up 22 minutes (unhealthy)  0.0.0.0:8007->80/tcp     uts-kepl-backend
+f476559f4b53  localhost/uts-pl-24-538699-sv-24524_frontend:latest  nginx -g daemon o...  22 minutes ago  Up 22 minutes (healthy)    0.0.0.0:3001->80/tcp     uts-kepl-frontend

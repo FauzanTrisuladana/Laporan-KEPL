@@ -1,0 +1,7 @@
+$ git log --oneline -n 6
+0520aa7 (HEAD -> feature/logging-healthcheck, origin/feature/logging-healthcheck) docs(observability): rekam bukti output log stdout, healthcheck 200/503, dan rotasi log
+ea119c5 test(backend): tambah feature test healthcheck dan structured logging
+8306e53 feat(compose): pasang healthcheck lengkap dan pembatasan ukuran log max-size/max-file
+ce4cecd feat(backend): arahkan log ke stdout, tambah structured log berkonteks, dan endpoint /health
+f767fa3 (origin/main, origin/HEAD, main) Merge pull request #1 from FauzanTrisuladana/feature/transaksi-filter
+9bc0bb3 chore: hapus berkas duplikat docker-compose.yml karena sudah menggunakan compose.yml
